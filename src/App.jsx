@@ -162,21 +162,21 @@ function App() {
                         </tr>
                     </thead>
                     <tbody>
-                        {registrations.map((reg) => (
+                        {registrations.map((reg, index) => (
                             <tr
                                 key={reg.id}
                                 onClick={(e) => handleInspect(e, reg)}
                                 onContextMenu={(e) => handleInspect(e, reg)}
                                 style={{
                                     cursor: isDevMode ? 'help' : 'default',
-                                    // FORCE HIGH CONTRAST: Gray background, Black text always for rows
-                                    backgroundColor: '#E0E0E0',
-                                    color: '#000000',
-                                    borderBottom: '1px solid #999'
+                                    // DARK THEME HIGH CONTRAST (Zebra Striping)
+                                    backgroundColor: isDevMode ? '#003366' : (index % 2 === 0 ? '#1a1a1a' : '#2a2a2a'),
+                                    color: '#ffffff',
+                                    borderBottom: '1px solid #333333'
                                 }}
                                 title={isDevMode ? "Premi Ctrl + Clic (o Tasto Destro) per DNA" : ""}
                             >
-                                <td style={{ padding: '12px', fontWeight: 'bold' }}>{reg.nome}</td>
+                                <td style={{ padding: '12px', fontWeight: 'bold', color: '#fff' }}>{reg.nome}</td>
                                 <td style={{ padding: '12px' }}>{reg.cognome}</td>
                                 <td style={{ padding: '12px', color: '#0044cc' }}>{reg.email}</td>
                                 <td style={{ padding: '12px' }}>{reg.partner_name}</td>
