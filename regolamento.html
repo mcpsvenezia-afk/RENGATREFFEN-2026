@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Regolamento | Renga Treffen 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
@@ -13,53 +15,213 @@
 <body>
     <nav id="main-nav">
         <div class="nav-container">
-            <a href="/" class="logo">RENGA TREFFEN</a>
+            <a href="index.html" class="logo">RENGA TREFFEN</a>
             <ul class="nav-links">
                 <li><a href="index.html#home">Home</a></li>
                 <li><a href="contatti.html">Contatti</a></li>
-                <li><a href="index.html#iscrizioni">Iscrizioni</a></li>
-                <li><a href="index.html#regolamento">Regolamento</a></li>
+                <li><a href="iscrizioni.html">Iscrizioni</a></li>
+                <li><a href="regolamento.html" class="active">Regolamento</a></li>
                 <li><a href="index.html#team">Team 2026</a></li>
                 <li><a href="index.html#programma" class="nav-btn yellow">Time Table</a></li>
-                <li><a href="index.html#tutorial" class="nav-btn fucsia">Tutorials</a></li>
+                <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
             </ul>
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
-    <main style="padding-top: 100px;">
-        <section class="section">
+
+    <main>
+        <!-- HERO REGOLAMENTO -->
+        <section class="hero contact-hero">
+            <div class="hero-bg" style="background-image: url('regolamento_hero.png'); background-position: center;">
+            </div>
+            <div class="hero-overlay-gradient"></div>
+
+            <div class="container contact-container reveal">
+                <div class="contact-header-content">
+                    <h1 class="main-title">Renga Treffen 2026:</h1>
+                    <h2 class="sub-title">Caccia al Tesoro Motociclistica</h2>
+                    <p class="hero-intro">Il Renga Treffen 2026 è una caccia al tesoro motociclistica organizzata da
+                        <strong>Motoreporter</strong> in collaborazione con <strong>Fango Tours ASD</strong> e
+                        <strong>Moto Club Polizia di Stato</strong> delegazione di Vicenza.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTRO SECTION -->
+        <section class="section bg-midnight">
             <div class="container">
-                <h2 class="section-title">REGOLAMENTO 2026</h2>
-                <div class="rules-container glass reveal">
-                    <ul class="rules-bullets">
-                        <li><strong>Partecipanti:</strong> Squadre di due persone.</li>
-                        <li><strong>Scopo:</strong> Ludico e benefico, non competitivo.</li>
-                        <li><strong>Comportamento:</strong> Rispetto totale del Codice della Strada.</li>
-                        <li><strong>Percorso:</strong> Circa 110 km, partenza e arrivo dal territorio di Talmassons.
-                        </li>
-                        <li><strong>Navigazione:</strong> Roadbook digitale.</li>
-                        <li><strong>Veicoli:</strong> In regola con il Codice della Strada e muniti obbligatoriamente di
-                            ruote tassellate.</li>
-                        <li><strong>Equipaggiamento:</strong> Casco, guanti, giacca, pantaloni e protezioni specifiche
-                            off-road obbligatorie.</li>
-                        <li><strong>La quota include:</strong> Colazione (caffè+brioche), Pranzo (menù operai),
-                            Iscrizione Fango Tours, Assicurazione Base, Medaglia ricordo.</li>
-                        <li><strong>Caccia al tesoro:</strong> Individuare 4 foto su 6 (incluse 2 foto trabocchetto).
-                        </li>
-                        <li><strong>Responsabilità:</strong> Ogni squadra accetta il regolamento e assume la
-                            responsabilità per ogni comportamento.</li>
-                    </ul>
-                    <div class="rules-footer">
-                        <a href="/iscrizioni.html" class="cta-button primary">VAI ALLA PREISCRIZIONE</a>
+                <div class="intro-highlight reveal">
+                    <p class="big-text">L'evento si svolgerà il <strong class="text-gold">22 febbraio 2026</strong>.
+                        L'obiettivo è raccogliere fondi per <strong class="text-gold">MUSIC FOR LOVE</strong> per
+                        progetti legati al Secondo Memorial Antonio Armellin.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARATTERISTICHE EVENTO -->
+        <section class="section bg-midnight">
+            <div class="container">
+                <h2 class="section-title reveal light-title">Caratteristiche dell'Evento</h2>
+                <div class="rules-grid reveal">
+                    <div class="rule-card glass">
+                        <span class="rule-icon">👥</span>
+                        <h3>Partecipanti</h3>
+                        <p>Squadre di due persone.</p>
+                    </div>
+                    <div class="rule-card glass">
+                        <span class="rule-icon">🎯</span>
+                        <h3>Scopo</h3>
+                        <p>Ludico e benefico, non competitivo.</p>
+                    </div>
+                    <div class="rule-card glass">
+                        <span class="rule-icon">⚖️</span>
+                        <h3>Comportamento</h3>
+                        <p>Rispetto totale del Codice della Strada.</p>
+                    </div>
+                    <div class="rule-card glass">
+                        <span class="rule-icon">🛣️</span>
+                        <h3>Percorso</h3>
+                        <p>Circa 110 km, partenza e arrivo dal territorio di <strong>Talmassons</strong>.</p>
+                    </div>
+                    <div class="rule-card glass">
+                        <span class="rule-icon">📱</span>
+                        <h3>Navigazione</h3>
+                        <p>Roadbook digitale.</p>
+                    </div>
+                    <div class="rule-card glass">
+                        <span class="rule-icon">🏍️</span>
+                        <h3>Veicoli</h3>
+                        <p>In regola con il Codice della Strada con <strong>ruote tassellate</strong> obbligatorie.</p>
+                    </div>
+                    <div class="rule-card glass full-width">
+                        <span class="rule-icon">🦺</span>
+                        <h3>Equipaggiamento</h3>
+                        <p>I partecipanti devono indossare l'equipaggiamento di sicurezza obbligatorio per la guida in
+                            fuoristrada: casco, guanti, giacca, pantaloni e relative protezioni.</p>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- QUOTA ISCRIZIONE -->
+        <section class="section bg-golden-glow">
+            <div class="container">
+                <h2 class="section-title reveal dark-title">Quota di Iscrizione</h2>
+                <div class="price-cards reveal">
+                    <div class="price-card">
+                        <span class="price-badge">MOTO CLUB POLIZIA</span>
+                        <div class="price">€75<span>,00</span></div>
+                        <p>Per gli appartenenti al Moto Club Polizia di Stato</p>
+                    </div>
+                    <div class="price-card featured">
+                        <span class="price-badge">TUTTI GLI ALTRI</span>
+                        <div class="price">€85<span>,00</span></div>
+                        <p>Per tutti gli altri partecipanti</p>
+                    </div>
+                </div>
+                <div class="quota-includes reveal">
+                    <h3>La quota comprende:</h3>
+                    <ul class="check-list">
+                        <li>☕ <strong>Colazione</strong> (caffè + brioches)</li>
+                        <li>🍝 <strong>Pranzo</strong> (menù operai)</li>
+                        <li>🎫 <strong>Iscrizione a Fango Tours</strong> (con diritto a partecipare ad eventi senza
+                            rifare la tessera)</li>
+                        <li>🛡️ <strong>Assicurazione Base</strong> (per assicurazione superiore, contattare Fango)</li>
+                        <li>🏆 <strong>Premi</strong> per i primi classificati</li>
+                        <li>🥇 <strong>Medaglia ricordo</strong> per tutti i partecipanti</li>
+                    </ul>
+                </div>
+                <div class="quota-note reveal">
+                    <p>⚠️ La quota non è rimborsabile. L'evento si svolgerà anche in caso di pioggia. In caso di
+                        annullamento per condizioni meteo avverse (ALLERTA ROSSA della Protezione Civile), si terrà la
+                        domenica successiva.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SVOLGIMENTO -->
+        <section class="section bg-midnight">
+            <div class="container">
+                <h2 class="section-title reveal light-title">Svolgimento dell'Evento</h2>
+                <ul class="styled-list reveal">
+                    <li>Ogni squadra avrà un <strong>orario di partenza prestabilito</strong>.</li>
+                    <li>I partecipanti devono rispettare la <strong>Time Table</strong> pubblicata su questo sito.</li>
+                </ul>
+
+                <h3 class="sub-section-title reveal">Dinamica della Caccia al Tesoro</h3>
+                <div class="treasure-hunt-box glass reveal">
+                    <p class="highlight-text">L'obiettivo è individuare i luoghi dove sono state scattate alcune foto,
+                        <strong>replicandole con la stessa prospettiva</strong>, entro un tempo prestabilito utilizzando
+                        l'app indicata.
+                    </p>
+                </div>
+                <ul class="styled-list reveal">
+                    <li>Ogni squadra riceverà un foglio con le foto da trovare, riportante il nome della squadra, dei
+                        componenti e l'orario di partenza.</li>
+                    <li>Sul roadbook sarà indicato l'inizio e la fine di ogni segmento di caccia.</li>
+                    <li>Durante tutta la caccia al tesoro i team dovranno individuare <strong>4 foto su 6</strong> (vi
+                        saranno 2 foto trabocchetto).</li>
+                    <li>Nella pagina dei <a href="tutorials.html" class="text-link">tutorial</a> saranno disponibili
+                        esempi e suggerimenti sui programmi da utilizzare.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- RESPONSABILITÀ -->
+        <section class="section bg-midnight" style="padding-top: 0;">
+            <div class="container">
+                <h2 class="section-title reveal light-title">Responsabilità</h2>
+                <ul class="styled-list reveal">
+                    <li>Tutti i partecipanti devono essere <strong>maggiorenni</strong>.</li>
+                    <li>Con l'iscrizione, ogni squadra accetta il regolamento, assumendosi la responsabilità per
+                        comportamenti, incidenti o infrazioni al Codice della Strada. L'organizzazione declina ogni
+                        responsabilità per danni a persone o cose.</li>
+                </ul>
+
+                <h3 class="sub-section-title reveal">Trattamento dei Dati Personali</h3>
+                <div class="privacy-box glass reveal">
+                    <p>I dati personali saranno trattati ai sensi del <strong>D.L. 196 del 30.06.2003</strong>,
+                        esclusivamente per lo svolgimento della manifestazione.</p>
+                    <ul class="mini-list">
+                        <li>Il titolare del trattamento è <strong>FANGO TOURS ASD</strong>.</li>
+                        <li>I dati saranno gestiti da Fango Tours ASD per l'intera validità della tessera.</li>
+                        <li>I dati saranno utilizzati da <strong>MOTOREPORTER.IT</strong> solo per la gestione
+                            dell'evento.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA FINALE -->
+        <section class="section bg-golden-glow">
+            <div class="container" style="text-align: center;">
+                <h2 class="section-title reveal dark-title" style="border: none; text-align: center;">Contatti e
+                    Informazioni</h2>
+                <p class="reveal" style="font-size: 1.2rem; margin-bottom: 30px;">Per ulteriori dettagli potete
+                    contattare gli organizzatori.<br><strong>Vi aspettiamo per una giornata di divertimento e
+                        solidarietà!</strong></p>
+                <div class="cta-buttons reveal">
+                    <a href="contatti.html" class="cta-button secondary"
+                        style="color: #000; border-color: #000;">CONTATTACI</a>
+                    <a href="iscrizioni.html" class="cta-button primary">ISCRIVITI ORA</a>
+                </div>
+            </div>
+        </section>
+
     </main>
+
     <footer class="main-footer">
-        <p>&copy; 2026 Renga Treffen.</p>
+        <div class="container">
+            <p>&copy; 2026 Renga Treffen. Powered by MotoREPORTER & FANGO Tours.</p>
+        </div>
     </footer>
+
     <script type="module" src="/src/main.ts"></script>
-    <script type="module" src="/src/plugins/renga-dev-loader-v1.js"></script>
 </body>
 
 </html>

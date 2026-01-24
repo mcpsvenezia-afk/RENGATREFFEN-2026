@@ -1355,3 +1355,242 @@ textarea:focus {
     gap: 0;
   }
 }
+
+/* REGOLAMENTO PAGE STYLES */
+
+/* Intro Highlight */
+.intro-highlight {
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px;
+  background: var(--glass);
+  border-radius: 20px;
+  border: 1px solid var(--glass-border);
+}
+
+.big-text {
+  font-size: 1.4rem;
+  line-height: 1.8;
+  color: #fff;
+}
+
+.text-gold {
+  color: var(--primary-color);
+}
+
+/* Rules Grid */
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 2rem;
+}
+
+.rule-card {
+  padding: 30px;
+  text-align: center;
+  border-radius: 16px;
+  transition: transform 0.3s;
+}
+
+.rule-card:hover {
+  transform: translateY(-5px);
+}
+
+.rule-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.rule-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.rule-card h3 {
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.rule-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Price Cards */
+.price-cards {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-bottom: 50px;
+}
+
+.price-card {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 40px 50px;
+  border-radius: 20px;
+  text-align: center;
+  min-width: 280px;
+  border: 2px solid transparent;
+  transition: 0.3s;
+}
+
+.price-card.featured {
+  border-color: #000;
+  transform: scale(1.05);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.price-badge {
+  background: #000;
+  color: #FFD700;
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.price {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #000;
+  margin: 20px 0 10px;
+}
+
+.price span {
+  font-size: 1.5rem;
+}
+
+.price-card p {
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* Quota Includes */
+.quota-includes {
+  background: rgba(0, 0, 0, 0.15);
+  padding: 40px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+}
+
+.quota-includes h3 {
+  color: #000;
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.check-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.check-list li {
+  color: #000;
+  font-size: 1rem;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.quota-note {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 20px 30px;
+  border-radius: 12px;
+  border-left: 4px solid #000;
+}
+
+.quota-note p {
+  color: #000;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Styled Lists */
+.styled-list {
+  list-style: none;
+  padding: 0;
+  max-width: 800px;
+}
+
+.styled-list li {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  padding: 15px 0;
+  padding-left: 30px;
+  position: relative;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.styled-list li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.sub-section-title {
+  color: var(--secondary-color);
+  font-size: 1.4rem;
+  margin: 50px 0 20px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.treasure-hunt-box {
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  border-left: 4px solid var(--secondary-color);
+}
+
+.highlight-text {
+  font-size: 1.15rem;
+  line-height: 1.7;
+  color: #fff;
+}
+
+.text-link {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.privacy-box {
+  padding: 30px;
+  border-radius: 16px;
+}
+
+.privacy-box p {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.mini-list {
+  list-style: disc;
+  padding-left: 20px;
+}
+
+.mini-list li {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
