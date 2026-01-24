@@ -27,22 +27,31 @@ function App() {
     // Dev Mode State Switch
     const [isDevMode, setIsDevMode] = useState(false);
 
-    // UNIVERSAL_DEV_MODE_v1: Ctrl + Click to inspect
+    // UNIVERSAL_DEV_MODE_v1: Ctrl + Click to inspect & Copy JSON
     const handleInspect = (e, item) => {
-        if (!isDevMode) return; // Silent exit if Dev Mode is OFF
+        if (!isDevMode) return;
 
-        if (e.ctrlKey || e.metaKey) {
+        if (e.ctrlKey || e.metaKey || e.type === 'contextmenu') {
             e.preventDefault()
             e.stopPropagation()
-            console.log('--- DNA INSPECTOR ---')
+
+            console.group('🧬 DNA INSPECTOR (DATA)')
             console.log('Item DNA:', {
                 id: item.id || 'unknown-id',
-                base_plugin_id: 'blitz-registration-manager',
                 version: 'v1.0.0',
                 context: 'App.jsx Dashboard'
             })
             console.log('Raw Payload:', item)
-            alert(`🧬 DNA INSPECTOR ACTIVE\nID: ${item.id}\nCheck Console for full payload.`)
+            console.groupEnd()
+
+            // COPY JSON TO CLIPBOARD
+            const payload = JSON.stringify(item, null, 2);
+            navigator.clipboard.writeText(payload).then(() => {
+                alert(`🧬 JSON DATI COPIATO!\n\nPuoi incollarlo direttamente nella chat.\n\nID: ${item.id}`);
+            }).catch(err => {
+                console.error('Clipboard Error:', err);
+                alert('Errore copia clipboard. Vedi console.');
+            });
         }
     }
 
