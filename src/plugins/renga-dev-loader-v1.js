@@ -89,4 +89,42 @@
     container.appendChild(trigger);
     document.body.appendChild(container);
 
+    // Global Ctrl+Click Inspector (Universal Copy Engine)
+    document.addEventListener('click', (e) => {
+        // Se menu aperto e clicco fuori, non fare nulla di speciale a meno che non sia ctrl+click
+        if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const target = e.target;
+            // Risali al genitore se clicco su uno span/icona dentro un bottone
+            const element = target.closest('button, a, div.card, section') || target;
+            const code = element.outerHTML;
+
+            console.group('🧬 UNIVERSAL INSPECTOR HIT');
+            console.log('Target:', element);
+            console.log('Code:', code);
+            console.groupEnd();
+
+            // Visual feedback
+            const originalOutline = element.style.outline;
+            element.style.outline = '4px solid #FFCC00';
+            element.style.boxShadow = '0 0 20px #FFCC00';
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(code).then(() => {
+                setTimeout(() => {
+                    element.style.outline = originalOutline;
+                    element.style.boxShadow = '';
+                    alert(`🧬 CODICE COPIATO NEGLI APPUNTI!\n\nElemento: <${element.tagName.toLowerCase()} class="${element.className}">\n\nIncolla pure dove vuoi.`);
+                }, 200);
+            }).catch(err => {
+                console.error('Clipboard failed', err);
+                alert('Errore copia clipboard. Guarda la console.');
+            });
+        }
+    }, true); // Capture phase
+
+    console.log('[DEV] Ctrl+Click Inspector Attached Globally');
+
 })();
