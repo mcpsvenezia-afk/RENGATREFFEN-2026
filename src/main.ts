@@ -1,5 +1,7 @@
 import './style.css'
+import './style.css'
 import { supabase } from './lib/supabaseClient'
+import './plugins/renga-dev-loader-v1.js' // 🧬 INJECT DEV MODE
 
 // TEST_CONNECTION_v1
 (async () => {
