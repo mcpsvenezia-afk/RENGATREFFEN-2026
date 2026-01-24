@@ -1594,3 +1594,123 @@ textarea:focus {
   justify-content: center;
   flex-wrap: wrap;
 }
+
+/* TEAM 2026 PAGE STYLES */
+
+.teams-intro {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  max-width: 700px;
+  margin: 0 auto 50px;
+}
+
+.pilots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+}
+
+.pilot-card {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.pilot-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.pilot-img {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1a1a2e;
+}
+
+.pilot-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pilot-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.team-badge {
+  display: inline-block;
+  background: var(--secondary-color);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+.pilot-name {
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.pilot-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.read-more {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 5px;
+}
+
+.read-more:hover {
+  text-decoration: underline;
+}
+
+.teams-note {
+  margin-top: 50px;
+  padding: 25px;
+  background: rgba(255, 204, 0, 0.1);
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-color);
+  text-align: center;
+}
+
+.teams-note p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+@media (max-width: 500px) {
+  .pilot-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .pilot-img {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+  }
+
+  .team-badge {
+    margin: 0 auto 8px;
+  }
+}

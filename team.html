@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff | Renga Treffen 2026</title>
+    <title>I Team 2026 | Renga Treffen 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
@@ -13,50 +15,161 @@
 <body>
     <nav id="main-nav">
         <div class="nav-container">
-            <a href="/" class="logo">RENGA TREFFEN</a>
+            <a href="index.html" class="logo">RENGA TREFFEN</a>
             <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/contatti.html">Contatti</a></li>
-                <li><a href="/iscrizioni.html">Iscrizioni</a></li>
-                <li><a href="/regolamento.html">Regolamento</a></li>
-                <li><a href="/team.html">Team 2026</a></li>
-                <li><a href="/timetable.html" class="nav-btn yellow">Time Table</a></li>
-                <li><a href="/tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="contatti.html">Contatti</a></li>
+                <li><a href="iscrizioni.html">Iscrizioni</a></li>
+                <li><a href="regolamento.html">Regolamento</a></li>
+                <li><a href="team.html" class="active">Team 2026</a></li>
+                <li><a href="index.html#programma" class="nav-btn yellow">Time Table</a></li>
+                <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
             </ul>
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
-    <main style="padding-top: 100px;">
-        <section class="section">
-            <div class="container">
-                <h2 class="section-title">STAFF ORGANIZZATIVO</h2>
-                <div class="team-grid">
-                    <div class="team-card reveal">
-                        <div class="team-img" style="background-image: url('/team1.png'); background-color: #eee;">
-                        </div>
-                        <h3>MARIO</h3>
-                        <p>Logistica & Gestione</p>
-                    </div>
-                    <div class="team-card reveal">
-                        <div class="team-img" style="background-image: url('/team2.png'); background-color: #eee;">
-                        </div>
-                        <h3>LORIS</h3>
-                        <p>Tracking & Direttore Evento</p>
-                    </div>
-                    <div class="team-card reveal">
-                        <div class="team-img" style="background-image: url('/team3.png'); background-color: #eee;">
-                        </div>
-                        <h3>PAOLINO</h3>
-                        <p>Commissario & Relazioni</p>
-                    </div>
+
+    <main>
+        <!-- HERO TEAM -->
+        <section class="hero contact-hero" style="height: 50vh;">
+            <div class="hero-bg" style="background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);">
+            </div>
+
+            <div class="container contact-container reveal">
+                <div class="contact-header-content" style="text-align: center; max-width: 100%;">
+                    <h1 class="main-title">I Team 2026</h1>
+                    <h2 class="sub-title" style="color: var(--primary-color);">I Partecipanti dell'Edizione</h2>
                 </div>
             </div>
         </section>
+
+        <!-- TEAMS GRID -->
+        <section class="section bg-midnight">
+            <div class="container">
+                <p class="teams-intro reveal">Ecco i piloti iscritti al <strong>Renga Treffen 2026</strong>. Le foto
+                    verranno aggiornate man mano che riceviamo i dati dai partecipanti.</p>
+
+                <div class="pilots-grid reveal">
+                    <!-- PILOT CARD 1 -->
+                    <div class="pilot-card glass">
+                        <div class="pilot-img">
+                            <img src="pilot_placeholder.png" alt="Pilota">
+                        </div>
+                        <div class="pilot-info">
+                            <span class="team-badge">Team Fango Riders</span>
+                            <h3 class="pilot-name">Mario Rossi</h3>
+                            <p class="pilot-desc">Appassionato di enduro dal 2010, ha partecipato a numerosi raid in
+                                Italia e all'estero. La sua moto preferita è la Teneré 700...<a href="#"
+                                    class="read-more">Leggi altro</a></p>
+                        </div>
+                    </div>
+
+                    <!-- PILOT CARD 2 -->
+                    <div class="pilot-card glass">
+                        <div class="pilot-img">
+                            <img src="pilot_placeholder.png" alt="Pilota">
+                        </div>
+                        <div class="pilot-info">
+                            <span class="team-badge">Team Fango Riders</span>
+                            <h3 class="pilot-name">Luigi Verdi</h3>
+                            <p class="pilot-desc">Compagno di avventure di Mario, Luigi è il navigatore ufficiale del
+                                team. Esperto di roadbook digitali e sempre pronto...<a href="#" class="read-more">Leggi
+                                    altro</a></p>
+                        </div>
+                    </div>
+
+                    <!-- PILOT CARD 3 -->
+                    <div class="pilot-card glass">
+                        <div class="pilot-img">
+                            <img src="pilot_placeholder.png" alt="Pilota">
+                        </div>
+                        <div class="pilot-info">
+                            <span class="team-badge">Team Wild Wheels</span>
+                            <h3 class="pilot-name">Giulia Bianchi</h3>
+                            <p class="pilot-desc">Prima partecipazione al Renga Treffen! Giulia porta la sua Africa
+                                Twin e tanta voglia di esplorare le strade del Friuli...<a href="#"
+                                    class="read-more">Leggi altro</a></p>
+                        </div>
+                    </div>
+
+                    <!-- PILOT CARD 4 -->
+                    <div class="pilot-card glass">
+                        <div class="pilot-img">
+                            <img src="pilot_placeholder.png" alt="Pilota">
+                        </div>
+                        <div class="pilot-info">
+                            <span class="team-badge">Team Wild Wheels</span>
+                            <h3 class="pilot-name">Marco Neri</h3>
+                            <p class="pilot-desc">Veterano delle competizioni off-road, Marco ha deciso di unirsi a
+                                questa edizione benefica per sostenere Music For Love...<a href="#"
+                                    class="read-more">Leggi altro</a></p>
+                        </div>
+                    </div>
+
+                    <!-- PILOT CARD 5 -->
+                    <div class="pilot-card glass">
+                        <div class="pilot-img">
+                            <img src="pilot_placeholder.png" alt="Pilota">
+                        </div>
+                        <div class="pilot-info">
+                            <span class="team-badge">Team Dust Devils</span>
+                            <h3 class="pilot-name">Andrea Ferrari</h3>
+                            <p class="pilot-desc">Istruttore di guida sicura e appassionato di viaggi in moto. Andrea
+                                guida una KTM 890 Adventure e ama le sfide...<a href="#" class="read-more">Leggi
+                                    altro</a></p>
+                        </div>
+                    </div>
+
+                    <!-- PILOT CARD 6 -->
+                    <div class="pilot-card glass">
+                        <div class="pilot-img">
+                            <img src="pilot_placeholder.png" alt="Pilota">
+                        </div>
+                        <div class="pilot-info">
+                            <span class="team-badge">Team Dust Devils</span>
+                            <h3 class="pilot-name">Paolo Conti</h3>
+                            <p class="pilot-desc">Meccanico di professione e motociclista per passione. Paolo è il
+                                punto di riferimento tecnico del suo team...<a href="#" class="read-more">Leggi
+                                    altro</a></p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- NOTA -->
+                <div class="teams-note reveal">
+                    <p>📢 <strong>Nota:</strong> Questa pagina verrà aggiornata automaticamente con i dati dei piloti
+                        iscritti. Le foto placeholder saranno sostituite con le immagini reali inviate dai
+                        partecipanti.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="section bg-golden-glow">
+            <div class="container" style="text-align: center;">
+                <h2 class="section-title reveal dark-title" style="border: none; text-align: center;">Vuoi far parte
+                    dei Team 2026?</h2>
+                <p class="reveal" style="font-size: 1.2rem; margin-bottom: 30px;">Le iscrizioni sono aperte! Unisciti
+                    alla caccia al tesoro più divertente dell'anno.</p>
+                <a href="iscrizioni.html" class="cta-button primary reveal">ISCRIVITI ORA</a>
+            </div>
+        </section>
+
     </main>
+
     <footer class="main-footer">
-        <p>&copy; 2026 Renga Treffen.</p>
+        <div class="container">
+            <p>&copy; 2026 Renga Treffen. Powered by MotoREPORTER & FANGO Tours.</p>
+        </div>
     </footer>
+
     <script type="module" src="/src/main.ts"></script>
-    <script type="module" src="/src/plugins/renga-dev-loader-v1.js"></script>
 </body>
 
 </html>
