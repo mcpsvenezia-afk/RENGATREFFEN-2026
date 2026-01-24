@@ -1933,3 +1933,103 @@ textarea:focus {
     display: none;
   }
 }
+
+/* TUTORIALS PAGE STYLES */
+
+.tutorial-card {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 30px;
+}
+
+.tutorial-content h2 {
+  color: #000;
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.tutorial-content p {
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 15px;
+}
+
+.text-fucsia {
+  color: var(--secondary-color);
+}
+
+.app-download-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #fff;
+  padding: 15px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 0.3s, box-shadow 0.3s;
+  max-width: 400px;
+  margin-top: 20px;
+}
+
+.app-download-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.app-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 12px;
+}
+
+.app-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-info .store-name {
+  color: #666;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.app-info strong {
+  color: #000;
+  font-size: 1rem;
+  margin: 3px 0;
+}
+
+.app-info .app-desc {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.app-buttons-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.app-buttons-row .app-download-btn {
+  flex: 1;
+  min-width: 280px;
+}
+
+/* Colored Sections */
+.bg-light-green {
+  background: linear-gradient(135deg, #a8d5a2 0%, #c8e6c5 100%);
+}
+
+.bg-light-red {
+  background: linear-gradient(135deg, #f0a0a0 0%, #e8c0c0 100%);
+}

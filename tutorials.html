@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutorials | Renga Treffen 2026</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
@@ -14,98 +15,199 @@
 <body>
     <nav id="main-nav">
         <div class="nav-container">
-            <a href="/" class="logo">RENGA TREFFEN</a>
+            <a href="index.html" class="logo">RENGA TREFFEN</a>
             <ul class="nav-links">
                 <li><a href="index.html#home">Home</a></li>
                 <li><a href="contatti.html">Contatti</a></li>
-                <li><a href="index.html#iscrizioni">Iscrizioni</a></li>
-                <li><a href="index.html#regolamento">Regolamento</a></li>
-                <li><a href="index.html#team">Team 2026</a></li>
-                <li><a href="index.html#programma" class="nav-btn yellow">Time Table</a></li>
-                <li><a href="index.html#tutorial" class="nav-btn fucsia">Tutorials</a></li>
+                <li><a href="iscrizioni.html">Iscrizioni</a></li>
+                <li><a href="regolamento.html">Regolamento</a></li>
+                <li><a href="team.html">Team 2026</a></li>
+                <li><a href="timetable.html" class="nav-btn yellow">Time Table</a></li>
+                <li><a href="tutorials.html" class="nav-btn fucsia active">Tutorials</a></li>
             </ul>
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
 
-    <main style="padding-top: 100px;">
-        <section class="section dark-alt">
+    <main>
+        <!-- HERO TUTORIALS -->
+        <section class="hero contact-hero">
+            <div class="hero-bg" style="background-image: url('tutorials_hero.png'); background-position: center;">
+            </div>
+            <div class="hero-overlay-gradient"></div>
+
+            <div class="container contact-container reveal">
+                <div class="contact-header-content">
+                    <h1 class="main-title">Renga Treffen 2026</h1>
+                    <h2 class="sub-title">TUTORIALS & APP</h2>
+                    <p class="hero-intro">Tutto quello che devi installare e preparare prima dell'evento.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- GOLD DIVIDER -->
+        <div class="gold-bar"></div>
+
+        <!-- APP SECTIONS -->
+        <section class="section bg-golden-glow">
             <div class="container">
-                <h2 class="section-title">TUTORIALS & APP</h2>
-                <p class="section-subtitle">Tutto quello che devi installare per partecipare</p>
-                <div class="accordion">
-                    <div class="accordion-item glass reveal">
-                        <div class="accordion-header">
-                            <h3>APP PER LEGGERE IL ROADBOOK</h3>
-                            <span class="icon">+</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>Per leggere il roadbook vi sono numerose app (Android). Suggeriamo <strong>Piste
-                                    Roadbook</strong> perché siamo in grado di darvi assistenza. Va installata e testata
-                                prima di arrivare al 22.02.2026.</p>
-                            <a href="https://play.google.com/store/apps/details?id=com.piste.roadbook" class="app-link"
-                                target="_blank">Download Google Play</a>
-                        </div>
+
+                <!-- APP 1: ROADBOOK -->
+                <div class="tutorial-card reveal">
+                    <div class="tutorial-content">
+                        <h2>📱 APP PER LEGGERE IL ROADBOOK</h2>
+                        <p>Per leggere il roadbook vi sono numerose app (Le indicazioni fornite riguardano il s.o.
+                            Android). Il motivo che ci spinge a suggerire l'utilizzo di <strong>Piste Roadbook</strong>
+                            è molto semplice, l'abbiamo provata, l'abbiamo capita e siamo in grado di darvi un minimo di
+                            assistenza.</p>
+                        <p>Questa o quella che preferite vanno installate e testate <strong>prima di arrivare al
+                                22.2.26</strong>.</p>
+                        <p>L'app è scaricabile dal pulsante qui sotto:</p>
+                        <a href="https://play.google.com/store/apps/details?id=com.piste.roadbook" target="_blank"
+                            class="app-download-btn">
+                            <span class="app-icon">▶️</span>
+                            <div class="app-info">
+                                <span class="store-name">Google Play</span>
+                                <strong>Piste Roadbook Reader</strong>
+                                <span class="app-desc">Use your Android device as a rally raid roadbook reader and
+                                    tripmeter</span>
+                            </div>
+                        </a>
                     </div>
-                    <div class="accordion-item glass reveal">
-                        <div class="accordion-header">
-                            <h3>APP PER LA SICUREZZA: BT TALK</h3>
-                            <span class="icon">+</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>State partecipando ad una giornata organizzata dal Moto Club Polizia di Stato, la
-                                sicurezza è fondamentale. Installate e attivate l'app BT Talk.</p>
-                            <p><strong>IMPORTANTE:</strong> Durante la registrazione inserite il vostro
-                                <strong>COGNOME</strong> come Nickname (es. MARIO). Così monitoreremo la vostra
-                                posizione per la sicurezza.
-                            </p>
+                </div>
+
+                <!-- APP 2: SICUREZZA BT TALK -->
+                <div class="tutorial-card reveal">
+                    <div class="tutorial-content">
+                        <h2>🛡️ APP PER LA SICUREZZA: GEOPOINT / BT TALK</h2>
+                        <p>State per partecipare ad una giornata organizzata dal <strong>Moto Club Polizia di
+                                Stato</strong>, quindi capirete quanto ci teniamo alla sicurezza. Per questo motivo
+                            dovrete installare e attivare l'app che segue. (Per chi utilizzerà un tablet vi consiglio di
+                            farlo su un tablet)</p>
+                        <p>Dopo averla scaricata e installata, dovrete registrarvi, è tutto gratuito.</p>
+                        <p>Nel corso della registrazione vi verrà chiesto di inserire un <strong
+                                class="text-fucsia">"NikName"</strong> Mettete il vostro cognome. In questo modo
+                            riusciremo a monitorare solo per la giornata del Renga la vostra posizione.</p>
+                        <div class="app-buttons-row">
                             <a href="https://play.google.com/store/apps/details?id=com.midlandeurope.bttalk"
-                                class="app-link" target="_blank">Download Play Store</a>
+                                target="_blank" class="app-download-btn">
+                                <span class="app-icon">▶️</span>
+                                <div class="app-info">
+                                    <span class="store-name">Google Play</span>
+                                    <strong>BTTalk</strong>
+                                    <span class="app-desc">Midland's two way radio app for riders</span>
+                                </div>
+                            </a>
+                            <a href="https://apps.apple.com/app/bttalk/id1234567890" target="_blank"
+                                class="app-download-btn">
+                                <span class="app-icon">🍎</span>
+                                <div class="app-info">
+                                    <span class="store-name">App Store</span>
+                                    <strong>BTTalk</strong>
+                                    <span class="app-desc">App creata da Midland per la comunicazione tra
+                                        motociclisti</span>
+                                </div>
+                            </a>
                         </div>
                     </div>
-                    <div class="accordion-item glass reveal">
-                        <div class="accordion-header">
-                            <h3>APP PER VALIDARE LE FOTO</h3>
-                            <span class="icon">+</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>Quando individuerete gli obiettivi, fotografateli con <strong>Timestamp Camera</strong>.
-                                Reporterà luogo, data, ora e secondi dello scatto, base dei nostri conteggi.</p>
+                </div>
+
+                <!-- APP 3: TIMESTAMP CAMERA -->
+                <div class="tutorial-card reveal">
+                    <div class="tutorial-content">
+                        <h2>📸 APP PER VALIDARE LE FOTO</h2>
+                        <p>Quando avrete individuato gli obiettivi della caccia, dovrete fotografarle con questa App in
+                            quanto essa riporterà, <strong>luogo, data, ora e secondi</strong> dello scatto e su questo
+                            si baseranno i conteggi.</p>
+                        <p>L'app è scaricabile dal pulsante qui sotto:</p>
+                        <div class="app-buttons-row">
                             <a href="https://play.google.com/store/apps/details?id=com.jeyluta.timestampcamera"
-                                class="app-link" target="_blank">Download Play Store</a>
+                                target="_blank" class="app-download-btn">
+                                <span class="app-icon">▶️</span>
+                                <div class="app-info">
+                                    <span class="store-name">Google Play</span>
+                                    <strong>Timestamp Camera</strong>
+                                    <span class="app-desc">Add date and time watermark to photos</span>
+                                </div>
+                            </a>
+                            <a href="https://apps.apple.com/app/timestamp-camera-basic/id1234567890" target="_blank"
+                                class="app-download-btn">
+                                <span class="app-icon">🍎</span>
+                                <div class="app-info">
+                                    <span class="store-name">App Store</span>
+                                    <strong>Timestamp Camera Basic</strong>
+                                    <span class="app-desc">Add timestamp watermark to camera in real time</span>
+                                </div>
+                            </a>
                         </div>
                     </div>
-                    <div class="accordion-item glass reveal">
-                        <div class="accordion-header">
-                            <h3>ROADBOOK DEMO</h3>
-                            <span class="icon">+</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>Dopo la verifica del pagamento riceverete un Roadbook demo via email per far pratica. Il
-                                vero roadbook arriverà 20 minuti prima della partenza.</p>
-                        </div>
-                    </div>
-                    <div class="accordion-item glass reveal">
-                        <div class="accordion-header">
-                            <h3>SCHEDA DI CACCIA DEMO</h3>
-                            <span class="icon">+</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>Riceverete via email una scheda di caccia demo (immagini non reali) per testare il
-                                sistema. La scheda vera verrà consegnata fisicamente al briefing.</p>
-                        </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- DEMO SECTIONS -->
+        <section class="section bg-light-green">
+            <div class="container">
+                <div class="tutorial-card reveal" style="background: rgba(255,255,255,0.3);">
+                    <div class="tutorial-content">
+                        <h2 style="color: #2d5016;">📄 ROADBOOK DEMO</h2>
+                        <p style="color: #333;">Per darvi la possibilità di far pratica con lo scaricamento e
+                            l'attivazione del roadbook dopo aver verificato l'avvenuto pagamento riceverete via email un
+                            <strong>Roadbook demo</strong>, ossia è un vero roadbook ma non centra nulla con l'evento in
+                            questione.
+                        </p>
+                        <p style="color: #333;">Il vero roadbook lo riceverete dopo le Operazioni Preliminari circa
+                            <strong>20 minuti prima della partenza</strong>.
+                        </p>
                     </div>
                 </div>
             </div>
         </section>
+
+        <section class="section bg-light-red">
+            <div class="container">
+                <div class="tutorial-card reveal" style="background: rgba(255,255,255,0.3);">
+                    <div class="tutorial-content">
+                        <h2 style="color: #8b0000;">🎯 SCHEDA DI CACCIA</h2>
+                        <p style="color: #333;">Vale quanto detto per il roadbook e dopo aver verificato l'avvenuto
+                            pagamento riceverete via email una <strong>scheda di caccia demo</strong>, fatta come quella
+                            vera ma immagini e tempi indicati non centrano nulla con l'evento in questione.</p>
+                        <p style="color: #333;">La vera scheda la riceverete dopo le Operazioni Preliminari circa
+                            <strong>20 minuti prima della partenza</strong>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="section bg-midnight">
+            <div class="container" style="text-align: center;">
+                <h2 class="section-title reveal light-title" style="border: none; text-align: center;">Pronto per
+                    partecipare?</h2>
+                <p class="reveal" style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 30px;">Hai
+                    installato tutte le app? Ora non ti resta che iscriverti!</p>
+                <div class="cta-buttons reveal">
+                    <a href="regolamento.html" class="cta-button secondary">REGOLAMENTO</a>
+                    <a href="iscrizioni.html" class="cta-button primary">ISCRIVITI ORA</a>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer class="main-footer">
         <div class="container">
-            <p>&copy; 2026 Renga Treffen.</p>
+            <p>&copy; 2026 Renga Treffen. Powered by MotoREPORTER & FANGO Tours.</p>
         </div>
     </footer>
+
     <script type="module" src="/src/main.ts"></script>
-    <script type="module" src="/src/plugins/renga-dev-loader-v1.js"></script>
 </body>
 
 </html>
