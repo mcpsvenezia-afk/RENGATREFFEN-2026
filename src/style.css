@@ -1714,3 +1714,106 @@ textarea:focus {
     margin: 0 auto 8px;
   }
 }
+
+/* TEAM BLOCK LAYOUT (2 pilots per team) */
+
+.teams-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.team-block {
+  padding: 30px;
+  border-radius: 20px;
+}
+
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--glass-border);
+}
+
+.team-name {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.team-number {
+  background: var(--secondary-color);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.team-pilots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.pilot-mini {
+  display: flex;
+  gap: 15px;
+}
+
+.pilot-avatar {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1a1a2e;
+  border: 3px solid var(--glass-border);
+}
+
+.pilot-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pilot-details h4 {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.pilot-role {
+  color: var(--secondary-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 8px;
+}
+
+.pilot-bio {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .team-pilots {
+    grid-template-columns: 1fr;
+  }
+
+  .pilot-mini {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .pilot-avatar {
+    margin: 0 auto 10px;
+  }
+}
