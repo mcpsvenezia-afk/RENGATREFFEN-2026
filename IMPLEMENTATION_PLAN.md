@@ -1,26 +1,25 @@
 # Progetto Renga Treffen 2026 - Recap e Next Steps
 
 ## 🏁 Stato Attuale del Progetto
-1.  **Sito Web Ricostruito**: Il design è completo e rispecchia fedelmente l'originale con estetica Premium.
-2.  **Struttura Multipage**:
-    - `index.html`: Homepage con Hero 2026, Timeline (6 step), Regolamento, Staff e Form Iscrizioni.
-    - `sponsor.html`: Pagina dedicata con Timeline dei Premi Principali, Ringraziamenti (Comune/Moto Club) e Partner Tecnici.
-3.  **Form Iscrizioni**: Attualmente configurato con un backend PHP per Aruba, ma già pronto per essere convertito.
-4.  **Aesthetics**: Implementata la palette colori 2026 (Giallo, Fucsia, Oro, Nero, Borgogna) e animazioni di reveal.
+1.  **Sito Web & Dashboard**: Online su Vercel (Repo: `RENGATREFFEN-2026`).
+2.  **Stack Tecnologico**: Migrato con successo da PHP a **React + Vite + Supabase**.
+3.  **Funzionalità Attive**:
+    - `index.html`: Form iscrizioni collegato a Supabase `registrations`.
+    - `dashboard.html`: Pannello Admin in React con `Universal Dev Mode` (Ctrl+Clic).
+4.  **Database**: Tabella `registrations` operativa su Supabase con RLS attive.
 
-## 🚀 Prossima Fase (Domani): Migrazione Vercel + Supabase
-L'obiettivo è abbandonare il vecchio sistema FTP/PHP a favore di uno stack moderno.
+## 🚀 Prossima Fase: Sicurezza & Rifiniture
+L'obiettivo immediato è proteggere l'accesso ai dati sensibili.
 
-### Obiettivi per domani:
-1.  **Configurazione Supabase**:
-    - Creazione tabella `iscrizioni` (id, team_name, p1_name, p1_email, p2_name, p2_email, moto, phone, created_at).
-    - Impostazione delle chiavi di accesso (URL e API Key).
-2.  **Aggiornamento Frontend**:
-    - Modifica di `main.ts` per inviare i dati direttamente a Supabase invece del file PHP.
-3.  **Deploy su Vercel**:
-    - Collegamento della repository e messa online del sito.
-4.  **Dashboard Iscrizioni**:
-    - Verifica del salvataggio dati e test della funzione di esportazione CSV per la gestione partecipanti.
+### Obiettivi Prioritari:
+1.  **Dashboard Auth**:
+    - Implementare Login (Magic Link o Password) per `dashboard.html`.
+    - Attualmente la dashboard è pubblica: **URGENTE**.
+2.  **Data Validation**:
+    - Verificare che i campi del form (Team, Piloti, Moto) siano salvati correttamente.
+    - Testare l'invio email (se richiesto tramite Edge Functions).
+3.  **Cleanup**:
+    - Rimuovere `process_registration.php` (obsoleto).
 
 ## 📝 Appunti per il riavvio
 - Chiedere all'utente le chiavi di Supabase (o guidarlo nella creazione del progetto).
