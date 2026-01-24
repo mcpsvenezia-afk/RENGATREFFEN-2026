@@ -154,3 +154,16 @@ regForm?.addEventListener('submit', async (e) => {
         });
     }
 });
+// Contact Form Submission (Mock for now)
+const contactForm = document.getElementById('contact-form-page');
+contactForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // @ts-ignore
+    Swal.fire({
+        icon: 'success',
+        title: 'Messaggio Inviato!',
+        text: 'Grazie per averci contattato. Ti risponderemo il prima possibile.',
+        confirmButtonColor: '#ffcc00'
+    });
+    (contactForm as HTMLFormElement).reset();
+});

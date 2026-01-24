@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contatti | Renga Treffen 2026</title>
+    <title>Contatti - Renga Treffen 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
@@ -13,55 +15,78 @@
 <body>
     <nav id="main-nav">
         <div class="nav-container">
-            <a href="/" class="logo">RENGA TREFFEN</a>
+            <a href="index.html" class="logo">RENGA TREFFEN</a>
             <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/contatti.html">Contatti</a></li>
-                <li><a href="/iscrizioni.html">Iscrizioni</a></li>
-                <li><a href="/regolamento.html">Regolamento</a></li>
-                <li><a href="/team.html">Team 2026</a></li>
-                <li><a href="/timetable.html" class="nav-btn yellow">Time Table</a></li>
-                <li><a href="/tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="contatti.html" class="active">Contatti</a></li>
+                <li><a href="index.html#iscrizioni">Iscrizioni</a></li>
+                <li><a href="index.html#regolamento">Regolamento</a></li>
+                <li><a href="index.html#team">Team 2026</a></li>
+                <li><a href="index.html#programma" class="nav-btn yellow">Time Table</a></li>
+                <li><a href="index.html#tutorial" class="nav-btn fucsia">Tutorials</a></li>
             </ul>
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
-    <main style="padding-top: 100px; min-height: 100vh;" class="bg-midnight">
-        <section class="section">
-            <div class="container">
-                <div class="sfida-layout" style="align-items: flex-start;">
 
-                    <!-- LEFT COLUMN: TEXT + FORM -->
-                    <div class="reveal content-wrapper" style="flex: 1;">
-                        <h1 class="light-title" style="margin-bottom: 20px;">Renga Treffen 2026<br><span
-                                style="color: #ffcc00;">CONTATTI</span></h1>
-                        <p style="color: #ccc; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px;">
-                            Hai domande sull'evento?<br>Compila il modulo qui sotto e ti risponderemo il prima
-                            possibile.
-                        </p>
+    <main>
+        <!-- HERO CONTACT -->
+        <section class="hero contact-hero">
+            <div class="hero-bg"
+                style="background-image: url('contacts_hero_biker.png'); background-position: center bottom;"></div>
+            <div class="hero-overlay-gradient"></div>
 
-                        <!-- REACT MOUNT POINT -->
-                        <div id="root-contact-form">
-                            <p style="color: #666;">Caricamento Modulo...</p>
-                        </div>
-                    </div>
-
-                    <!-- RIGHT COLUMN: IMAGE -->
-                    <div class="reveal img-wrapper" style="flex: 1;">
-                        <!-- Placeholder Image coerente con lo stile "pittorico" -->
-                        <img src="/hero.png" alt="Renga Contact" class="sfida-img"
-                            style="border: 4px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-                    </div>
-
+            <div class="container contact-container reveal">
+                <div class="contact-header-content">
+                    <h1 class="main-title">Renga Treffen 2026</h1>
+                    <h2 class="sub-title">CONTATTI</h2>
                 </div>
             </div>
         </section>
+
+        <!-- FORM SECTION -->
+        <section class="section dark-alt" style="padding-top: 0;">
+            <div class="container">
+                <div class="contact-glass-form reveal">
+                    <h3 class="form-title">Inviaci un messaggio</h3>
+                    <p class="form-desc">Hai dubbi o domande sull'evento? Compila il form qui sotto.</p>
+
+                    <form id="contact-form-page">
+                        <div class="form-group">
+                            <label for="contact-name">Nome e Cognome</label>
+                            <input type="text" id="contact-name" name="name" required placeholder="Il tuo nome">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact-email">Email</label>
+                            <input type="email" id="contact-email" name="email" required placeholder="La tua email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact-message">Messaggio</label>
+                            <textarea id="contact-message" name="message" rows="5" required
+                                placeholder="Scrivi qui il tuo messaggio..."></textarea>
+                        </div>
+
+                        <button type="submit" class="cta-button primary full-width">INVIA MESSAGGIO</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
     </main>
+
     <footer class="main-footer">
-        <p>&copy; 2026 Renga Treffen.</p>
+        <div class="container">
+            <p>&copy; 2026 Renga Treffen. Powered by MotoREPORTER & FANGO Tours.</p>
+        </div>
     </footer>
-    <script type="module" src="/src/mount-contact.jsx"></script>
+
     <script type="module" src="/src/main.ts"></script>
-    <script type="module" src="/src/plugins/renga-dev-loader-v1.js"></script>
 </body>
 
 </html>
