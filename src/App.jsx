@@ -169,18 +169,15 @@ function App() {
                                 onContextMenu={(e) => handleInspect(e, reg)}
                                 style={{
                                     cursor: isDevMode ? 'help' : 'default',
-                                    // DARK THEME HIGH CONTRAST (Zebra Striping)
-                                    backgroundColor: isDevMode ? '#003366' : (index % 2 === 0 ? '#1a1a1a' : '#2a2a2a'),
-                                    color: '#ffffff',
-                                    borderBottom: '1px solid #333333'
+                                    transition: 'background-color 0.2s'
                                 }}
                                 title={isDevMode ? "Premi Ctrl + Clic (o Tasto Destro) per DNA" : ""}
                             >
-                                <td style={{ padding: '12px', fontWeight: 'bold', color: '#fff' }}>{reg.nome}</td>
+                                <td style={{ padding: '12px', fontWeight: 'bold' }}>{reg.nome}</td>
                                 <td style={{ padding: '12px' }}>{reg.cognome}</td>
-                                <td style={{ padding: '12px', color: '#0044cc' }}>{reg.email}</td>
+                                <td style={{ padding: '12px' }}>{reg.email}</td>
                                 <td style={{ padding: '12px' }}>{reg.partner_name}</td>
-                                <td style={{ padding: '12px', fontSize: '0.85rem', color: '#666' }}>{new Date(reg.created_at).toLocaleString()}</td>
+                                <td style={{ padding: '12px' }}>{new Date(reg.created_at).toLocaleString()}</td>
                             </tr>
                         ))}
                         {registrations.length === 0 && (
