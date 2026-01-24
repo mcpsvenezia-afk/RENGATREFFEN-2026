@@ -5,8 +5,27 @@
  */
 
 (function () {
-    const version = '1.0.0-RENGA-BLITZ';
-    console.log(`[DEV] Renga Dev Mode v${version} Initiated`);
+    // 🛡️ SECURITY & TOGGLE CHECK
+    // Attivazione: Aggiungi ?dev=true all'URL
+    // Persistenza: Salva in LocalStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceOn = urlParams.get('dev') === 'true';
+    const forceOff = urlParams.get('dev') === 'false';
+    const isStored = localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
+
+    if (forceOn) {
+        localStorage.setItem('RENGATREFFEN_DEV_MODE', 'true');
+        // Pulisce l'URL per estetica
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (forceOff) {
+        localStorage.removeItem('RENGATREFFEN_DEV_MODE');
+        return; // Esce subito
+    } else if (!isStored) {
+        return; // Default: INVISIBILE per utenti normali
+    }
+
+    const version = '1.1.0-TOGGLE-READY';
+    console.log(`[DEV] Renga Dev Mode v${version} ACTIVE`);
 
     // Cleanup old instances
     const kill = () => {
@@ -64,7 +83,8 @@
 
     const utils = [
         { t: '💾 CLEAR LOCAL STORAGE', action: () => { localStorage.clear(); alert('Storage Cleared'); location.reload(); } },
-        { t: '🧬 INSPECT DNA (LOG)', action: () => { console.log('[DNA] Current Page State:', window.location); alert('DNA Logged to Console'); } }
+        { t: '🧬 INSPECT DNA (LOG)', action: () => { console.log('[DNA] Current Page State:', window.location); alert('DNA Logged to Console'); } },
+        { t: '🔴 EXIT DEV MODE', action: () => { localStorage.removeItem('RENGATREFFEN_DEV_MODE'); location.reload(); } }
     ];
 
     utils.forEach(u => {
