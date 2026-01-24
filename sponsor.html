@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sponsor | Renga Treffen 2026</title>
+    <title>Sponsor & Premi | Renga Treffen 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
@@ -13,59 +15,240 @@
 <body>
     <nav id="main-nav">
         <div class="nav-container">
-            <a href="/" class="logo">RENGA TREFFEN</a>
+            <a href="index.html" class="logo">RENGA TREFFEN</a>
             <ul class="nav-links">
                 <li><a href="index.html#home">Home</a></li>
                 <li><a href="contatti.html">Contatti</a></li>
-                <li><a href="index.html#iscrizioni">Iscrizioni</a></li>
-                <li><a href="index.html#regolamento">Regolamento</a></li>
-                <li><a href="index.html#team">Team 2026</a></li>
-                <li><a href="index.html#programma" class="nav-btn yellow">Time Table</a></li>
-                <li><a href="index.html#tutorial" class="nav-btn fucsia">Tutorials</a></li>
+                <li><a href="iscrizioni.html">Iscrizioni</a></li>
+                <li><a href="regolamento.html">Regolamento</a></li>
+                <li><a href="team.html">Team 2026</a></li>
+                <li><a href="timetable.html" class="nav-btn yellow">Time Table</a></li>
+                <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
             </ul>
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
-    <main style="padding-top: 100px;">
-        <section class="section">
-            <div class="container">
-                <h2 class="section-title">PREMI & SPONSOR</h2>
-                <div class="prizes-detailed reveal">
-                    <div class="prize-card gold">
-                        <span class="p-rank">1° PREMIO</span>
-                        <h3>Soggiorno La Mulattiera</h3>
-                        <p>Soggiorno di 2 giorni per 2 persone con 2 tracce off-road incluse presso il B&B La Mulattiera
-                            (Toscana).</p>
-                    </div>
-                    <!-- Altri premi copiati... -->
-                    <div class="prize-card">
-                        <span class="p-rank">SPECIALE</span>
-                        <h3>Medaglia Ricordo</h3>
-                        <p>Per tutti i partecipanti iscritti.</p>
-                    </div>
-                </div>
-                <div class="sponsor-grid reveal" style="margin-top: 50px;">
-                    <div class="sponsor-card glass">
-                        <div class="s-logo">B&B LA MULATTIERA</div>
-                        <a href="https://lamulattiera.com" target="_blank" class="s-btn">VISITA</a>
-                    </div>
-                    <div class="sponsor-card glass">
-                        <div class="s-logo">SEVEN SOLID</div>
-                        <a href="https://7solid.it" target="_blank" class="s-btn">VISITA</a>
-                    </div>
-                    <!-- etc -->
-                </div>
-                <div class="technical-partners reveal">
-                    <h3>PARTNER TECNICI</h3>
-                    <p>PRM • MUSSIN INFISSI • INTERNET FULL SERVICE • PERSEO • GEOPOINT • WATZON</p>
+
+    <main>
+        <!-- HERO SPONSORS -->
+        <section class="hero contact-hero">
+            <div class="hero-bg" style="background-image: url('sponsors_hero.png'); background-position: center;"></div>
+            <div class="hero-overlay-gradient"></div>
+
+            <div class="container contact-container reveal">
+                <div class="contact-header-content">
+                    <h1 class="main-title">Renga Treffen 2026</h1>
+                    <h2 class="sub-title">SPONSOR & PREMI</h2>
+                    <p class="hero-intro">Grazie ai nostri partner per rendere possibile questo evento.</p>
                 </div>
             </div>
         </section>
+
+        <!-- PREMI PRINCIPALI -->
+        <section class="section bg-teal">
+            <div class="container">
+                <div class="premi-box glass reveal">
+                    <h2 class="premi-title">P R E M I P R I N C I P A L I</h2>
+
+                    <div class="premi-timeline">
+                        <!-- Premio 1 -->
+                        <div class="premio-row">
+                            <div class="premio-content left">
+                                <h3>1° premio</h3>
+                                <p>Soggiorno per 2 giorni per 2 persone e 2 tracce off road presso il B&B la Mulattiera
+                                    in Toscana.</p>
+                            </div>
+                            <div class="premio-dot gold"></div>
+                            <div class="premio-content right empty"></div>
+                        </div>
+
+                        <!-- Premio 2 -->
+                        <div class="premio-row">
+                            <div class="premio-content left empty"></div>
+                            <div class="premio-dot pink"></div>
+                            <div class="premio-content right">
+                                <h3>2° premio</h3>
+                                <p>2 pulsantiere per roadbook digitale Seven Solid.</p>
+                            </div>
+                        </div>
+
+                        <!-- Premio 3 -->
+                        <div class="premio-row">
+                            <div class="premio-content left">
+                                <h3>3° premio</h3>
+                                <p>2 kit pacchetto Dunlop Rider e servizio montaggio pneumatici per 2 persone.</p>
+                            </div>
+                            <div class="premio-dot blue"></div>
+                            <div class="premio-content right empty"></div>
+                        </div>
+
+                        <!-- Premio 4 -->
+                        <div class="premio-row">
+                            <div class="premio-content left empty"></div>
+                            <div class="premio-dot cyan"></div>
+                            <div class="premio-content right">
+                                <h3>4° premio</h3>
+                                <p>2 buoni sconto del valore di 100,00 euro cadauno da utilizzarsi per la partecipazione
+                                    ai corsi organizzati dal Rally Team AzzurroRosa.</p>
+                            </div>
+                        </div>
+
+                        <!-- Premio 5 -->
+                        <div class="premio-row">
+                            <div class="premio-content left">
+                                <h3>5° premio</h3>
+                                <p>2 buoni sconto del valore di euro 50,00 cadauno da utilizzarsi su una della attività
+                                    organizzate da Fango Tours.</p>
+                            </div>
+                            <div class="premio-dot light-blue"></div>
+                            <div class="premio-content right empty"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPONSORS ROW 1 -->
+        <section class="section bg-golden-glow">
+            <div class="container">
+                <h2 class="section-title reveal dark-title" style="text-align: center; border: none;">Sponsors</h2>
+                <div class="sponsors-grid reveal">
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">LA MULATTIERA</div>
+                        </div>
+                        <h3>B&B la mulattiera</h3>
+                        <a href="#" class="sponsor-visit-btn">Visita</a>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">7SOLID</div>
+                        </div>
+                        <h3>Seven Solid</h3>
+                        <a href="#" class="sponsor-visit-btn">Visita</a>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">CENTROGOMME</div>
+                        </div>
+                        <h3>Centrogomme</h3>
+                        <a href="#" class="sponsor-visit-btn">Visita</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPONSORS ROW 2 -->
+        <section class="section bg-midnight">
+            <div class="container">
+                <div class="sponsors-grid reveal">
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">AZZURROROSA</div>
+                        </div>
+                        <h3>Rally Team Azzurro Rosa</h3>
+                        <a href="#" class="sponsor-visit-btn gold">Visita</a>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">FANGO</div>
+                        </div>
+                        <h3>Fango Tours</h3>
+                        <a href="#" class="sponsor-visit-btn gold">Visita</a>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">PRM</div>
+                        </div>
+                        <h3>PRM</h3>
+                        <a href="#" class="sponsor-visit-btn gold">Visita</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPONSORS ROW 3 -->
+        <section class="section bg-golden-glow">
+            <div class="container">
+                <div class="sponsors-grid reveal">
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">MUSSIN LUIGI</div>
+                        </div>
+                        <h3>Mussin Infissi</h3>
+                        <a href="#" class="sponsor-visit-btn">Visita</a>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">MOTOREPORTER</div>
+                        </div>
+                        <h3>Motoreporter</h3>
+                        <a href="#" class="sponsor-visit-btn">Visita</a>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">SPAZIO DISPONIBILE</div>
+                        </div>
+                        <h3>Il tuo brand qui!</h3>
+                        <a href="contatti.html" class="sponsor-visit-btn">Contattaci</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPONSORS ROW 4 -->
+        <section class="section bg-burgundy">
+            <div class="container">
+                <div class="sponsors-grid reveal">
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">PERSEO</div>
+                        </div>
+                        <h3>PerSeo</h3>
+                        <a href="#" class="sponsor-visit-btn dark">Visita</a>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">GEOPOINT</div>
+                        </div>
+                        <h3>GeoPoint</h3>
+                        <a href="#" class="sponsor-visit-btn dark">Visita</a>
+                    </div>
+                    <div class="sponsor-card">
+                        <div class="sponsor-logo">
+                            <div class="logo-placeholder">WATZON</div>
+                        </div>
+                        <h3>WatzOn</h3>
+                        <a href="#" class="sponsor-visit-btn dark">Visita</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA BECOME SPONSOR -->
+        <section class="section bg-midnight">
+            <div class="container" style="text-align: center;">
+                <h2 class="section-title reveal light-title" style="border: none; text-align: center;">Diventa Sponsor
+                </h2>
+                <p class="reveal" style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 30px;">Vuoi
+                    supportare il Renga Treffen 2026 e dare visibilità al tuo brand?</p>
+                <a href="contatti.html" class="cta-button primary reveal">CONTATTACI</a>
+            </div>
+        </section>
+
     </main>
+
     <footer class="main-footer">
-        <p>&copy; 2026 Renga Treffen.</p>
+        <div class="container">
+            <p>&copy; 2026 Renga Treffen. Powered by MotoREPORTER & FANGO Tours.</p>
+        </div>
     </footer>
+
     <script type="module" src="/src/main.ts"></script>
-    <script type="module" src="/src/plugins/renga-dev-loader-v1.js"></script>
 </body>
 
 </html>
