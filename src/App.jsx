@@ -169,10 +169,10 @@ function App() {
                                 onContextMenu={(e) => handleInspect(e, reg)}
                                 style={{
                                     cursor: isDevMode ? 'help' : 'default',
-                                    // FORCE HIGH CONTRAST: White background, Black text always for rows
-                                    backgroundColor: '#FFFFFF',
+                                    // FORCE HIGH CONTRAST: Gray background, Black text always for rows
+                                    backgroundColor: '#E0E0E0',
                                     color: '#000000',
-                                    borderBottom: '1px solid #393939'
+                                    borderBottom: '1px solid #999'
                                 }}
                                 title={isDevMode ? "Premi Ctrl + Clic (o Tasto Destro) per DNA" : ""}
                             >
