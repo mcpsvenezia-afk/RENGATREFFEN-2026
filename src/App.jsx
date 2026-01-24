@@ -169,23 +169,23 @@ function App() {
                                 onContextMenu={(e) => handleInspect(e, reg)}
                                 style={{
                                     cursor: isDevMode ? 'help' : 'default',
-                                    // Fix contrast: If devmode active (yellowish bg), use black text. Otherwise dark mode text.
-                                    backgroundColor: isDevMode ? '#fffbec' : '#161616',
-                                    color: isDevMode ? '#161616' : '#c6c6c6',
+                                    // FORCE HIGH CONTRAST: White background, Black text always for rows
+                                    backgroundColor: '#FFFFFF',
+                                    color: '#000000',
                                     borderBottom: '1px solid #393939'
                                 }}
                                 title={isDevMode ? "Premi Ctrl + Clic (o Tasto Destro) per DNA" : ""}
                             >
-                                <td style={{ padding: '12px' }}>{reg.nome}</td>
+                                <td style={{ padding: '12px', fontWeight: 'bold' }}>{reg.nome}</td>
                                 <td style={{ padding: '12px' }}>{reg.cognome}</td>
-                                <td style={{ padding: '12px' }}>{reg.email}</td>
+                                <td style={{ padding: '12px', color: '#0044cc' }}>{reg.email}</td>
                                 <td style={{ padding: '12px' }}>{reg.partner_name}</td>
-                                <td style={{ padding: '12px' }}>{new Date(reg.created_at).toLocaleString()}</td>
+                                <td style={{ padding: '12px', fontSize: '0.85rem', color: '#666' }}>{new Date(reg.created_at).toLocaleString()}</td>
                             </tr>
                         ))}
                         {registrations.length === 0 && (
                             <tr>
-                                <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#8d8d8d' }}>
+                                <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#f4f4f4', backgroundColor: '#161616' }}>
                                     {isDevMode ? "Nessun dato. Usa '+ Dati Test' per generare un record." : "Nessun dato trovato."}
                                 </td>
                             </tr>
