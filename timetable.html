@@ -10,67 +10,155 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
-    <script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <!-- Header / Navigation -->
     <nav id="main-nav">
         <div class="nav-container">
-            <a href="/" class="logo">RENGA TREFFEN</a>
+            <a href="index.html" class="logo">RENGA TREFFEN</a>
             <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/contatti.html">Contatti</a></li>
-                <li><a href="/iscrizioni.html">Iscrizioni</a></li>
-                <li><a href="/regolamento.html">Regolamento</a></li>
-                <li><a href="/team.html">Team 2026</a></li>
-                <li><a href="/timetable.html" class="nav-btn yellow">Time Table</a></li>
-                <li><a href="/tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="contatti.html">Contatti</a></li>
+                <li><a href="iscrizioni.html">Iscrizioni</a></li>
+                <li><a href="regolamento.html">Regolamento</a></li>
+                <li><a href="team.html">Team 2026</a></li>
+                <li><a href="timetable.html" class="nav-btn yellow active">Time Table</a></li>
+                <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
             </ul>
             <button class="mobile-menu-btn" aria-label="Menu">
-                <span></span><span></span><span></span>
+                <span></span>
+                <span></span>
+                <span></span>
             </button>
         </div>
     </nav>
 
-    <main style="padding-top: 100px;">
-        <section class="section">
+    <main>
+        <!-- TIMETABLE SECTION -->
+        <section class="section bg-golden-glow" style="padding-top: 120px;">
             <div class="container">
-                <h2 class="section-title">TIME TABLE</h2>
-                <div class="steps-grid">
-                    <div class="step-card reveal">
-                        <span class="step-num">01</span>
-                        <h3>PREISCRIZIONE</h3>
-                        <p>Compila il modulo online con i dati del tuo team.</p>
+                <h1 class="timetable-main-title reveal">TIME TABLE DI DOMENICA 22.02.26</h1>
+
+                <div class="timetable-zigzag">
+
+                    <!-- STEP 1 - LEFT -->
+                    <div class="tz-row reveal">
+                        <div class="tz-content left">
+                            <h3>PRESENTAZIONE</h3>
+                            <p>Presentarsi in Direzione Evento almeno 30 minuti prima dell'orario di partenza previsto.
+                                La direzione Evento sarà all'interno del campo sportivo di Morsano al Tagliamento. In
+                                loco sarà possibile fare colazione con il buono trovato dentro il "Renga Pack".</p>
+                        </div>
+                        <div class="tz-dot"></div>
+                        <div class="tz-content right empty"></div>
                     </div>
-                    <div class="step-card reveal">
-                        <span class="step-num">02</span>
-                        <h3>ATTENDERE EMAIL DI CONFERMA</h3>
-                        <p>Riceverai conferma via mail dopo la verifica di idoneità.</p>
+
+                    <!-- STEP 2 - RIGHT -->
+                    <div class="tz-row reveal">
+                        <div class="tz-content left empty"></div>
+                        <div class="tz-dot"></div>
+                        <div class="tz-content right">
+                            <h3>VERIFICHE TECNICHE E AMMINISTRATIVE</h3>
+                            <p>Il Team deve presentarsi all'interno del campo sportivo con le moto e già pronte alla
+                                partenza seguendo il percorso obbligato, ritirerà il presso la Direzione Evento il
+                                "Renga Pack". Dopo aver applicato gli adesivi il team rimarrà fermo dentro il campo
+                                sportivo in attesa dell'orario per ricevere il roadbook e la scheda di caccia.</p>
+                        </div>
                     </div>
-                    <div class="step-card reveal">
-                        <span class="step-num">03</span>
-                        <h3>APPLICAZIONI E TEST</h3>
-                        <p>Installa e testa le app suggerite prima dell'evento.</p>
+
+                    <!-- STEP 3 - LEFT -->
+                    <div class="tz-row reveal">
+                        <div class="tz-content left">
+                            <h3>ROADBOOK E SCHEDA DI CACCIA</h3>
+                            <p>Circa 30 minuti prima dell'orario di partenza previsto il Team riceverà nell'email
+                                inserita in fase di registrazione il file con il roadbook digitale e il file con la
+                                scheda di caccia. In quella fase potrà ricevere supporto da parte di un commissario di
+                                linea che dovrà verificare l'effettiva attivazione del Roadbook e il possesso della
+                                scheda di caccia prima di autorizzarne la partenza per una breve tappa di trasferimento.
+                            </p>
+                        </div>
+                        <div class="tz-dot"></div>
+                        <div class="tz-content right empty"></div>
                     </div>
-                    <div class="step-card highlight reveal">
-                        <span class="step-num">04</span>
-                        <h3>CHECK-IN</h3>
-                        <p>Domenica 22/02 ore 08:30: Ritrovo area partenza per verifiche e briefing.</p>
+
+                    <!-- STEP 4 - RIGHT -->
+                    <div class="tz-row reveal">
+                        <div class="tz-content left empty"></div>
+                        <div class="tz-dot"></div>
+                        <div class="tz-content right">
+                            <h3>AREA PARTENZA</h3>
+                            <p>In prossimità del gonfiabile sulla vera linea di partenza della partenza, alla nota 10
+                                dopo circa un chilometro e mezzo, verrete incolonnati e gestiti in loco fino alla
+                                partenza dai commissari di start. Il Direttore di Start vi posizionerà sotto il
+                                gonfiabile circa 3 minuti prima dell'orario previsto della vostra partenza e all'ora
+                                prevista vi farà partire.</p>
+                        </div>
                     </div>
-                    <div class="step-card highlight reveal">
-                        <span class="step-num">05</span>
-                        <h3>PARTENZA</h3>
-                        <p>Partenza team scaglionata ogni minuto. 110km di sfida tra navigazione e caccia al tesoro.</p>
+
+                    <!-- STEP 5 - LEFT -->
+                    <div class="tz-row reveal">
+                        <div class="tz-content left">
+                            <h3>FINE CACCIA AL TESORO</h3>
+                            <p>Terminata la traccia vi ritroverete nuovamente sotto il gonfiabile, attenzione a non
+                                tagliare o improvvisare seguite esattamente il roadbook fino all'ultimo metro.</p>
+                        </div>
+                        <div class="tz-dot"></div>
+                        <div class="tz-content right empty"></div>
                     </div>
-                    <div class="step-card highlight reveal">
-                        <span class="step-num">06</span>
-                        <h3>PRANZO E PREMIAZIONI</h3>
-                        <p>Ore 14:00 Pranzo conviviale e a seguire premiazioni dei team più precisi.</p>
+
+                    <!-- STEP 6 - RIGHT -->
+                    <div class="tz-row reveal">
+                        <div class="tz-content left empty"></div>
+                        <div class="tz-dot"></div>
+                        <div class="tz-content right">
+                            <h3>ARRIVO E PROVA DI ABILITÀ</h3>
+                            <p>Una volta sotto il gonfiabile il commissario di start e il direttore di start vi
+                                incolonneranno per farvi svolgere una breve prova di abilità.</p>
+                        </div>
                     </div>
+
+                    <!-- STEP 7 - LEFT -->
+                    <div class="tz-row reveal">
+                        <div class="tz-content left">
+                            <h3>RITORNO AL CAMPO SPORTIVO</h3>
+                            <p>Dopo la prova di abilità potrete fare ritorno al campo sportivo, lì saranno disponibili
+                                docce, lavaggio moto, e il bar della Morsano Calcio asd a disposizione (a pagamento)
+                                fino all'arrivo degli ultimi per poi mangiare una pasta e la <strong>RENGA</strong>
+                                tutti insieme (incluso) in attesa dei conteggi.</p>
+                        </div>
+                        <div class="tz-dot"></div>
+                        <div class="tz-content right empty"></div>
+                    </div>
+
+                    <!-- STEP 8 - RIGHT -->
+                    <div class="tz-row reveal">
+                        <div class="tz-content left empty"></div>
+                        <div class="tz-dot"></div>
+                        <div class="tz-content right">
+                            <h3>PREMIAZIONI</h3>
+                            <p>A fine pasto (ore 14:30/15:00 circa) premiazioni sulla gradinata del campo sportivo (Le
+                                moto verranno fatte sostare sotto la gradinata).</p>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>
+
+        <!-- CTA -->
+        <section class="section bg-midnight">
+            <div class="container" style="text-align: center;">
+                <h2 class="section-title reveal light-title" style="border: none; text-align: center;">Pronto per
+                    l'avventura?</h2>
+                <p class="reveal" style="color: var(--text-muted); font-size: 1.2rem; margin-bottom: 30px;">Scarica le
+                    app necessarie e preparati per il grande giorno!</p>
+                <div class="cta-buttons reveal">
+                    <a href="tutorials.html" class="cta-button secondary">TUTORIALS</a>
+                    <a href="iscrizioni.html" class="cta-button primary">ISCRIVITI ORA</a>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer class="main-footer">
@@ -80,7 +168,6 @@
     </footer>
 
     <script type="module" src="/src/main.ts"></script>
-    <script type="module" src="/src/plugins/renga-dev-loader-v1.js"></script>
 </body>
 
 </html>
