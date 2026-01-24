@@ -25,26 +25,33 @@
             </ul>
         </div>
     </nav>
-    <main style="padding-top: 100px;">
+    <main style="padding-top: 100px; min-height: 100vh;" class="bg-midnight">
         <section class="section">
             <div class="container">
-                <h2 class="section-title">CONTATTI</h2>
-                <div class="contact-grid reveal">
-                    <div class="contact-item glass">
-                        <span class="c-icon">📧</span>
-                        <h3>Email Ufficiale</h3>
-                        <p>renga.treffen@gmail.com</p>
-                        <a href="mailto:renga.treffen@gmail.com" class="text-link">Inviaci un messaggio</a>
-                    </div>
-                    <div class="contact-item glass">
-                        <span class="c-icon">📱</span>
-                        <h3>Social Media</h3>
-                        <p>Segui la nostra community su Facebook e Instagram.</p>
-                        <div class="social-links">
-                            <a href="#" class="social-btn">FB</a>
-                            <a href="#" class="social-btn">IG</a>
+                <div class="sfida-layout" style="align-items: flex-start;">
+
+                    <!-- LEFT COLUMN: TEXT + FORM -->
+                    <div class="reveal content-wrapper" style="flex: 1;">
+                        <h1 class="light-title" style="margin-bottom: 20px;">Renga Treffen 2026<br><span
+                                style="color: #ffcc00;">CONTATTI</span></h1>
+                        <p style="color: #ccc; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px;">
+                            Hai domande sull'evento?<br>Compila il modulo qui sotto e ti risponderemo il prima
+                            possibile.
+                        </p>
+
+                        <!-- REACT MOUNT POINT -->
+                        <div id="root-contact-form">
+                            <p style="color: #666;">Caricamento Modulo...</p>
                         </div>
                     </div>
+
+                    <!-- RIGHT COLUMN: IMAGE -->
+                    <div class="reveal img-wrapper" style="flex: 1;">
+                        <!-- Placeholder Image coerente con lo stile "pittorico" -->
+                        <img src="/hero.png" alt="Renga Contact" class="sfida-img"
+                            style="border: 4px solid #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                    </div>
+
                 </div>
             </div>
         </section>
@@ -52,6 +59,7 @@
     <footer class="main-footer">
         <p>&copy; 2026 Renga Treffen.</p>
     </footer>
+    <script type="module" src="/src/mount-contact.jsx"></script>
     <script type="module" src="/src/main.ts"></script>
     <script type="module" src="/src/plugins/renga-dev-loader-v1.js"></script>
 </body>
