@@ -167,3 +167,17 @@ contactForm?.addEventListener('submit', (e) => {
     });
     (contactForm as HTMLFormElement).reset();
 });
+
+// Registration Form Submission (Mock for now - DB integration coming soon)
+const regFormPage = document.getElementById('registration-form-page');
+regFormPage?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    // @ts-ignore
+    Swal.fire({
+        icon: 'success',
+        title: 'Pre-Iscrizione Inviata!',
+        text: 'Riceverai un\'email con le istruzioni per il pagamento a breve.',
+        confirmButtonColor: '#ffcc00'
+    });
+    (regFormPage as HTMLFormElement).reset();
+});
