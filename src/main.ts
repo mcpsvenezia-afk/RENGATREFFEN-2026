@@ -96,16 +96,15 @@ accordionHeaders.forEach(header => {
     });
 });
 
-// Form Submission handling (Real PHP Backend)
+// Form Submission handling (Supabase)
 const regForm = document.getElementById('registration-form') as HTMLFormElement;
 regForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Mostra il caricamento con SweetAlert2
     // @ts-ignore (SweetAlert2 is loaded via CDN)
     Swal.fire({
         title: 'Invio in corso...',
-        text: 'Stiamo processando la tua iscrizione',
+        text: 'Salvataggio iscrizione su Supabase',
         allowOutsideClick: false,
         didOpen: () => {
             // @ts-ignore
@@ -114,49 +113,41 @@ regForm?.addEventListener('submit', async (e) => {
     });
 
     const formData = new FormData(regForm);
+    const registrationData = {
+        nome: formData.get('p1_name'),
+        cognome: formData.get('p1_name'), // In the original form, it's combined or separate?
+        email: formData.get('p1_email'),
+        telefono: formData.get('phone'),
+        partner_name: formData.get('p2_name'),
+        created_at: new Date().toISOString()
+    };
+
+    // Note: The original form has p1_name, p2_name, etc.
+    // Matching with PROJECT_GOAL_BLITZ_REG_v1 schema: nome, cognome, email, telefono, partner_name
 
     try {
-        const response = await fetch('process_registration.php', {
-            method: 'POST',
-            body: formData
+        const { error } = await supabase
+            .from('registrations')
+            .insert([registrationData]);
+
+        if (error) throw error;
+
+        // @ts-ignore
+        Swal.fire({
+            icon: 'success',
+            title: 'Iscrizione Inviata!',
+            text: 'I tuoi dati sono stati salvati correttamente su Supabase.',
+            confirmButtonColor: '#ffcc00'
         });
+        regForm.reset();
 
-        const text = await response.text();
-
-        // Verifica se la risposta è codice PHP grezzo (accade in locale con Vite)
-        if (text.includes('<?php')) {
-            console.log("Ambiente locale rilevato: simulazione successo invio.");
-            // @ts-ignore
-            Swal.fire({
-                icon: 'success',
-                title: 'Iscrizione Inviata!',
-                text: 'Bravo! (Simulazione locale attiva). Su Aruba la mail verrà inviata realmente.',
-                confirmButtonColor: '#ffcc00'
-            });
-            regForm.reset();
-            return;
-        }
-
-        const result = JSON.parse(text);
-
-        if (response.ok && result.status === 'success') {
-            // @ts-ignore
-            Swal.fire({
-                icon: 'success',
-                title: 'Iscrizione Inviata!',
-                text: 'La tua richiesta è stata presa in carico. Riceverai un\'email con i dettagli a breve.',
-                confirmButtonColor: '#ffcc00'
-            });
-            regForm.reset();
-        } else {
-            throw new Error(result.message || 'Errore durante l\'invio');
-        }
     } catch (error: any) {
+        console.error('Supabase Error:', error);
         // @ts-ignore
         Swal.fire({
             icon: 'error',
-            title: 'Ops! Qualcosa è andato storto',
-            text: error.message || 'Non è stato possibile inviare il modulo. Riprova più tardi o scrivici via email.',
+            title: 'Ops! Errore Supabase',
+            text: error.message || 'Errore durante il salvataggio.',
             confirmButtonColor: '#ffcc00'
         });
     }
