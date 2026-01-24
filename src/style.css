@@ -1,15 +1,21 @@
 :root {
-  --primary-color: #ffc400;
-  /* Giallo Renga */
+  --primary-color: #FFCC00;
+  /* Giallo Renga Vivace */
   --primary-hover: #e6b000;
-  --secondary-color: #ff4081;
-  /* Rosa Tutorial */
-  --bg-dark: #0a0a0b;
-  --bg-dark-alt: #121214;
-  --text-light: #ffffff;
-  --text-muted: #a0a0a5;
-  --glass: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --secondary-color: #E6007E;
+  /* Fucsia Renga */
+
+  /* BRIGHT THEME REVOLUTION */
+  --bg-dark: #FFFFFF;
+  --bg-dark-alt: #F8F9FA;
+  --text-light: #111111;
+  --text-muted: #4a4a4a;
+
+  /* Modern Glass Light */
+  --glass: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+
   --font-main: 'Inter', sans-serif;
   --font-display: 'Outfit', sans-serif;
 }
@@ -913,24 +919,41 @@ body {
 }
 
 /* Colors from the image */
-.timeline-item:nth-child(1) .timeline-dot { border-color: #ffcc00; }
-.timeline-item:nth-child(2) .timeline-dot { border-color: #e6007e; }
-.timeline-item:nth-child(3) .timeline-dot { border-color: #ff6600; }
-.timeline-item:nth-child(4) .timeline-dot { border-color: #0099ff; }
-.timeline-item:nth-child(5) .timeline-dot { border-color: #00cc99; }
+.timeline-item:nth-child(1) .timeline-dot {
+  border-color: #ffcc00;
+}
+
+.timeline-item:nth-child(2) .timeline-dot {
+  border-color: #e6007e;
+}
+
+.timeline-item:nth-child(3) .timeline-dot {
+  border-color: #ff6600;
+}
+
+.timeline-item:nth-child(4) .timeline-dot {
+  border-color: #0099ff;
+}
+
+.timeline-item:nth-child(5) .timeline-dot {
+  border-color: #00cc99;
+}
 
 @media (max-width: 768px) {
   .prizes-timeline::before {
     left: 30px;
   }
+
   .timeline-item {
     padding-left: 80px !important;
     padding-right: 0 !important;
     justify-content: flex-start !important;
   }
+
   .timeline-dot {
     left: 30px !important;
   }
+
   .timeline-content {
     text-align: left !important;
     max-width: 100%;
