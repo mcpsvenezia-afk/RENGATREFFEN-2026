@@ -39,6 +39,7 @@ body {
 }
 
 /* Navigation */
+/* Navigation High Contrast Fix */
 #main-nav {
   position: fixed;
   top: 0;
@@ -46,23 +47,21 @@ body {
   z-index: 1000;
   padding: 1.5rem 0;
   transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background: transparent;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
 #main-nav.scrolled {
-  background: rgba(10, 10, 11, 0.9);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.95);
+  /* Header bianco quando si scrolla */
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
   padding: 1rem 0;
-  border-bottom: 1px solid var(--glass-border);
 }
 
-.nav-container {
-  max-width: 1300px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 2rem;
+#main-nav.scrolled .nav-links a,
+#main-nav.scrolled .logo {
+  color: #111;
+  /* Testo nero su header bianco scrollato */
+  text-shadow: none;
 }
 
 .logo {
@@ -71,24 +70,19 @@ body {
   font-weight: 900;
   letter-spacing: -1px;
   text-decoration: none;
-  color: var(--text-light);
-}
-
-.nav-links {
-  display: flex;
-  list-style: none;
-  gap: 2.5rem;
-  align-items: center;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .nav-links a {
   text-decoration: none;
-  color: var(--text-muted);
-  font-weight: 600;
+  color: #ffffff;
+  font-weight: 700;
   font-size: 0.9rem;
   transition: 0.3s;
   text-transform: uppercase;
   letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .nav-links a:hover {
