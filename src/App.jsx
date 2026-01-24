@@ -58,34 +58,53 @@ function App() {
             }}>
                 <h1>Blitz Registration Dashboard</h1>
 
-                {/* Dev Mode Toggle Switch */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <label htmlFor="dev-mode-switch" style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>
-                        🧬 DEV MODE
-                    </label>
-                    <div
-                        onClick={() => setIsDevMode(!isDevMode)}
-                        style={{
-                            width: '50px',
-                            height: '24px',
-                            backgroundColor: isDevMode ? '#10b981' : '#ccc',
-                            borderRadius: '12px',
-                            cursor: 'pointer',
-                            position: 'relative',
-                            transition: 'background-color 0.3s'
-                        }}
-                    >
-                        <div style={{
-                            width: '20px',
-                            height: '20px',
-                            backgroundColor: 'white',
-                            borderRadius: '50%',
-                            position: 'absolute',
-                            top: '2px',
-                            left: isDevMode ? '28px' : '2px',
-                            transition: 'left 0.3s',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                        }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    {/* Test Data Generator (Only in Dev Mode) */}
+                    {isDevMode && (
+                        <button
+                            onClick={generateTestData}
+                            style={{
+                                padding: '5px 10px',
+                                fontSize: '0.8rem',
+                                backgroundColor: '#FFCC00',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontWeight: 'bold'
+                            }}
+                        >
+                            + DATI TEST
+                        </button>
+                    )}
+
+                    {/* Dev Mode Toggle Switch */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <label htmlFor="dev-mode-switch" style={{ fontWeight: 'bold', fontSize: '0.9rem' }}>
+                            🧬 DEV MODE
+                        </label>
+                        <div
+                            onClick={() => setIsDevMode(!isDevMode)}
+                            style={{
+                                width: '50px',
+                                height: '24px',
+                                backgroundColor: isDevMode ? '#10b981' : '#ccc',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                position: 'relative',
+                                transition: 'background-color 0.3s'
+                            }}
+                        >
+                            <div style={{
+                                width: '20px',
+                                height: '20px',
+                                backgroundColor: 'white',
+                                borderRadius: '50%',
+                                position: 'absolute',
+                                top: '2px',
+                                left: isDevMode ? '28px' : '2px',
+                                transition: 'left 0.3s',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                            }} />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -115,8 +134,12 @@ function App() {
                         <tr
                             key={reg.id}
                             onClick={(e) => handleInspect(e, reg)}
-                            style={{ cursor: 'pointer' }}
-                            title="Ctrl + Clic per ispezionare"
+                            onContextMenu={(e) => handleInspect(e, reg)} // Support Right Click as Inspector
+                            style={{
+                                cursor: isDevMode ? 'help' : 'default',
+                                backgroundColor: isDevMode ? '#fffbec' : 'white'
+                            }}
+                            title={isDevMode ? "Premi Ctrl + Clic (o Tasto Destro) per DNA" : ""}
                         >
                             <td>{reg.nome}</td>
                             <td>{reg.cognome}</td>
@@ -125,10 +148,10 @@ function App() {
                             <td>{new Date(reg.created_at).toLocaleString()}</td>
                         </tr>
                     ))}
-                    {registrations.length === 0 && !error && (
+                    {registrations.length === 0 && (
                         <tr>
                             <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
-                                Nessun dato trovato.
+                                {isDevMode ? "Nessun dato. Usa '+ DATI TEST' per generare un record." : "Nessun dato trovato."}
                             </td>
                         </tr>
                     )}
@@ -136,6 +159,21 @@ function App() {
             </table>
         </div>
     )
+
+    async function generateTestData() {
+        const fakeData = {
+            nome: 'TestUser',
+            cognome: 'DevMode',
+            email: `test.${Date.now()}@blitz.dev`,
+            telefono: '+00 123456789',
+            partner_name: 'AI Companion',
+            created_at: new Date().toISOString()
+        };
+
+        const { error } = await supabase.from('registrations').insert([fakeData]);
+        if (error) alert('Error creating test data: ' + error.message);
+        else fetchRegistrations();
+    }
 }
 
 export default App
