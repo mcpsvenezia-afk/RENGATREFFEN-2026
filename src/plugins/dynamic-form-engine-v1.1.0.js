@@ -28,57 +28,57 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 padding-bottom: 2rem;
             }
             .form-section {
-                background: rgba(255, 255, 255, 0.03);
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                background: #0d0d12;
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 24px;
-                padding: 2.5rem;
-                backdrop-filter: blur(10px);
-                transition: transform 0.3s ease;
+                padding: 3rem;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+                transition: transform 0.3s ease, border-color 0.3s ease;
             }
             .form-section:hover {
-                border-color: rgba(255, 204, 0, 0.3);
+                border-color: #FFCC00;
             }
             .section-title {
                 font-family: 'Outfit', sans-serif;
-                font-size: 1.5rem;
+                font-size: 1.8rem;
                 font-weight: 900;
                 color: #FFCC00;
-                margin-bottom: 2rem;
+                margin-bottom: 2.5rem;
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 display: flex;
                 align-items: center;
-                gap: 10px;
+                gap: 15px;
             }
             .section-title::before {
                 content: '';
-                width: 4px;
-                height: 24px;
+                width: 6px;
+                height: 30px;
                 background: #E6007E;
-                border-radius: 2px;
+                border-radius: 3px;
             }
             .form-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 1.5rem;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
             }
             .field-wrapper {
                 display: flex;
                 flex-direction: column;
-                gap: 0.5rem;
+                gap: 0.8rem;
             }
             .field-wrapper label {
-                font-size: 0.8rem;
-                font-weight: 800;
-                color: #aaa;
+                font-size: 0.9rem;
+                font-weight: 700;
+                color: #ffffff;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
+                letter-spacing: 1px;
             }
             .renga-input {
-                background: rgba(255, 255, 255, 0.05) !important;
-                border: 1px solid rgba(255, 255, 255, 0.1) !important;
-                border-radius: 12px !important;
-                padding: 1rem !important;
+                background: #1a1a23 !important;
+                border: 1px solid #333340 !important;
+                border-radius: 14px !important;
+                padding: 1.2rem !important;
                 color: #fff !important;
                 font-family: 'Inter', sans-serif !important;
                 font-size: 1rem !important;
@@ -86,19 +86,19 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
             }
             .renga-input:focus {
                 outline: none !important;
-                background: rgba(255, 255, 255, 0.1) !important;
+                background: #232330 !important;
                 border-color: #FFCC00 !important;
-                box-shadow: 0 0 15px rgba(255, 204, 0, 0.1) !important;
+                box-shadow: 0 0 20px rgba(255, 204, 0, 0.15) !important;
             }
             .renga-select {
                 appearance: none !important;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FFCC00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FFCC00' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
                 background-repeat: no-repeat !important;
-                background-position: right 1rem center !important;
+                background-position: right 1.2rem center !important;
                 background-size: 1.2em !important;
             }
             .renga-textarea {
-                min-height: 120px !important;
+                min-height: 150px !important;
                 resize: vertical !important;
             }
             .submit-container {
@@ -112,30 +112,34 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 background: linear-gradient(135deg, #FFCC00 0%, #FFB300 100%) !important;
                 color: #000 !important;
                 border: none !important;
-                padding: 1.5rem !important;
+                padding: 1.8rem !important;
                 border-radius: 100px !important;
                 font-family: 'Outfit', sans-serif !important;
                 font-weight: 900 !important;
-                font-size: 1.2rem !important;
+                font-size: 1.3rem !important;
                 text-transform: uppercase !important;
                 letter-spacing: 2px !important;
                 cursor: pointer !important;
                 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-                box-shadow: 0 10px 30px rgba(255, 204, 0, 0.3) !important;
+                box-shadow: 0 15px 40px rgba(255, 204, 0, 0.4) !important;
             }
             .renga-submit-btn:hover {
-                transform: translateY(-5px) scale(1.02) !important;
-                box-shadow: 0 15px 40px rgba(255, 204, 0, 0.5) !important;
+                transform: translateY(-8px) scale(1.02) !important;
+                box-shadow: 0 20px 50px rgba(255, 204, 0, 0.6) !important;
             }
             .help-text {
-                font-size: 0.75rem;
+                font-size: 0.8rem;
                 color: #E6007E;
-                font-style: italic;
-                margin-top: 0.2rem;
+                font-weight: 600;
+                margin-top: 0.4rem;
+                padding: 0.5rem 1rem;
+                background: rgba(230, 0, 126, 0.1);
+                border-radius: 8px;
+                border-left: 3px solid #E6007E;
             }
             @media (max-width: 600px) {
-                .form-section { padding: 1.5rem; }
-                .section-title { font-size: 1.2rem; }
+                .form-section { padding: 2rem 1.5rem; }
+                .section-title { font-size: 1.4rem; }
             }
         `;
         document.head.appendChild(style);
