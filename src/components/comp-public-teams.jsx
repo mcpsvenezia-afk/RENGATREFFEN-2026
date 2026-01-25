@@ -76,7 +76,7 @@ export function PublicTeamList() {
             {teams.map((team, idx) => (
                 <div key={idx} style={teamCardStyle}>
                     <div style={teamHeaderStyle}>
-                        <h3 style={teamTitleStyle}>🏆 TEAM {team.bib ? `#${team.bib}` : ''} {team.name} <span style={{ fontSize: '0.6rem', opacity: 0.2, verticalAlign: 'middle' }}>v1.1.3</span></h3>
+                        <h3 style={teamTitleStyle}>🏆 TEAM {team.name} <span style={{ fontSize: '0.6rem', opacity: 0.2, verticalAlign: 'middle' }}>v1.1.4</span></h3>
                         <div style={badgeStyle}>
                             START {team.departure}
                         </div>
