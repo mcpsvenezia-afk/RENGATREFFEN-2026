@@ -16,14 +16,23 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [isDevMode, setIsDevMode] = useState(false);
-
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('dev') === 'true') {
-            setIsDevMode(true);
-        }
+        const isStored = localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
+        setIsDevMode(isStored);
         fetchAllData();
     }, []);
+
+    const toggleDevMode = () => {
+        const newState = !isDevMode;
+        if (newState) {
+            localStorage.setItem('RENGATREFFEN_DEV_MODE', 'true');
+        } else {
+            localStorage.removeItem('RENGATREFFEN_DEV_MODE');
+        }
+        setIsDevMode(newState);
+        // Reload to let the global loader script activate/deactivate
+        window.location.reload();
+    };
 
     async function fetchAllData() {
         setLoading(true);
@@ -58,12 +67,12 @@ function App() {
                         RENGATREFFEN <span style={{ color: '#FFCC00' }}>CMS</span>
                     </h1>
                 </div>
-                <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
-                    <button onClick={fetchAllData} style={btnGhostStyle}>{loading ? '...' : '🔄 SYNC SYSTEM'}</button>
-                    <div onClick={() => setIsDevMode(!isDevMode)} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', opacity: isDevMode ? 1 : 0.4 }}>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#E6007E' }}></div>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#E6007E' }}>DNA</span>
+                <div style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
+                    <div onClick={toggleDevMode} style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', background: isDevMode ? 'rgba(230,0,126,0.1)' : '#111', padding: '10px 25px', borderRadius: '100px', border: `1px solid ${isDevMode ? '#E6007E' : '#333'}`, transition: '0.3s' }}>
+                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: isDevMode ? '#E6007E' : '#444', boxShadow: isDevMode ? '0 0 15px #E6007E' : 'none' }}></div>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 900, color: isDevMode ? '#E6007E' : '#666' }}>MODO DEV {isDevMode ? 'ATTIVO' : 'SPENTO'}</span>
                     </div>
+                    <button onClick={fetchAllData} style={btnGhostStyle}>{loading ? '...' : '🔄 SYNC SYSTEM'}</button>
                 </div>
             </header>
 
