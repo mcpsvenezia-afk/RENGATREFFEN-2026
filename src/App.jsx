@@ -1,6 +1,6 @@
 /**
- * 🧬 PAGE: Admin Dashboard v3.0
- * Goal: Premium Design, High Readability, High Contrast
+ * 🧬 PAGE: Admin Dashboard v3.1 (High Contrast Edition)
+ * Goal: Maximum Readability, Dark Premium Background, Big Elements
  */
 
 import React, { useEffect, useState } from 'react';
@@ -37,38 +37,39 @@ function App() {
     }
 
     return (
-        <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', color: '#1a1a1b', fontFamily: '"Outfit", sans-serif' }}>
-            {/* HEADER PREMIUM */}
-            <header style={{ backgroundColor: '#0d0d12', padding: '25px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+        <div style={{ backgroundColor: '#09090b', minHeight: '100vh', color: '#fff', fontFamily: '"Inter", sans-serif' }}>
+
+            {/* HEADER ULTRA DARK */}
+            <header style={{ backgroundColor: '#000', padding: '30px 60px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #333' }}>
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '1.4rem', color: '#fff', fontWeight: 300, letterSpacing: '3px' }}>
-                        RENGATREFFEN <span style={{ color: '#FFCC00', fontWeight: 900 }}>DASHBOARD</span>
+                    <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, letterSpacing: '4px', color: '#fff' }}>
+                        RENGATREFFEN <span style={{ color: '#FFCC00' }}>CMS</span>
                     </h1>
                 </div>
-                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                    <button onClick={fetchAllData} style={btnGhostStyle}>{loading ? '...' : '🔄 SYNC DATA'}</button>
-                    <div onClick={() => setIsDevMode(!isDevMode)} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', opacity: isDevMode ? 1 : 0.5 }}>
-                        <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#FFCC00' }}></div>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#FFCC00' }}>DEV MODE</span>
+                <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+                    <button onClick={fetchAllData} style={btnGhostStyle}>{loading ? '...' : '🔄 SYNC SYSTEM'}</button>
+                    <div onClick={() => setIsDevMode(!isDevMode)} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', opacity: isDevMode ? 1 : 0.4 }}>
+                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#E6007E' }}></div>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#E6007E' }}>DNA</span>
                     </div>
                 </div>
             </header>
 
-            <main style={{ padding: '40px' }}>
+            <main style={{ padding: '60px' }}>
                 {!selectedItem ? (
-                    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-                        {/* TABS SELECTOR */}
-                        <div style={{ display: 'flex', gap: '10px', marginBottom: '40px' }}>
+                    <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+                        {/* MAIN TABS BIG */}
+                        <div style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
                             <button onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations')}>
-                                🏁 ISCRIZIONI <span style={badgeStyle}>{registrations.length}</span>
+                                ISCRIZIONI ({registrations.length})
                             </button>
                             <button onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages')}>
-                                ✉️ MESSAGGI <span style={badgeStyle}>{messages.length}</span>
+                                MESSAGGI ({messages.length})
                             </button>
                         </div>
 
-                        {/* TABLE CONTAINER */}
-                        <div style={{ backgroundColor: '#fff', borderRadius: '24px', padding: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.05)', border: '1px solid #e1e4e8' }}>
+                        {/* TABLE WRAPPER DARK */}
+                        <div style={{ backgroundColor: '#111', borderRadius: '40px', padding: '30px', border: '1px solid #333', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' }}>
                             {activeTab === 'registrations' ? (
                                 <RegistrationList
                                     data={registrations}
@@ -87,7 +88,7 @@ function App() {
                         </div>
                     </div>
                 ) : (
-                    <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+                    <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
                         <button
                             onClick={() => setSelectedItem(null)}
                             style={btnBackStyle}
@@ -105,30 +106,30 @@ function App() {
             </main>
 
             <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;900&family=Inter:wght@400;700&display=swap');
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                
+                /* Custom table row styling for high contrast */
+                tr:hover { background-color: #1a1a1a !important; }
+                td { color: #ccc !important; font-size: 1.1rem !important; }
             `}</style>
         </div>
     );
 }
 
-const btnGhostStyle = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 20px', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 900, cursor: 'pointer' };
-const btnBackStyle = { marginBottom: '30px', backgroundColor: '#0d0d12', color: '#FFCC00', border: 'none', padding: '15px 30px', borderRadius: '50px', fontWeight: 900, cursor: 'pointer', boxShadow: '0 10px 20px rgba(0,0,0,0.2)' };
+const btnGhostStyle = { background: '#1a1a1f', border: '1px solid #333', color: '#fff', padding: '12px 25px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 900, cursor: 'pointer' };
+const btnBackStyle = { marginBottom: '40px', backgroundColor: '#FFCC00', color: '#000', border: 'none', padding: '18px 40px', borderRadius: '50px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 20px 40px rgba(255,204,0,0.3)' };
 const mainTabStyle = (active) => ({
-    padding: '18px 35px',
-    backgroundColor: active ? '#FFCC00' : '#fff',
+    padding: '25px 50px',
+    backgroundColor: active ? '#FFCC00' : '#1a1a1f',
     color: active ? '#000' : '#888',
     border: 'none',
-    borderRadius: '16px',
+    borderRadius: '24px',
     cursor: 'pointer',
     fontWeight: 900,
-    fontSize: '0.9rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    boxShadow: active ? '0 10px 20px rgba(255,204,0,0.3)' : '0 4px 10px rgba(0,0,0,0.02)',
-    transition: '0.3s'
+    fontSize: '1.2rem',
+    transition: '0.3s',
+    boxShadow: active ? '0 20px 40px rgba(255,204,0,0.2)' : 'none'
 });
-const badgeStyle = { backgroundColor: 'rgba(0,0,0,0.1)', padding: '2px 10px', borderRadius: '100px', fontSize: '0.7rem' };
 
 export default App;
