@@ -84,6 +84,7 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 font-family: 'Inter', sans-serif !important;
                 font-size: 1rem !important;
                 transition: all 0.3s ease !important;
+                width: 100%;
             }
             .renga-input:focus {
                 outline: none !important;
@@ -92,6 +93,68 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 box-shadow: 0 0 20px rgba(255, 204, 0, 0.15) !important;
             }
             
+            /* Select Styles */
+            select.renga-input {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FFCC00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 1rem center;
+                background-size: 1.2rem;
+                padding-right: 3rem !important;
+                cursor: pointer;
+            }
+
+            /* File Input Styles - Premium */
+            .file-upload-wrapper {
+                position: relative;
+                width: 100%;
+            }
+            .file-custom-input {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                background: #1a1a23;
+                border: 2px dashed #333340;
+                border-radius: 14px;
+                padding: 1rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            .file-custom-input:hover {
+                border-color: #FFCC00;
+                background: #232330;
+            }
+            .file-icon {
+                font-size: 1.5rem;
+                color: #FFCC00;
+            }
+            .file-info {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .file-label {
+                font-size: 0.9rem;
+                font-weight: 700;
+                color: #fff;
+            }
+            .file-name {
+                font-size: 0.8rem;
+                color: #666;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+            .hidden-file-input {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                left: 0;
+                opacity: 0;
+                cursor: pointer;
+            }
+
             /* Radio Group Styles - Premium Traditional */
             .radio-group {
                 display: flex;
@@ -272,18 +335,7 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
 
                     // Logic to handle conditional visibility for radios
                     radio.addEventListener('change', () => {
-                        schema.sections.forEach(s => {
-                            s.fields.forEach(f => {
-                                if (f.condition && f.condition.field === field.name) {
-                                    const depWrapper = form.querySelector(`[data-field-name="${f.name}"]`);
-                                    if (depWrapper) {
-                                        depWrapper.style.display = radio.value === f.condition.value ? 'flex' : 'none';
-                                        const depInput = depWrapper.querySelector('.renga-input, .radio-group');
-                                        // Handle input inside depWrapper
-                                    }
-                                }
-                            });
-                        });
+                        triggerConditionalLogic(form, schema, field.name, radio.value);
                     });
 
                     item.onclick = () => radio.click();
@@ -293,6 +345,62 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                     radioGroup.appendChild(item);
                 });
                 wrapper.appendChild(radioGroup);
+            } else if (field.type === 'select') {
+                input = document.createElement('select');
+                input.className = 'renga-input';
+                input.name = field.name;
+                input.id = `field-${field.name}`;
+                if (field.required) input.required = true;
+
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = "";
+                defaultOpt.innerText = field.placeholder || "Seleziona un'opzione...";
+                defaultOpt.disabled = true;
+                defaultOpt.selected = true;
+                input.appendChild(defaultOpt);
+
+                field.options.forEach(opt => {
+                    const o = document.createElement('option');
+                    o.value = opt;
+                    o.innerText = opt;
+                    input.appendChild(o);
+                });
+
+                wrapper.appendChild(input);
+            } else if (field.type === 'file') {
+                const uploadWrapper = document.createElement('div');
+                uploadWrapper.className = 'file-upload-wrapper';
+
+                const customInput = document.createElement('div');
+                customInput.className = 'file-custom-input';
+                customInput.innerHTML = `
+                    <div class="file-icon">📁</div>
+                    <div class="file-info">
+                        <span class="file-label">Scegli file...</span>
+                        <span class="file-name">Nessun file selezionato</span>
+                    </div>
+                `;
+
+                input = document.createElement('input');
+                input.type = 'file';
+                input.className = 'hidden-file-input';
+                input.name = field.name;
+                input.id = `field-${field.name}`;
+                if (field.required) input.required = true;
+                if (field.accept) input.accept = field.accept;
+
+                input.addEventListener('change', (e) => {
+                    const fileName = e.target.files[0]?.name || "Nessun file selezionato";
+                    customInput.querySelector('.file-name').innerText = fileName;
+                    customInput.querySelector('.file-label').innerText = "File caricato!";
+                    customInput.style.borderColor = "#FFCC00";
+                    customInput.style.background = "rgba(255, 204, 0, 0.05)";
+                });
+
+                uploadWrapper.appendChild(customInput);
+                uploadWrapper.appendChild(input);
+                wrapper.appendChild(uploadWrapper);
+
             } else if (field.type === 'textarea') {
                 input = document.createElement('textarea');
                 input.className = 'renga-input renga-textarea';
@@ -343,19 +451,10 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 }
             });
 
-            // Conditional Logic for inputs (non-radio)
+            // Conditional Logic for generic inputs
             if (input && field.type !== 'radio') {
                 input.addEventListener('change', () => {
-                    schema.sections.forEach(s => {
-                        s.fields.forEach(f => {
-                            if (f.condition && f.condition.field === field.name) {
-                                const depWrapper = form.querySelector(`[data-field-name="${f.name}"]`);
-                                if (depWrapper) {
-                                    depWrapper.style.display = input.value === f.condition.value ? 'flex' : 'none';
-                                }
-                            }
-                        });
-                    });
+                    triggerConditionalLogic(form, schema, field.name, input.value);
                 });
             }
 
@@ -391,6 +490,8 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
         e.preventDefault();
         const data = new FormData(form);
         const result = {};
+
+        // Ensure we preserve File objects
         for (let [key, value] of data.entries()) {
             result[key] = value;
         }
@@ -414,3 +515,21 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
         window.dispatchEvent(new Event('scroll'));
     }
 }
+
+function triggerConditionalLogic(form, schema, fieldName, value) {
+    schema.sections.forEach(s => {
+        s.fields.forEach(f => {
+            if (f.condition && f.condition.field === fieldName) {
+                const depWrapper = form.querySelector(`[data-field-name="${f.name}"]`);
+                if (depWrapper) {
+                    const isVisible = value === f.condition.value;
+                    depWrapper.style.display = isVisible ? 'flex' : 'none';
+                    if (isVisible) {
+                        depWrapper.classList.add('reveal', 'active');
+                    }
+                }
+            }
+        });
+    });
+}
+

@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.crm_attachments (
     message_id UUID REFERENCES public.messages(id) ON DELETE CASCADE,
     file_url TEXT NOT NULL,
     file_name TEXT NOT NULL,
+    field_name TEXT,
     file_size BIGINT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

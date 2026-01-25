@@ -42,38 +42,80 @@ export async function initRegistrationEngine() {
 
             try {
                 const cleanedData = { ...formData };
+                const attachments = [];
 
-                // 🧬 PHOTO UPLOAD LOGIC
-                if (formData.pilot_photo instanceof File && formData.pilot_photo.size > 0) {
-                    const file = formData.pilot_photo;
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-                    const filePath = `photos/${fileName}`;
+                // 🧬 UNIVERSAL FILE UPLOAD HANDLING
+                for (let key in formData) {
+                    const value = formData[key];
+                    if (value instanceof File && value.size > 0) {
+                        const file = value;
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
 
-                    // Upload to Storage (Ensure 'registrations' bucket exists)
-                    const { error: uploadError } = await supabase.storage
-                        .from('registrations')
-                        .upload(filePath, file);
+                        // Storage Bucket Selection (photos for profile, attachments for docs)
+                        const bucket = (key === 'pilot_photo_url') ? 'registrations' : 'attachments';
+                        const filePath = `${key}/${fileName}`;
 
-                    if (uploadError) throw new Error('Caricamento foto fallito: ' + uploadError.message);
+                        console.log(`[PLUGIN] Uploading ${key}: ${file.name} to bucket ${bucket}...`);
 
-                    // Get Public URL
-                    const { data: { publicUrl } } = supabase.storage
-                        .from('registrations')
-                        .getPublicUrl(filePath);
+                        const { error: uploadError } = await supabase.storage
+                            .from(bucket)
+                            .upload(filePath, file);
 
-                    cleanedData.pilot_photo = publicUrl;
-                } else if (cleanedData.pilot_photo instanceof File) {
-                    // File input exists but no file was actually chosen
-                    cleanedData.pilot_photo = "";
+                        if (uploadError) throw new Error(`Caricamento ${key} fallito: ` + uploadError.message);
+
+                        const { data: { publicUrl } } = supabase.storage
+                            .from(bucket)
+                            .getPublicUrl(filePath);
+
+                        if (key === 'pilot_photo_url') {
+                            cleanedData.pilot_photo_url = publicUrl;
+                        } else {
+                            // Collect document for crm_attachments
+                            attachments.push({
+                                file_url: publicUrl,
+                                file_name: file.name,
+                                file_size: file.size,
+                                field_name: key
+                            });
+                            // Remove from cleanedData to avoid DB error in registrations table
+                            delete cleanedData[key];
+                        }
+                    } else if (value instanceof File) {
+                        // Empty file input
+                        delete cleanedData[key];
+                    }
                 }
 
-                // Save entries to Supabase
-                const { error } = await supabase
+                // Save registration to Supabase
+                const { data: regData, error: regError } = await supabase
                     .from('registrations')
-                    .insert([cleanedData]);
+                    .insert([cleanedData])
+                    .select();
 
-                if (error) throw error;
+                if (regError) throw regError;
+
+                const registrationId = regData[0].id;
+
+                // Save Attachments to crm_attachments
+                if (attachments.length > 0) {
+                    console.log(`[PLUGIN] Saving ${attachments.length} attachments for reg: ${registrationId}`);
+                    const attachmentsToInsert = attachments.map(a => ({
+                        registration_id: registrationId,
+                        file_url: a.file_url,
+                        file_name: a.file_name,
+                        field_name: a.field_name,
+                        file_size: a.file_size
+                    }));
+
+                    const { error: attError } = await supabase
+                        .from('crm_attachments')
+                        .insert(attachmentsToInsert);
+
+                    if (attError) {
+                        console.warn('[PLUGIN] registration saved, but attachments failed', attError);
+                    }
+                }
 
                 // Success Notification
                 // @ts-ignore
@@ -82,7 +124,7 @@ export async function initRegistrationEngine() {
                     window.Swal.fire({
                         icon: 'success',
                         title: 'Iscrizione Ricevuta!',
-                        text: 'Verrai ricontattato via email per completare il pagamento.',
+                        text: 'Dati e documenti caricati correttamente. Verrai ricontattato via email.',
                         confirmButtonColor: '#FFCC00'
                     }).then(() => {
                         window.location.href = 'index.html';

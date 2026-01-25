@@ -54,13 +54,60 @@ export function initContactEngine() {
             created_at: new Date().toISOString()
         };
 
+        const files = formData.getAll('attachments');
+
         try {
             console.log('[PLUGIN] Contact Engine: Sending data to Supabase...', data);
-            const { error } = await supabase
+            const { data: msgData, error } = await supabase
                 .from('messages')
-                .insert([data]);
+                .insert([data])
+                .select();
 
             if (error) throw error;
+
+            const messageId = msgData[0].id;
+
+            // Handle File Uploads
+            if (files && files.length > 0 && files[0].size > 0) {
+                console.log(`[PLUGIN] Contact Engine: Processing ${files.length} attachments...`);
+
+                for (const file of files) {
+                    if (file.size === 0) continue;
+
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+                    const filePath = `messages/${messageId}/${fileName}`;
+
+                    // 1. Upload to Storage (bucket: 'attachments')
+                    const { error: uploadError } = await supabase.storage
+                        .from('attachments')
+                        .upload(filePath, file);
+
+                    if (uploadError) {
+                        console.error(`[PLUGIN] Upload failed for ${file.name}`, uploadError);
+                        continue;
+                    }
+
+                    // 2. Get Public URL
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('attachments')
+                        .getPublicUrl(filePath);
+
+                    // 3. Save to crm_attachments table
+                    const { error: dbError } = await supabase
+                        .from('crm_attachments')
+                        .insert([{
+                            message_id: messageId,
+                            file_url: publicUrl,
+                            file_name: file.name,
+                            file_size: file.size
+                        }]);
+
+                    if (dbError) {
+                        console.error(`[PLUGIN] DB attachment record failed for ${file.name}`, dbError);
+                    }
+                }
+            }
 
             console.log('[PLUGIN] Contact Engine: SUCCESS');
 

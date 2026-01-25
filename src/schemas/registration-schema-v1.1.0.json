@@ -244,7 +244,7 @@
                     "required": true
                 },
                 {
-                    "name": "pilot_photo",
+                    "name": "pilot_photo_url",
                     "label": "Carica la tua foto profilo",
                     "type": "file",
                     "required": false,
@@ -263,6 +263,34 @@
                         "field": "authorize_pilot_profile",
                         "value": "SI"
                     }
+                }
+            ]
+        },
+        {
+            "id": "documents",
+            "title": "Documenti Obbligatori",
+            "fields": [
+                {
+                    "name": "pilot_id_front",
+                    "label": "Fronte Carta d'Identità",
+                    "type": "file",
+                    "required": true,
+                    "accept": "image/*,application/pdf",
+                    "help": "Formati accettati: JPG, PNG, PDF"
+                },
+                {
+                    "name": "pilot_id_back",
+                    "label": "Retro Carta d'Identità",
+                    "type": "file",
+                    "required": true,
+                    "accept": "image/*,application/pdf"
+                },
+                {
+                    "name": "pilot_license",
+                    "label": "Patente di Guida",
+                    "type": "file",
+                    "required": true,
+                    "accept": "image/*,application/pdf"
                 }
             ]
         },
