@@ -75,31 +75,31 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 letter-spacing: 0.5px;
             }
             .renga-input {
-                background: rgba(255, 255, 255, 0.05);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 12px;
-                padding: 1rem;
-                color: #fff;
-                font-family: 'Inter', sans-serif;
-                font-size: 1rem;
-                transition: all 0.3s ease;
+                background: rgba(255, 255, 255, 0.05) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 12px !important;
+                padding: 1rem !important;
+                color: #fff !important;
+                font-family: 'Inter', sans-serif !important;
+                font-size: 1rem !important;
+                transition: all 0.3s ease !important;
             }
             .renga-input:focus {
-                outline: none;
-                background: rgba(255, 255, 255, 0.1);
-                border-color: #FFCC00;
-                box-shadow: 0 0 15px rgba(255, 204, 0, 0.1);
+                outline: none !important;
+                background: rgba(255, 255, 255, 0.1) !important;
+                border-color: #FFCC00 !important;
+                box-shadow: 0 0 15px rgba(255, 204, 0, 0.1) !important;
             }
             .renga-select {
-                appearance: none;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FFCC00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-                background-repeat: no-repeat;
-                background-position: right 1rem center;
-                background-size: 1.2em;
+                appearance: none !important;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FFCC00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+                background-repeat: no-repeat !important;
+                background-position: right 1rem center !important;
+                background-size: 1.2em !important;
             }
             .renga-textarea {
-                min-height: 120px;
-                resize: vertical;
+                min-height: 120px !important;
+                resize: vertical !important;
             }
             .submit-container {
                 position: sticky;
@@ -109,23 +109,23 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
             }
             .renga-submit-btn {
                 width: 100%;
-                background: linear-gradient(135deg, #FFCC00 0%, #FFB300 100%);
-                color: #000;
-                border: none;
-                padding: 1.5rem;
-                border-radius: 100px;
-                font-family: 'Outfit', sans-serif;
-                font-weight: 900;
-                font-size: 1.2rem;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                cursor: pointer;
-                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                box-shadow: 0 10px 30px rgba(255, 204, 0, 0.3);
+                background: linear-gradient(135deg, #FFCC00 0%, #FFB300 100%) !important;
+                color: #000 !important;
+                border: none !important;
+                padding: 1.5rem !important;
+                border-radius: 100px !important;
+                font-family: 'Outfit', sans-serif !important;
+                font-weight: 900 !important;
+                font-size: 1.2rem !important;
+                text-transform: uppercase !important;
+                letter-spacing: 2px !important;
+                cursor: pointer !important;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+                box-shadow: 0 10px 30px rgba(255, 204, 0, 0.3) !important;
             }
             .renga-submit-btn:hover {
-                transform: translateY(-5px) scale(1.02);
-                box-shadow: 0 15px 40px rgba(255, 204, 0, 0.5);
+                transform: translateY(-5px) scale(1.02) !important;
+                box-shadow: 0 15px 40px rgba(255, 204, 0, 0.5) !important;
             }
             .help-text {
                 font-size: 0.75rem;
@@ -142,7 +142,7 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
     }
 
     // Render Sections
-    schema.sections.forEach(section => {
+    schema.sections.forEach((section, index) => {
         const sectionEl = document.createElement('div');
         sectionEl.className = 'form-section reveal';
         sectionEl.id = `section-${section.id}`;
@@ -245,17 +245,22 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
 
         sectionEl.appendChild(grid);
         form.appendChild(sectionEl);
+
+        // 🧬 DYNAMIC REVEAL TRIGGER
+        setTimeout(() => sectionEl.classList.add('active'), 100 * (index + 1));
     });
 
     // Submit Button
     const submitContainer = document.createElement('div');
-    submitContainer.className = 'submit-container';
+    submitContainer.className = 'submit-container reveal';
     const btn = document.createElement('button');
     btn.type = 'submit';
     btn.className = 'renga-submit-btn';
     btn.innerText = 'Invia Pre-Iscrizione';
     submitContainer.appendChild(btn);
     form.appendChild(submitContainer);
+
+    setTimeout(() => submitContainer.classList.add('active'), 1000);
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -279,9 +284,4 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
 
     outlet.innerHTML = '';
     outlet.appendChild(form);
-
-    // Re-trigger reveal animations if exists
-    if (window.dispatchEvent) {
-        window.dispatchEvent(new Event('scroll'));
-    }
 }
