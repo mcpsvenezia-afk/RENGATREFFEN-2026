@@ -1,6 +1,6 @@
 /**
- * 🧬 COMPONENT: Public Dynamic Team List v1.0
- * Goal: Render verified (paid) teams with pilots, bios and numbers.
+ * 🧬 COMPONENT: Public Dynamic Team List v1.1
+ * Goal: Optimized Pilot Order (Captain Left), Suffix Sync, and High Vis Names.
  */
 
 import React, { useState, useEffect } from 'react';
@@ -16,7 +16,6 @@ export function PublicTeamList() {
 
     async function fetchVerifiedTeams() {
         try {
-            // Fetch only paid registrations
             const { data, error } = await supabase
                 .from('registrations')
                 .select('*')
@@ -25,7 +24,6 @@ export function PublicTeamList() {
 
             if (error) throw error;
 
-            // Group by Team Name
             const grouped = data.reduce((acc, current) => {
                 const name = current.team_name || 'Team Senza Nome';
                 if (!acc[name]) acc[name] = [];
@@ -33,12 +31,20 @@ export function PublicTeamList() {
                 return acc;
             }, {});
 
-            // Convert to array and Sort by bib_number
-            const teamsArray = Object.keys(grouped).map(name => ({
-                name,
-                pilots: grouped[name],
-                bib: grouped[name][0].bib_number || '??'
-            })).sort((a, b) => a.bib.localeCompare(b.bib));
+            const teamsArray = Object.keys(grouped).map(name => {
+                // Ensure Captain is ALWAYS first (Left position)
+                const sortedPilots = [...grouped[name]].sort((a, b) => {
+                    if (a.team_role?.toLowerCase() === 'capitano') return -1;
+                    if (b.team_role?.toLowerCase() === 'capitano') return 1;
+                    return 0;
+                });
+
+                return {
+                    name,
+                    pilots: sortedPilots,
+                    bib: sortedPilots[0].bib_number || '??'
+                };
+            }).sort((a, b) => a.bib.localeCompare(b.bib));
 
             setTeams(teamsArray);
         } catch (err) {
@@ -58,11 +64,11 @@ export function PublicTeamList() {
     );
 
     return (
-        <div style={{ display: 'grid', gap: '40px' }}>
+        <div style={{ display: 'grid', gap: '60px' }}>
             {teams.map((team, idx) => (
                 <div key={idx} style={teamCardStyle}>
                     <div style={teamHeaderStyle}>
-                        <h3 style={teamTitleStyle}>🏆 Team {team.name}</h3>
+                        <h3 style={teamTitleStyle}>🏆 TEAM {team.name}</h3>
                         <div style={badgeStyle}>#{team.bib}</div>
                     </div>
 
@@ -74,16 +80,6 @@ export function PublicTeamList() {
                                 suffix={pilot.team_role?.toLowerCase() === 'capitano' ? 'A' : 'B'}
                             />
                         ))}
-                        {/* Placeholder if team has only 1 pilot registered/paid */}
-                        {team.pilots.length === 1 && (
-                            <div style={pilotPlaceholderStyle}>
-                                <div style={emptyAvatarStyle}>?</div>
-                                <div>
-                                    <h4 style={{ color: '#333', margin: 0 }}>In attesa...</h4>
-                                    <p style={{ color: '#222', fontSize: '0.8rem' }}>Il partner non ha ancora completato l'iscrizione.</p>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             ))}
@@ -94,8 +90,8 @@ export function PublicTeamList() {
 function PilotCard({ pilot, suffix }) {
     const [expanded, setExpanded] = useState(false);
     const bioText = pilot.pilot_bio || 'Nessuna biografia inserita.';
-    const isLong = bioText.length > 120;
-    const displayBio = expanded ? bioText : bioText.substring(0, 120) + (isLong ? '...' : '');
+    const isLong = bioText.length > 140;
+    const displayBio = expanded ? bioText : bioText.substring(0, 140) + (isLong ? '...' : '');
 
     return (
         <div style={pilotContainerStyle}>
@@ -107,8 +103,12 @@ function PilotCard({ pilot, suffix }) {
                 )}
             </div>
             <div style={{ flex: 1 }}>
-                <h4 style={pilotNameStyle}>{pilot.nome} {pilot.cognome} <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem', marginLeft: '5px' }}>#{pilot.bib_number}{suffix}</span></h4>
+                <h4 style={pilotNameStyle}>
+                    {pilot.nome?.toUpperCase()} {pilot.cognome?.toUpperCase()}
+                    <span style={suffixStyle}>#{suffix}</span>
+                </h4>
                 <div style={roleTagStyle}>{pilot.team_role?.toUpperCase() || 'PILOTA'}</div>
+
                 <p style={bioStyle}>
                     {displayBio}
                     {isLong && (
@@ -117,77 +117,73 @@ function PilotCard({ pilot, suffix }) {
                         </span>
                     )}
                 </p>
+
                 {pilot.departure_time && (
-                    <div style={timeTagStyle}>⏱ Partenza: {pilot.departure_time}</div>
+                    <div style={timeTagStyle}>🚀 PARTENZA: {pilot.departure_time}</div>
                 )}
             </div>
         </div>
     );
 }
 
-// STYLES
+// PREMIUM STYLES
 const teamCardStyle = {
-    background: 'rgba(15, 15, 25, 0.7)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
+    background: '#09090b',
+    border: '1px solid #222',
     borderRadius: '40px',
-    padding: '40px',
+    padding: '50px',
     position: 'relative',
-    overflow: 'hidden',
-    boxShadow: '0 30px 60px rgba(0,0,0,0.4)'
+    boxShadow: '0 40px 100px rgba(0,0,0,0.6)'
 };
 
 const teamHeaderStyle = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '40px',
-    borderBottom: '1px solid rgba(255,255,255,0.05)',
-    paddingBottom: '20px'
+    marginBottom: '50px',
+    borderBottom: '1px solid #1a1a1a',
+    paddingBottom: '25px'
 };
 
 const teamTitleStyle = {
-    fontSize: '2rem',
+    fontSize: '2.4rem',
     fontWeight: 900,
     color: '#FFCC00',
     margin: 0,
-    textTransform: 'uppercase',
     letterSpacing: '1px'
 };
 
 const badgeStyle = {
     background: '#E6007E',
     color: '#fff',
-    padding: '10px 25px',
+    padding: '12px 30px',
     borderRadius: '50px',
     fontWeight: 900,
-    fontSize: '1.2rem',
-    boxShadow: '0 0 20px rgba(230, 0, 126, 0.3)'
+    fontSize: '1.5rem',
+    boxShadow: '0 10px 30px rgba(230, 0, 126, 0.4)'
 };
 
 const pilotsGridStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-    gap: '40px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+    gap: '60px'
 };
 
 const pilotContainerStyle = {
     display: 'flex',
-    gap: '25px',
+    gap: '35px',
     alignItems: 'flex-start'
 };
 
 const avatarWrapperStyle = {
-    width: '120px',
-    height: '120px',
+    width: '180px',
+    height: '180px',
     borderRadius: '50%',
     overflow: 'hidden',
-    border: '3px solid rgba(255,204,0,0.3)',
+    border: '5px solid #FFCC00',
     flexShrink: 0,
-    backgroundColor: '#111',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+    backgroundColor: '#000',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
 };
 
 const avatarImgStyle = {
@@ -197,68 +193,58 @@ const avatarImgStyle = {
 };
 
 const avatarFallbackStyle = {
-    fontSize: '3rem',
-    opacity: 0.3
+    fontSize: '4rem',
+    opacity: 0.1,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%'
 };
 
 const pilotNameStyle = {
-    fontSize: '1.4rem',
+    fontSize: '1.8rem',
     fontWeight: 900,
     color: '#fff',
-    margin: '0 0 5px 0'
+    margin: '0 0 8px 0',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '15px'
+};
+
+const suffixStyle = {
+    color: 'rgba(255,255,255,0.15)',
+    fontSize: '1.1rem',
+    fontWeight: 900
 };
 
 const roleTagStyle = {
     color: '#E6007E',
-    fontSize: '0.75rem',
+    fontSize: '0.8rem',
     fontWeight: 900,
-    letterSpacing: '2px',
-    marginBottom: '15px'
+    letterSpacing: '3px',
+    marginBottom: '20px'
 };
 
 const bioStyle = {
-    color: '#aaa',
-    fontSize: '0.95rem',
-    lineHeight: '1.6',
+    color: '#999',
+    fontSize: '1.1rem',
+    lineHeight: '1.7',
     margin: 0
 };
 
 const readMoreStyle = {
     color: '#FFCC00',
     cursor: 'pointer',
-    fontWeight: 700,
-    fontSize: '0.85rem'
+    fontWeight: 900,
+    fontSize: '0.9rem',
+    marginLeft: '10px'
 };
 
 const timeTagStyle = {
     display: 'inline-block',
-    marginTop: '15px',
-    backgroundColor: 'rgba(255,204,0,0.1)',
+    marginTop: '25px',
+    backgroundColor: 'rgba(255,204,0,0.05)',
     color: '#FFCC00',
-    padding: '5px 12px',
-    borderRadius: '8px',
-    fontSize: '0.8rem',
-    fontWeight: 700
-};
-
-const pilotPlaceholderStyle = {
-    display: 'flex',
-    gap: '20px',
-    alignItems: 'center',
-    opacity: 0.3,
-    background: 'rgba(0,0,0,0.1)',
-    padding: '20px',
-    borderRadius: '24px'
-};
-
-const emptyAvatarStyle = {
-    width: '80px',
-    height: '80px',
-    borderRadius: '50%',
-    border: '2px dashed #444',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '2rem',
-    color: '#444'
+    padding: '8px 20px',
+    borderRadius: '12px',
+    fontSize: '0.9rem',
+    fontWeight: 900,
+    border: '1px solid rgba(255,204,0,0.2)'
 };
