@@ -53,7 +53,7 @@ export async function initRegistrationEngine() {
                         const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
 
                         // Storage Bucket Selection (photos for profile, attachments for docs)
-                        const bucket = (key === 'pilot_photo_url') ? 'registrations' : 'attachments';
+                        const bucket = (key === 'pilot_photo_url' || key === 'pilot_photo') ? 'registrations' : 'attachments';
                         const filePath = `${key}/${fileName}`;
 
                         console.log(`[PLUGIN] Uploading ${key}: ${file.name} to bucket ${bucket}...`);
@@ -68,8 +68,9 @@ export async function initRegistrationEngine() {
                             .from(bucket)
                             .getPublicUrl(filePath);
 
-                        if (key === 'pilot_photo_url') {
-                            cleanedData.pilot_photo_url = publicUrl;
+                        if (key === 'pilot_photo_url' || key === 'pilot_photo') {
+                            cleanedData.pilot_photo = publicUrl; // Save to correct DB column
+                            delete cleanedData.pilot_photo_url; // Remove wrong key if present
                         } else {
                             // Collect document for crm_attachments
                             attachments.push({
