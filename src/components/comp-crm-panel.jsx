@@ -1,6 +1,6 @@
 /**
- * 🧬 COMPONENT: CRM Detail Panel v3.2
- * Goal: FULL ITALIAN, FIXED PHOTO LOGIC, BIO EDITING
+ * 🧬 COMPONENT: CRM Detail Panel v3.3
+ * Goal: CRM FULL MANAGEMENT (Edit/Delete Notes)
  */
 
 import React, { useState, useEffect } from 'react';
@@ -14,6 +14,10 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     const [activeTab, setActiveTab] = useState('general');
     const [editingField, setEditingField] = useState(null);
     const [tempValue, setTempValue] = useState('');
+
+    // Note Editing States
+    const [editingNoteId, setEditingNoteId] = useState(null);
+    const [editNoteContent, setEditNoteContent] = useState('');
 
     const noteTable = type === 'registration' ? 'registration_notes' : 'message_notes';
     const foreignKey = type === 'registration' ? 'registration_id' : 'message_id';
@@ -37,6 +41,22 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         if (!error) { setNewNote(''); fetchNotes(); }
         else alert('Errore salvataggio nota: ' + error.message);
         setIsNoteLoading(false);
+    }
+
+    async function updateNote(noteId) {
+        if (!editNoteContent.trim()) return;
+        const { error } = await supabase.from(noteTable).update({ content: editNoteContent }).eq('id', noteId);
+        if (!error) {
+            setEditingNoteId(null);
+            fetchNotes();
+        } else alert('Errore aggiornamento nota: ' + error.message);
+    }
+
+    async function deleteNote(noteId) {
+        if (!confirm('⚠️ ELIMINAZIONE NOTA: Sei sicuro?')) return;
+        const { error } = await supabase.from(noteTable).delete().eq('id', noteId);
+        if (!error) fetchNotes();
+        else alert('Errore eliminazione nota: ' + error.message);
     }
 
     async function saveField(key) {
@@ -94,7 +114,6 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         )
     };
 
-    // Validazione URL Foto per evitare 404 da oggetti vuoti {}
     const getPhotoUrl = (url) => {
         if (!url || typeof url !== 'string' || url === '{}' || !url.startsWith('http')) return null;
         return `${url}?t=${Date.now()}`;
@@ -111,14 +130,12 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                     <p style={{ color: '#E6007E', margin: '5px 0 0 0', fontWeight: 'bold', fontSize: '1rem', letterSpacing: '4px' }}>TIPO: {type.toUpperCase()} | ID: {item.id.slice(0, 8)}</p>
                 </div>
 
-                {/* Tabs Ultra-Visibili */}
                 <div style={{ display: 'flex', backgroundColor: '#0d0d12', gap: '2px' }}>
                     {(type === 'registration' ? regTabs : [{ id: 'm', label: 'MESSAGGIO' }]).map(t => (
                         <button key={t.id} onClick={() => setActiveTab(t.id)} style={tabStyle(activeTab === t.id)}>{t.label}</button>
                     ))}
                 </div>
 
-                {/* Area Contenuto */}
                 <div style={{ padding: '50px', minHeight: '500px' }}>
                     {activeTab === 'bio' ? (
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px' }}>
@@ -182,18 +199,33 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             <div style={{ backgroundColor: '#0d0d12', borderRadius: '32px', padding: '40px', border: '1px solid #E6007E', display: 'flex', flexDirection: 'column', height: 'fit-content', minHeight: '800px' }}>
                 <h3 style={{ color: '#E6007E', fontWeight: 900, letterSpacing: '2px', marginBottom: '20px', fontSize: '1.2rem' }}>LOG ATTIVITÀ CRM</h3>
 
-                {/* ACTIONS AT TOP */}
                 <div style={{ marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <button onClick={addNote} disabled={isNoteLoading} style={btnYellowFull}>{isNoteLoading ? '...' : '+ AGGIUNGI NOTA'}</button>
                     <textarea value={newNote} onChange={e => setNewNote(e.target.value)} style={darkInputFull} placeholder="Scrivi una nota di gestione..." />
                 </div>
 
-                {/* NOTES LIST AT BOTTOM */}
                 <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {notes.map(n => (
-                        <div key={n.id} style={{ backgroundColor: '#1a1a1f', padding: '20px', borderRadius: '16px', borderLeft: '4px solid #FFCC00' }}>
-                            <div style={{ fontSize: '0.8rem', color: '#ffcc00', fontWeight: 'bold', marginBottom: '10px' }}>{new Date(n.created_at).toLocaleString()}</div>
-                            <div style={{ fontSize: '1.1rem', color: '#fff' }}>{n.content}</div>
+                        <div key={n.id} style={{ backgroundColor: '#1a1a1f', padding: '20px', borderRadius: '16px', borderLeft: '4px solid #FFCC00', position: 'relative' }}>
+                            <div style={{ fontSize: '0.8rem', color: '#ffcc00', fontWeight: 'bold', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span>{new Date(n.created_at).toLocaleString()}</span>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <span onClick={() => { setEditingNoteId(n.id); setEditNoteContent(n.content); }} style={{ cursor: 'pointer', fontSize: '0.9rem' }}>✏️</span>
+                                    <span onClick={() => deleteNote(n.id)} style={{ cursor: 'pointer', fontSize: '0.9rem' }}>🗑️</span>
+                                </div>
+                            </div>
+
+                            {editingNoteId === n.id ? (
+                                <div style={{ marginTop: '10px' }}>
+                                    <textarea value={editNoteContent} onChange={e => setEditNoteContent(e.target.value)} style={{ ...darkInputFull, minHeight: '80px', fontSize: '1rem' }} />
+                                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                                        <button onClick={() => updateNote(n.id)} style={{ ...btnSave, padding: '10px' }}>SALVA</button>
+                                        <button onClick={() => setEditingNoteId(null)} style={{ ...btnCancel, padding: '10px' }}>ANNULLA</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{ fontSize: '1.1rem', color: '#fff', lineHeight: '1.5' }}>{n.content}</div>
+                            )}
                         </div>
                     ))}
                     {notes.length === 0 && <p style={{ color: '#444', textAlign: 'center' }}>Nessuna nota presente.</p>}
