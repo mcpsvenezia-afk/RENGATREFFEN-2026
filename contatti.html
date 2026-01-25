@@ -77,10 +77,73 @@
 
                         <div class="form-group">
                             <label for="contact-files">Allega Foto o Documenti (Opzionale)</label>
+                            <div class="file-upload-area" id="file-upload-area"
+                                onclick="document.getElementById('contact-files').click()">
+                                <div class="file-upload-icon">📎</div>
+                                <div class="file-upload-text">
+                                    <span class="file-upload-label">Clicca o trascina qui i tuoi file</span>
+                                    <span class="file-upload-hint">JPG, PNG, PDF (max 10MB)</span>
+                                </div>
+                                <div class="file-upload-list" id="file-list"></div>
+                            </div>
                             <input type="file" id="contact-files" name="attachments" multiple
-                                accept="image/*,application/pdf"
-                                style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                                accept="image/*,application/pdf" style="display: none;">
                         </div>
+
+                        <style>
+                            .file-upload-area {
+                                background: rgba(255, 255, 255, 0.03);
+                                border: 2px dashed rgba(255, 204, 0, 0.3);
+                                border-radius: 16px;
+                                padding: 2rem;
+                                text-align: center;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            }
+
+                            .file-upload-area:hover {
+                                border-color: #FFCC00;
+                                background: rgba(255, 204, 0, 0.05);
+                            }
+
+                            .file-upload-icon {
+                                font-size: 2.5rem;
+                                margin-bottom: 0.5rem;
+                            }
+
+                            .file-upload-label {
+                                display: block;
+                                font-weight: 700;
+                                color: #fff;
+                                margin-bottom: 0.3rem;
+                            }
+
+                            .file-upload-hint {
+                                display: block;
+                                font-size: 0.85rem;
+                                color: #888;
+                            }
+
+                            .file-upload-list {
+                                margin-top: 1rem;
+                                font-size: 0.9rem;
+                                color: #FFCC00;
+                            }
+                        </style>
+
+                        <script>
+                            document.getElementById('contact-files').addEventListener('change', function (e) {
+                                const list = document.getElementById('file-list');
+                                const files = e.target.files;
+                                if (files.length > 0) {
+                                    let names = [];
+                                    for (let f of files) names.push(f.name);
+                                    list.innerHTML = '✅ ' + names.join(', ');
+                                } else {
+                                    list.innerHTML = '';
+                                }
+                            });
+                        </script>
 
                         <button type="submit" class="cta-button primary full-width">INVIA MESSAGGIO</button>
                     </form>
