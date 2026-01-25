@@ -1,67 +1,71 @@
-# 🏗️ SNAPSHOT DI STATO: STABLE v1.2
-**Data:** 25 Gennaio 2026 - 20:25  
-**Progetto:** Renga Treffen 2026  
-**Stato:** 💎 CRISTALLIZZATO (Versione Corrente Stabile)
+# 🧬 SNAPSHOT: STABLE v1.2 - Renga Treffen 2026
+
+**Data:** 25/01/2026  
+**Stato Operativo:** STABILE CORRENTE  
+**Focus:** Refinement Pubblico, Sincronizzazione Numeri Gara e Motore Dinamico.
 
 ---
 
-## 🔄 Update Log (v1.0 -> v1.2)
-Dall'ultimo snapshot v1.0, abbiamo implementato i seguenti aggiornamenti critici:
+## 1. 📝 UPDATE LOG (Ultimi Progressi)
 
-1.  **🏆 Motore Team Dinamico**: Creati i componenti `comp-public-teams.jsx` e `mount-teams.jsx`. Ora la pagina dei Team è viva, filtra solo i partecipanti pagati e gestisce automaticamente i numeri gara (#01A/#01B).
-2.  **🕵️ Ultra-Precision Inspector (v1.3.0)**: Sostituito il vecchio ispettore con un sistema professionale che rileva i componenti React tramite `data-component`, evidenzia gli elementi in tempo reale con Ctrl e fornisce feedback visivo istantaneo.
-3.  **⚙️ Global Dev Mode**: Introdotto un interruttore persistente (`localStorage`) nella Dashboard. Attiva gli strumenti di sviluppo su tutte le pagine del sito contemporaneamente senza parametri URL.
-4.  **🇮🇹 Localizzazione Completa**: Il CRM è ora 100% in italiano, con etichette professionali per ogni campo del database.
-5.  **📝 CRM Advanced**: Implementata la gestione completa (CRUD) delle note con modali di conferma e sidebar riordinata per priorità operativa (Pulsante nota -> Input -> Archivio -> Allegati).
+- **Recupero File Post-Errore:** Ripristinata la coerenza tra repository locale e produzione su Vercel.
+- **Architettura Modulare:** Consolidata la struttura delle cartelle `/src/plugins` e `/src/schemas`.
+- **Display Team Pubblico:** Implementata la logica di visualizzazione pettorali (#14A, #14B) con priorità ai dati del database e fall-back intelligente.
+- **Motore Dinamico v1.2:** Versione avanzata del `dynamic-form-engine` con supporto per validazione radio, contatori caratteri e estetica premium Renga.
+- **Optimizzazione Mobile:** Revisione completa della Hero e della lista Team per compatibilità smartphone.
 
 ---
 
-## 🗺️ Current File Map
+## 2. 📂 FULL FILE MAP (Scansione Reale)
 
-### 🧬 /src/plugins (Motori Logic)
-- `dynamic-form-engine-v1.1.0.js` (Form Rendering DNA)
-- `plugin-registration-engine-v1.js` (Iscrizioni)
-- `plugin-contact-engine-v1.js` (Contatti)
-- `renga-dev-loader-v1.js` (V1.3.0 Supreme Inspector)
+### 🔌 /plugins (src/plugins)
+- `dynamic-form-engine-v1.1.0.js`: Il core del rendering dinamico.
+- `dynamic-form-engine-v1.jsx`: Wrapper React per integrazione componenti.
+- `plugin-contact-engine-v1.js`: Gestore logica contatti.
+- `plugin-registration-engine-v1.js`: Gestore logica iscrizioni.
+- `renga-dev-loader-v1.js`: Inspector Atomico e Developer Tools.
 
-### 📄 /public/schemas (DNA Form)
-- `registration-schema-v1.1.0.json` (Definizione campi e validazioni)
+### 📜 /schemas (src/schemas)
+- `registration-schema-v1.1.0.json`: Schema completo per il super-modulo v1.1.
+- `registration-schema-v1.json`: Schema base iniziale.
 
-### 🖥️ /src/components (Core UI)
-- `comp-crm-panel.jsx` (CRM v5.6)
-- `comp-public-teams.jsx` (Nuova Team List)
-- `comp-registration-list.jsx` (Tabella Iscrizioni)
-- `comp-message-list.jsx` (Tabella Messaggi)
-- `RegistrationForm.jsx` / `ContactForm.jsx` (Form Pubblici)
-
-### 🧠 /skills (Protocolli & Regole)
-- `PROJECT_CONTINUITY_v1.md`
-- `CORE_Safety_Protocol_v1.md`
-- `BLITZ_Stack_Plugin_Rules_v1.md`
+### 🧠 /skills
 - `ATOMIC_COMPONENTS_v1.md`
+- `BLITZ_Dev_Standards_v1.md`
+- `BLITZ_Stack_Plugin_Rules_v1.md`
+- `CONTEXT_Isolation_v1.md`
+- `CORE_Safety_Protocol_v1.md`
+- `GITHUB_DEPLOYMENT_PROTOCOL_v1.md`
+- `MODULAR_ARCHITECTURE_v1.md`
+- `PROJECT_CONTINUITY_v1.md`
+- `PROJECT_GOAL_BLITZ_REG_v1.md`
 - `UNIVERSAL_Dev_Mode_v1.md`
-- *(...e altri 5 protocolli di stabilità)*
+
+### 🏗️ /core (Mapped as src/lib & src/logic)
+- `src/lib/supabaseClient.js`: Connessione DB.
+- `src/logic/logic-admin-auth.js`: Logica autenticazione.
 
 ---
 
-## ⚙️ Logic Check: Motore Dinamico & JSON
-Il sistema opera ora in simbiosi perfetta:
-- **Schema JSON**: Funge da "Codice Genetico". Definire un campo nel JSON aggiunge automaticamente input, validazioni e mappatura DB nel frontend.
-- **Motore (Form Engine)**: Interpreta il JSON e inietta i componenti Atomici (Input, Radio, Checkbox) con lo stile Premium.
-- **Component Awareness**: Grazie alla v1.3.0 dell'Inspector, ogni parte generata dal motore è ora tracciabile e ispezionabile singolarmente.
+## 3. ⚙️ LOGIC CHECK: Dynamic Engine
+Il file `dynamic-form-engine-v1.1.0.js` agisce come una **Factory HTML**. 
+- **Input:** Riceve un oggetto JSON strutturato in `sections` e `fields`.
+- **Parsing:** Cicla ogni campo identificando il `type` (text, email, tel, radio, area).
+- **Rendering:** Genera dinamicamente il DOM iniettando classi CSS Renga (es. `.form-section`, `.renga-input`).
+- **Data-Binding:** Collega i listener di validazione e il callback di `onSubmit` per inviare i dati a Supabase.
 
 ---
 
-## 🔒 Security Status: Il Lucchetto
-Confermo che il **"Lucchetto" (Unique Constraint)** sulla tabella `registrations` è attivo lato Supabase:
-- **Constraint**: `email_unique` / `codice_fiscale_unique`.
-- **Effetto**: Il sistema rigetta tentativi di iscrizione duplicata, garantendo l'integrità del database anche in caso di invii multipli accidentali dal frontend.
+## 4. 🔒 SECURITY STATUS
+- **Unique Constraint:** Configurazione **BACKLOG**. Attualmente il database accetta record duplicati. Necessaria migrazione per vincolo `UNIQUE` su coppia `email` + `team_name`.
+- **Admin Auth:** In fase di implementazione su `dashboard.html`.
 
 ---
 
-## ✅ DICHIARAZIONE DI STABILITÀ
-Con questo documento, la versione **v1.2** è ufficialmente dichiarata la nuova **'Stabile Corrente'**. 
-Tutti i file sono stati sincronizzati su GitHub e il deploy su Vercel riflette questo stato.
+## 5. ✅ CONFERMA OPERATIVA
+- **Versione:** v1.2 dichiarata come **STABILE CORRENTE**.
+- **Skills:** Tutte le skill in `/skills` sono state ricaricate e sincronizzate con l'attuale pipeline di sviluppo.
+- **Deploy:** Tutti i file elencati sono stati sincronizzati su GitHub/Vercel.
 
-**Firmato:** Antigravity (Ambrogio) 🧬
-**Attendo nuovi ordini.**
+---
+*Snapshot generato da Antigravity per Renga Treffen 2026.*
