@@ -26,7 +26,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     }, [item]);
 
     async function fetchNotes() {
-        const { data, error } = await supabase.from(noteTable).select('*').eq(foreignKey, item.id).order('created_at', { ascending: true });
+        const { data, error } = await supabase.from(noteTable).select('*').eq(foreignKey, item.id).order('created_at', { ascending: false });
         if (!error) setNotes(data);
     }
 
@@ -179,9 +179,17 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             </div>
 
             {/* SIDEBAR CRM */}
-            <div style={{ backgroundColor: '#0d0d12', borderRadius: '32px', padding: '40px', border: '1px solid #E6007E', display: 'flex', flexDirection: 'column' }}>
-                <h3 style={{ color: '#E6007E', fontWeight: 900, letterSpacing: '2px', marginBottom: '30px', fontSize: '1.2rem' }}>LOG ATTIVITÀ CRM</h3>
-                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
+            <div style={{ backgroundColor: '#0d0d12', borderRadius: '32px', padding: '40px', border: '1px solid #E6007E', display: 'flex', flexDirection: 'column', height: 'fit-content', minHeight: '800px' }}>
+                <h3 style={{ color: '#E6007E', fontWeight: 900, letterSpacing: '2px', marginBottom: '20px', fontSize: '1.2rem' }}>LOG ATTIVITÀ CRM</h3>
+
+                {/* ACTIONS AT TOP */}
+                <div style={{ marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <button onClick={addNote} disabled={isNoteLoading} style={btnYellowFull}>{isNoteLoading ? '...' : '+ AGGIUNGI NOTA'}</button>
+                    <textarea value={newNote} onChange={e => setNewNote(e.target.value)} style={darkInputFull} placeholder="Scrivi una nota di gestione..." />
+                </div>
+
+                {/* NOTES LIST AT BOTTOM */}
+                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {notes.map(n => (
                         <div key={n.id} style={{ backgroundColor: '#1a1a1f', padding: '20px', borderRadius: '16px', borderLeft: '4px solid #FFCC00' }}>
                             <div style={{ fontSize: '0.8rem', color: '#ffcc00', fontWeight: 'bold', marginBottom: '10px' }}>{new Date(n.created_at).toLocaleString()}</div>
@@ -189,10 +197,6 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                         </div>
                     ))}
                     {notes.length === 0 && <p style={{ color: '#444', textAlign: 'center' }}>Nessuna nota presente.</p>}
-                </div>
-                <div>
-                    <textarea value={newNote} onChange={e => setNewNote(e.target.value)} style={darkInputFull} placeholder="Scrivi una nota di gestione..." />
-                    <button onClick={addNote} disabled={isNoteLoading} style={btnYellowFull}>{isNoteLoading ? '...' : '+ AGGIUNGI NOTA'}</button>
                 </div>
             </div>
         </div>
