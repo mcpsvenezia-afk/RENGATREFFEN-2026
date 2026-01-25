@@ -58,7 +58,7 @@ function App() {
     }
 
     return (
-        <div style={{ backgroundColor: '#09090b', minHeight: '100vh', color: '#fff', fontFamily: '"Inter", sans-serif' }}>
+        <div data-component="DashboardApp" style={{ backgroundColor: '#09090b', minHeight: '100vh', color: '#fff', fontFamily: '"Inter", sans-serif' }}>
 
             {/* HEADER ULTRA DARK */}
             <header style={{ backgroundColor: '#000', padding: '30px 60px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #333' }}>

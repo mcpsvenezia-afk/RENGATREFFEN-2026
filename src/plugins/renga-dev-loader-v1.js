@@ -1,72 +1,84 @@
 /**
- * 🧬 PLUGIN: RENGA SUPREME INSPECTOR v1.2.0
- * Goal: Professional hovering, high-fidelity element selection, and universal feedback.
+ * 🧬 PLUGIN: RENGA ULTRA-PRECISION INSPECTOR v1.3.0
+ * Goal: Deep element detection, component awareness, and multi-page stability.
  */
 
 (function () {
     const isStored = localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
     if (!isStored) return;
 
-    console.log("[DEV] Renga Supreme Inspector v1.2.0 ACTIVE");
+    const version = "1.3.0-SUPER-DENSE";
+    console.log(`[DEV] Renga Ultra-Precision Inspector v${version} ACTIVE`);
 
-    // 1. STYLES
+    // 1. SUPREME STYLES
     const style = document.createElement('style');
     style.innerHTML = `
         #renga-inspector-overlay {
             position: fixed;
             pointer-events: none;
             border: 2px solid #FFCC00;
-            background: rgba(255, 204, 0, 0.1);
-            z-index: 100000000;
-            transition: all 0.1s ease-out;
+            background: rgba(255, 204, 0, 0.05);
+            z-index: 2147483647;
             display: none;
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,204,0,0.2);
+            mix-blend-mode: normal;
         }
         #renga-inspector-label {
             position: absolute;
-            top: -25px;
+            bottom: 100%;
             left: -2px;
             background: #FFCC00;
             color: #000;
-            padding: 2px 8px;
-            font-size: 10px;
+            padding: 4px 12px;
+            font-size: 11px;
             font-weight: 900;
             white-space: nowrap;
-            border-radius: 4px 4px 0 0;
+            border-radius: 6px 6px 0 0;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
+        .comp-tag { background: #000; color: #FFCC00; padding: 1px 6px; border-radius: 3px; font-size: 9px; }
+        
         .renga-supra-toast {
             position: fixed;
-            top: 30px;
-            right: 30px;
+            top: 40px;
+            right: 40px;
             background: #FFCC00;
             color: #000;
-            padding: 15px 30px;
-            border-radius: 50px;
+            padding: 20px 40px;
+            border-radius: 100px;
             font-weight: 900;
-            z-index: 100000001;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            animation: supraSlideIn 0.3s ease-out forwards;
-            font-family: sans-serif;
-            font-size: 14px;
+            z-index: 2147483647;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            border: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            animation: supraSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
+        .renga-supra-toast small { font-size: 10px; opacity: 0.6; text-transform: uppercase; }
+
         @keyframes supraSlideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from { transform: translateX(120%) scale(0.8); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
         }
 
-        /* Tray Styles */
-        #renga-dev-menu { position: fixed; bottom: 30px; right: 30px; z-index: 99999999 !important; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; font-family: 'Outfit', sans-serif; }
-        .dev-tray { display: none; flex-direction: column; gap: 8px; margin-bottom: 12px; background: #161616; padding: 25px; border-radius: 24px; border: 1px solid #FFCC00; box-shadow: 0 20px 60px rgba(0,0,0,0.9); width: 280px; box-sizing: border-box; }
-        .dev-label { font-size: 10px; font-weight: 800; color: #666; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; margin-top: 15px; }
-        .dev-btn { background: #222; color: #fff; border: 1px solid #333; padding: 14px; border-radius: 12px; cursor: pointer; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: 0.2s; width: 100%; box-sizing: border-box; justify-content: flex-start; }
-        .dev-btn:hover { background: #333; border-color: #FFCC00; color: #FFCC00; }
-        .dev-main-btn { background: #FFCC00; color: #000; border: none; width: 60px; height: 60px; border-radius: 50%; cursor: pointer; box-shadow: 0 10px 30px rgba(255, 204, 0, 0.4); display: flex; align-items: center; justify-content: center; font-size: 26px; transition: 0.3s; }
-        .dev-main-btn:hover { transform: scale(1.1) rotate(90deg); }
+        #renga-dev-menu { position: fixed; bottom: 40px; right: 40px; z-index: 2147483646; display: flex; flex-direction: column; gap: 15px; align-items: flex-end; font-family: 'Outfit', sans-serif; }
+        .dev-tray { display: none; flex-direction: column; gap: 10px; margin-bottom: 20px; background: #09090b; padding: 30px; border-radius: 32px; border: 1px solid #FFCC00; box-shadow: 0 40px 100px rgba(0,0,0,1); width: 320px; box-sizing: border-box; }
+        .dev-label { font-size: 11px; font-weight: 900; color: #444; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; margin-top: 20px; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .dev-btn { background: #111; color: #fff; border: 1px solid #333; padding: 16px; border-radius: 16px; cursor: pointer; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 12px; transition: 0.2s; width: 100%; box-sizing: border-box; }
+        .dev-btn:hover { background: #1a1a1f; border-color: #FFCC00; color: #FFCC00; transform: translateX(-5px); }
+        .dev-main-btn { background: #FFCC00; color: #000; border: none; width: 70px; height: 70px; border-radius: 50%; cursor: pointer; box-shadow: 0 20px 50px rgba(255, 204, 0, 0.3); display: flex; align-items: center; justify-content: center; font-size: 30px; transition: 0.3s; }
+        .dev-main-btn:hover { transform: scale(1.1) rotate(45deg); }
     `;
     document.head.appendChild(style);
 
-    // 2. CREATE ELEMENTS
+    // 2. DOM ELEMENTS
     const overlay = document.createElement('div');
     overlay.id = 'renga-inspector-overlay';
     const label = document.createElement('div');
@@ -74,31 +86,39 @@
     overlay.appendChild(label);
     document.body.appendChild(overlay);
 
-    // 3. UNIVERSAL FEEDBACK
-    function showToast(msg) {
+    // 3. TOAST ENGINE
+    function supraToast(title, subtitle = "") {
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerText = msg;
+        t.innerHTML = `<b>${title}</b><small>${subtitle}</small>`;
         document.body.appendChild(t);
         setTimeout(() => {
-            t.style.animation = 'supraSlideIn 0.3s ease-in reverse forwards';
-            setTimeout(() => t.remove(), 300);
-        }, 2000);
+            t.style.opacity = '0';
+            t.style.transform = 'translateY(-20px)';
+            t.style.transition = '0.4s';
+            setTimeout(() => t.remove(), 400);
+        }, 2500);
     }
 
-    // 4. MOUSE LOGIC: HOVER & HIGHLIGHT
-    let lastTarget = null;
+    // 4. SMART TARGETING
+    let activeElement = null;
+    let activeComponent = "Unknown";
+
     document.addEventListener('mousemove', (e) => {
         if (!e.ctrlKey && !e.metaKey) {
             overlay.style.display = 'none';
+            document.body.style.cursor = 'default';
             return;
         }
 
+        document.body.style.cursor = 'crosshair';
         const target = e.target;
         if (target === overlay || target === label || !target) return;
 
-        // Find the "meaningful" element: button, link, card, or the text itself
-        const element = target.closest('button, a, .card, section, h1, h2, h3, h4, p, label') || target;
+        // Smart Container detection
+        const element = target.closest('button, a, input, select, textarea, label, [data-component], section, .team-block, .card') || target;
+        const componentParent = target.closest('[data-component]');
+        activeComponent = componentParent ? componentParent.getAttribute('data-component') : "Native / HTML";
 
         const rect = element.getBoundingClientRect();
         overlay.style.display = 'block';
@@ -107,70 +127,74 @@
         overlay.style.width = `${rect.width}px`;
         overlay.style.height = `${rect.height}px`;
 
-        label.innerText = `<${element.tagName.toLowerCase()}> ${element.className ? '.' + element.className.split(' ')[0] : ''}`;
-        lastTarget = element;
+        const tagName = element.tagName.toLowerCase();
+        const className = element.className ? '.' + element.className.split(' ')[0] : '';
+        label.innerHTML = `<span>${tagName}${className}</span> <span class="comp-tag">${activeComponent}</span>`;
+
+        activeElement = element;
     });
 
-    // 5. CLICK LOGIC: COPY DNA
+    // 5. DNA CAPTURE
     document.addEventListener('click', (e) => {
         if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
             e.stopPropagation();
 
-            if (!lastTarget) return;
+            if (!activeElement) return;
 
-            const codeSnippet = lastTarget.outerHTML;
-            navigator.clipboard.writeText(codeSnippet).then(() => {
-                showToast(`🧬 DNA COPIATO: <${lastTarget.tagName.toLowerCase()}>`);
+            const html = activeElement.outerHTML;
+            navigator.clipboard.writeText(html).then(() => {
+                supraToast("🧬 DNA COPIATO", `${activeComponent} > ${activeElement.tagName}`);
 
-                // Visual confirmation on element
-                const originalBg = lastTarget.style.backgroundColor;
-                lastTarget.style.backgroundColor = 'rgba(255, 204, 0, 0.3)';
-                setTimeout(() => lastTarget.style.backgroundColor = originalBg, 500);
+                // Visual Flash
+                const originalOutline = activeElement.style.outline;
+                activeElement.style.outline = "6px solid #FFCC00";
+                setTimeout(() => activeElement.style.outline = originalOutline, 400);
             });
         }
     }, true);
 
-    // 6. DEV TRAY (UI)
+    // 6. FLOATING HUD (TRAY)
     const container = document.createElement('div');
     container.id = 'renga-dev-menu';
     const tray = document.createElement('div');
     tray.className = 'dev-tray';
 
-    const menuItems = [
-        { l: 'PLATFORM NAVIGATION', type: 'label' },
-        { l: '🏠 HOME PAGE', action: () => location.href = '/' },
-        { l: '📊 DASHBOARD', action: () => location.href = '/dashboard.html' },
-        { l: '🏆 TEAM LIST', action: () => location.href = '/team.html' },
-        { l: 'SYSTEM TOOLS', type: 'label' },
-        { l: '🧹 PULISCI CACHE', action: () => { localStorage.clear(); location.reload(); } },
-        { l: '🔴 ESCI DA MODO DEV', action: () => { localStorage.removeItem('RENGATREFFEN_DEV_MODE'); location.reload(); } }
+    const menu = [
+        { t: 'PLATFORM MAP', type: 'label' },
+        { t: '🏠 HOME PAGE', act: () => location.href = '/' },
+        { t: '📊 DASHBOARD', act: () => location.href = '/dashboard.html' },
+        { t: '🏆 TEAM LIST', act: () => location.href = '/team.html' },
+        { t: 'ISPEZIONE DNA', type: 'label' },
+        { t: '🧹 CLEAR CACHE', act: () => { localStorage.clear(); location.reload(); } },
+        { t: '🔴 EXIT DEV MODE', act: () => { localStorage.removeItem('RENGATREFFEN_DEV_MODE'); location.reload(); } }
     ];
 
-    menuItems.forEach(item => {
-        if (item.type === 'label') {
-            const l = document.createElement('div'); l.className = 'dev-label'; l.innerText = item.l;
+    menu.forEach(m => {
+        if (m.type === 'label') {
+            const l = document.createElement('div'); l.className = 'dev-label'; l.innerText = m.t;
             tray.appendChild(l);
         } else {
             const b = document.createElement('button');
             b.className = 'dev-btn';
-            b.innerText = item.l;
-            b.onclick = item.action;
+            b.innerText = m.t;
+            b.onclick = m.act;
             tray.appendChild(b);
         }
     });
 
-    const trigger = document.createElement('button');
-    trigger.className = 'dev-main-btn';
-    trigger.innerHTML = '⚙️';
-    trigger.onclick = () => {
-        const isOpening = tray.style.display === 'none' || !tray.style.display;
-        tray.style.display = isOpening ? 'flex' : 'none';
-        trigger.innerHTML = isOpening ? '✖️' : '⚙️';
+    const fab = document.createElement('button');
+    fab.className = 'dev-main-btn';
+    fab.innerHTML = '⚙️';
+    fab.onclick = () => {
+        const isExp = tray.style.display === 'flex';
+        tray.style.display = isExp ? 'none' : 'flex';
+        fab.innerHTML = isExp ? '⚙️' : '✖️';
+        fab.style.background = isExp ? '#FFCC00' : '#E6007E';
     };
 
     container.appendChild(tray);
-    container.appendChild(trigger);
+    container.appendChild(fab);
     document.body.appendChild(container);
 
 })();

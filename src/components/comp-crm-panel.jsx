@@ -171,7 +171,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     ];
 
     return (
-        <div style={{ maxWidth: '1450px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 450px', gap: '30px', position: 'relative' }}>
+        <div data-component="CRMDetail" style={{ maxWidth: '1450px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 450px', gap: '30px', position: 'relative' }}>
 
             {status.visible && <div style={toastStyle(status.type === 'success' ? '#4CAF50' : '#E6007E')}>{status.message}</div>}
 
