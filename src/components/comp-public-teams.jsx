@@ -76,7 +76,7 @@ export function PublicTeamList() {
             {teams.map((team, idx) => (
                 <div key={idx} style={teamCardStyle}>
                     <div style={teamHeaderStyle}>
-                        <h3 style={teamTitleStyle}>🏆 TEAM {team.bib ? `#${team.bib}` : ''} {team.name} <span style={{ fontSize: '0.6rem', opacity: 0.2, verticalAlign: 'middle' }}>v1.1.2</span></h3>
+                        <h3 style={teamTitleStyle}>🏆 TEAM {team.bib ? `#${team.bib}` : ''} {team.name} <span style={{ fontSize: '0.6rem', opacity: 0.2, verticalAlign: 'middle' }}>v1.1.3</span></h3>
                         <div style={badgeStyle}>
                             START {team.departure}
                         </div>
@@ -137,60 +137,60 @@ function PilotCard({ pilot, bib, suffix }) {
 const teamCardStyle = {
     background: '#09090b',
     border: '1px solid #222',
-    borderRadius: '40px',
-    padding: '50px',
+    borderRadius: '30px',
+    padding: '35px',
     position: 'relative',
-    boxShadow: '0 40px 100px rgba(0,0,0,0.6)'
+    boxShadow: '0 30px 80px rgba(0,0,0,0.6)'
 };
 
 const teamHeaderStyle = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '50px',
+    marginBottom: '35px',
     borderBottom: '1px solid #1a1a1a',
-    paddingBottom: '25px'
+    paddingBottom: '20px'
 };
 
 const teamTitleStyle = {
-    fontSize: '2.4rem',
+    fontSize: '1.7rem',
     fontWeight: 900,
     color: '#FFCC00',
     margin: 0,
-    letterSpacing: '1px'
+    letterSpacing: '0.5px'
 };
 
 const badgeStyle = {
     background: '#E6007E',
     color: '#fff',
-    padding: '12px 30px',
+    padding: '8px 20px',
     borderRadius: '50px',
     fontWeight: 900,
-    fontSize: '1.5rem',
-    boxShadow: '0 10px 30px rgba(230, 0, 126, 0.4)'
+    fontSize: '1.1rem',
+    boxShadow: '0 8px 25px rgba(230, 0, 126, 0.4)'
 };
 
 const pilotsGridStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-    gap: '60px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gap: '40px'
 };
 
 const pilotContainerStyle = {
     display: 'flex',
-    gap: '35px',
+    gap: '25px',
     alignItems: 'flex-start'
 };
 
 const avatarWrapperStyle = {
-    width: '180px',
-    height: '180px',
+    width: '125px',
+    height: '125px',
     borderRadius: '50%',
     overflow: 'hidden',
-    border: '5px solid #FFCC00',
+    border: '4px solid #FFCC00',
     flexShrink: 0,
     backgroundColor: '#000',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+    boxShadow: '0 15px 30px rgba(0,0,0,0.5)'
 };
 
 const avatarImgStyle = {
@@ -206,40 +206,40 @@ const avatarFallbackStyle = {
 };
 
 const pilotNameStyle = {
-    fontSize: '2rem',
+    fontSize: '1.4rem',
     fontWeight: 900,
     color: '#FFFFFF',
-    margin: '0 0 8px 0',
+    margin: '0 0 5px 0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    textShadow: '0 2px 10px rgba(0,0,0,0.8)'
+    textShadow: '0 2px 8px rgba(0,0,0,0.8)'
 };
 
 const suffixStyle = {
     color: '#FFFFFF', // Pure White for MAX Contrast
-    fontSize: '2.5rem',
+    fontSize: '1.8rem',
     fontWeight: 900,
     marginLeft: 'auto',
     opacity: 1,
-    textShadow: '0 0 20px rgba(255,204,0,0.8)', // Gold Glow
+    textShadow: '0 0 15px rgba(255,204,0,0.8)', // Gold Glow
     fontFamily: 'var(--font-display)',
-    letterSpacing: '-2px'
+    letterSpacing: '-1px'
 };
 
 const roleTagStyle = {
     color: '#E6007E',
-    fontSize: '0.8rem',
+    fontSize: '0.7rem',
     fontWeight: 900,
-    letterSpacing: '3px',
-    marginBottom: '20px'
+    letterSpacing: '2px',
+    marginBottom: '15px'
 };
 
 const bioStyle = {
     color: '#999',
-    fontSize: '1.1rem',
-    lineHeight: '1.7',
+    fontSize: '0.9rem',
+    lineHeight: '1.6',
     margin: 0
 };
 
