@@ -23,8 +23,14 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         if (item) {
             setLocalItem(item);
             fetchNotes();
+            // 🧬 SMART TAB RESET: Porta l'utente sulla tab corretta in base al tipo
+            if (type === 'registration') {
+                setActiveTab('management');
+            } else {
+                setActiveTab('m'); // Tab Messaggio
+            }
         }
-    }, [item]);
+    }, [item, type]);
 
     const showToast = (type, message) => {
         setStatus({ type, message, visible: true });
