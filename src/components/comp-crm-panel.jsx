@@ -38,12 +38,17 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     async function commitAllChanges() {
         setIsSaving(true);
         const table = type === 'registration' ? 'registrations' : 'messages';
-        const { error } = await supabase.from(table).update(localItem).eq('id', item.id);
+
+        // 🛡️ PULIZIA DATI: Escludiamo i campi che non devono essere aggiornati (PK e timestamp)
+        const { id, created_at, ...updateData } = localItem;
+
+        const { error } = await supabase.from(table).update(updateData).eq('id', item.id);
 
         if (!error) {
             alert('✅ DATI SALVATI DEFINITIVAMENTE NEL DATABASE');
             onRefresh();
         } else {
+            console.error('❌ SQL UPDATE ERROR:', error);
             alert('❌ ERRORE SALVATAGGIO: ' + error.message);
         }
         setIsSaving(false);
@@ -143,7 +148,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                     ) : getPhotoUrl(localItem.pilot_photo) ? (
                                         <img src={getPhotoUrl(localItem.pilot_photo)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     ) : (
-                                        <span>📷</span>
+                                        <span style={{ fontSize: '3rem' }}>📷</span>
                                     )}
                                     <input type="file" onChange={handlePhotoUpload} style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
                                 </div>
