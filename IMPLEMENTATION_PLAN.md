@@ -1,12 +1,13 @@
 # Progetto Renga Treffen 2026 - Recap e Next Steps
 
 ## 🏁 Stato Attuale del Progetto
-1.  **Sito Web & Dashboard**: Online su Vercel (Repo: `RENGATREFFEN-2026`).
-2.  **Stack Tecnologico**: Migrato con successo da PHP a **React + Vite + Supabase**.
-3.  **Funzionalità Attive**:
-    - `index.html`: Form iscrizioni collegato a Supabase `registrations`.
-    - `dashboard.html`: Pannello Admin in React con `Universal Dev Mode` (Ctrl+Clic).
-4.  **Database**: Tabella `registrations` operativa su Supabase con RLS attive.
+1.  **Sito Web & Dashboard**: Online su Vercel.
+2.  **Integrazione Database**: 
+    - Form Contatti attivo (Tabella `messages`).
+    - Form Iscrizioni attivo (Tabella `registrations`).
+    - Fix visibilità testo (Nero su Bianco) applicato.
+3.  **Deploy Protocol**: Nuova Skill Card `GITHUB_DEPLOYMENT_PROTOCOL_v1` attiva.
+4.  **Branding**: Favicon ufficiale aggiunta.
 
 ## 🚀 Prossima Fase: Sicurezza & Rifiniture
 L'obiettivo immediato è proteggere l'accesso ai dati sensibili.
@@ -14,11 +15,8 @@ L'obiettivo immediato è proteggere l'accesso ai dati sensibili.
 ### Obiettivi Prioritari:
 1.  **Dashboard Auth**:
     - Implementare Login (Magic Link o Password) per `dashboard.html`.
-    - Attualmente la dashboard è pubblica: **URGENTE**.
-2.  **Data Validation**:
-    - Verificare che i campi del form (Team, Piloti, Moto) siano salvati correttamente.
-    - Testare l'invio email (se richiesto tramite Edge Functions).
-3.  **Cleanup**:
+    - Attualmente la dashboard è protetta solo dalla "scarsa conoscenza dell'URL": **URGENTE**.
+2.  **Cleanup**:
     - Rimuovere `process_registration.php` (obsoleto).
 
 ## 📝 Appunti per il riavvio
