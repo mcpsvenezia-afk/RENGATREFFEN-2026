@@ -25,21 +25,13 @@ export async function initRegistrationEngine() {
         renderDynamicForm(schema, 'registration-form-outlet', async (formData) => {
             console.log('[PLUGIN] Registration Engine: Form Submitted', formData);
 
-            // 🧬 DATA CLEANING: Evitiamo di inviare oggetti File grezzi che Supabase non accetterebbe come TEXT
-            const cleanedData = { ...formData };
-            if (cleanedData.pilot_photo instanceof File) {
-                // Per ora salviamo solo il nome del file o un segnaposto
-                // Lo Storage verrà implementato nello step successivo
-                cleanedData.pilot_photo = cleanedData.pilot_photo.name || "";
-            }
-
             // UI Feedback
             // @ts-ignore
             if (window.Swal) {
                 // @ts-ignore
                 window.Swal.fire({
-                    title: 'Salvataggio in corso...',
-                    text: 'Stiamo processando la tua iscrizione per il 2026.',
+                    title: 'Processamento in corso...',
+                    text: 'Caricamento foto e salvataggio dati...',
                     allowOutsideClick: false,
                     didOpen: () => {
                         // @ts-ignore
@@ -49,7 +41,34 @@ export async function initRegistrationEngine() {
             }
 
             try {
-                // Save to Supabase
+                const cleanedData = { ...formData };
+
+                // 🧬 PHOTO UPLOAD LOGIC
+                if (formData.pilot_photo instanceof File && formData.pilot_photo.size > 0) {
+                    const file = formData.pilot_photo;
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+                    const filePath = `photos/${fileName}`;
+
+                    // Upload to Storage (Ensure 'registrations' bucket exists)
+                    const { error: uploadError } = await supabase.storage
+                        .from('registrations')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw new Error('Caricamento foto fallito: ' + uploadError.message);
+
+                    // Get Public URL
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('registrations')
+                        .getPublicUrl(filePath);
+
+                    cleanedData.pilot_photo = publicUrl;
+                } else if (cleanedData.pilot_photo instanceof File) {
+                    // File input exists but no file was actually chosen
+                    cleanedData.pilot_photo = "";
+                }
+
+                // Save entries to Supabase
                 const { error } = await supabase
                     .from('registrations')
                     .insert([cleanedData]);
