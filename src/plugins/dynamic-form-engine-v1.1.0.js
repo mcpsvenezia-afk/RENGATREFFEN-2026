@@ -92,37 +92,76 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 box-shadow: 0 0 20px rgba(255, 204, 0, 0.15) !important;
             }
             
-            /* Radio Group Styles */
+            /* Radio Group Styles - Premium Traditional */
             .radio-group {
                 display: flex;
-                gap: 1rem;
-                flex-wrap: wrap;
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
             }
             .radio-item {
-                flex: 1;
-                min-width: 120px;
-            }
-            .radio-item input {
-                display: none;
-            }
-            .radio-item label {
-                display: block;
-                padding: 1rem;
-                background: #1a1a23;
-                border: 1px solid #333340;
-                border-radius: 12px;
-                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1.2rem 1.8rem;
+                background: #16161a;
+                border: 1px solid #222;
+                border-radius: 16px;
                 cursor: pointer;
                 transition: all 0.3s ease;
-                font-size: 0.9rem;
-                font-weight: 800;
-                color: #888;
+            }
+            .radio-item:hover {
+                background: #1a1a23;
+                border-color: #444;
+            }
+            .radio-item input {
+                appearance: none;
+                -webkit-appearance: none;
+                width: 26px;
+                height: 26px;
+                border: 2px solid #555 !important;
+                border-radius: 50% !important;
+                background: transparent !important;
+                margin: 0;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                order: 2; /* Sposta il cerchio a destra */
+            }
+            .radio-item input:checked {
+                border-color: #FFCC00 !important;
+                box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+            }
+            .radio-item input:checked::after {
+                content: '';
+                width: 14px;
+                height: 14px;
+                background: #FFCC00 !important;
+                border-radius: 50% !important;
+                display: block;
+            }
+            .radio-item label {
+                flex: 1;
+                font-size: 1.1rem !important;
+                font-weight: 700 !important;
+                color: #aaa !important;
+                cursor: pointer;
+                text-align: left !important;
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                order: 1; /* Testo a sinistra */
             }
             .radio-item input:checked + label {
-                background: #FFCC00;
-                color: #000;
-                border-color: #FFCC00;
-                box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+                color: #fff !important;
+            }
+            .radio-item:has(input:checked) {
+                border-color: rgba(255, 204, 0, 0.4);
+                background: rgba(255, 204, 0, 0.03);
             }
 
             .renga-textarea {
@@ -246,6 +285,8 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                             });
                         });
                     });
+
+                    item.onclick = () => radio.click();
 
                     item.appendChild(radio);
                     item.appendChild(radioLabel);
