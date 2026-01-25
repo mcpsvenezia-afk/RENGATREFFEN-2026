@@ -118,6 +118,48 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, attach: false })); }
     }
 
+    const labelTranslations = {
+        is_paid: 'STATO PAGAMENTO',
+        payment_date: 'DATA PAGAMENTO',
+        bib_number: 'NUMERO GARA (TABELLA)',
+        departure_time: 'ORARIO PARTENZA',
+        team_name: 'NOME DEL TEAM',
+        moto_details: 'MOTO (MODELLO E TARGA)',
+        team_role: 'RUOLO NEL TEAM',
+        is_mcps_member: 'ISCRITTO MCPS',
+        mcps_delegation: 'DELEGAZIONE MCPS',
+        nome: 'NOME PILOTA',
+        cognome: 'COGNOME PILOTA',
+        codice_fiscale: 'CODICE FISCALE',
+        citta_nascita: 'CITTÀ DI NASCITA',
+        citta_residenza: 'CITTÀ DI RESIDENZA',
+        via_residenza: 'VIA DI RESIDENZA',
+        civico_residenza: 'CIVICO',
+        cap_residenza: 'CAP',
+        telefono: 'CELLULARE PILOTA',
+        email: 'EMAIL DI CONTATTO',
+        secondo_nome: 'NOME PARTNER',
+        secondo_cognome: 'COGNOME PARTNER',
+        secondo_cellulare: 'CELLULARE PARTNER',
+        pilot_photo: 'FOTO PROFILO',
+        pilot_bio: 'BIOGRAFIA / BIO',
+        authorize_media: 'AUTORIZZA FOTO/VIDEO',
+        authorize_pilot_profile: 'AUTORIZZA PROFILO SITO',
+        has_roadbook_skill: 'USA ROADBOOK DIGITALE',
+        understand_treasure_hunt: 'CONSAPEVOLEZZA CACCIA TESORO',
+        understand_knobby_tires: 'OBBLIGO GOMME TASSELLATE',
+        understand_team_of_2: 'TEAM COMPOSTO DA 2 PILOTI',
+        understand_donation_no_refund: 'DONAZIONE NON RIMBORSABILE',
+        understand_rain_or_shine: 'EVENTO CON OGNI METEO',
+        accept_regulation: 'ACCETTA REGOLAMENTO',
+        is_fango_tours_member: 'GIÀ SOCIO FANGO TOURS',
+        request_fango_tours_membership: 'RICHIESTA TESSERA FANGO',
+        accept_fango_insurance: 'ACCETTA ASSICURAZIONE',
+        food_preferences: 'ALLERGIE / PREFERENZE',
+        emergency_contact_phone: 'TEL. EMERGENZA SOS',
+        emergency_contact_info: 'NOME CONTATTO EMERGENZA'
+    };
+
     const regTabs = [
         { id: 'management', label: 'GESTIONE', fields: ['is_paid', 'payment_date', 'bib_number', 'departure_time'] },
         { id: 'team', label: 'TEAM & MOTO', fields: ['team_name', 'moto_details', 'team_role', 'is_mcps_member', 'mcps_delegation'] },
@@ -151,7 +193,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                 <div style={{ padding: '50px', backgroundColor: '#000', borderBottom: '2px solid #333' }}>
                     <h2 style={{ fontSize: '3.2rem', color: primaryColor, margin: 0, fontWeight: 900 }}>{localItem.team_name || localItem.name}</h2>
                     <div style={{ marginTop: '20px', display: 'flex', gap: '20px', alignItems: 'baseline' }}>
-                        <span style={idBadgeStyle(accentColor)}>REG_ID: {item.id}</span>
+                        <span style={idBadgeStyle(accentColor)}>ID ISCRIZIONE: {item.id}</span>
                         <div style={{ flex: 1 }}></div>
                         <button onClick={onBack} style={btnBackStyle}>CHIUDI</button>
                         <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>
@@ -176,7 +218,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
                             {regTabs.find(t => t.id === activeTab)?.fields.map(k => (
                                 <div key={k} style={fieldContainerStyle}>
-                                    <label style={megaLabel(primaryColor)}>{k.toUpperCase().replace(/_/g, ' ')}</label>
+                                    <label style={megaLabel(primaryColor)}>{labelTranslations[k] || k.toUpperCase().replace(/_/g, ' ')}</label>
                                     {['is_paid', 'is_mcps_member', 'team_role', 'authorize_media', 'authorize_pilot_profile', 'has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation', 'is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance'].includes(k) ? (
                                         <select value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumSelect}><option value="">--</option><option value="SI">SI</option><option value="NO">NO</option>{k === 'team_role' && <><option value="Capitano">Capitano</option><option value="partner">partner</option></>}</select>
                                     ) : (
@@ -191,7 +233,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
 
             {/* RIGHT: REORDERED CRM SIDEBAR */}
             <div style={{ backgroundColor: '#09090b', borderRadius: '40px', padding: '40px', border: `2px solid ${accentColor}`, display: 'flex', flexDirection: 'column', height: 'fit-content', minHeight: '900px', boxShadow: `0 0 50px ${accentColor}11` }}>
-                <h3 style={{ color: accentColor, fontWeight: 900, marginBottom: '25px', letterSpacing: '2px', textTransform: 'uppercase' }}>CRM Activity Log</h3>
+                <h3 style={{ color: accentColor, fontWeight: 900, marginBottom: '25px', letterSpacing: '2px', textTransform: 'uppercase' }}>REGISTRO ATTIVITÀ CRM</h3>
 
                 {/* 1. PULSANTE AGGIUNGI NOTA (AL TOP) */}
                 <button onClick={submitNote} style={btnAddNoteStyle(primaryColor)}>
