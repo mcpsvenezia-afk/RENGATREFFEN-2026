@@ -102,10 +102,8 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 resize: vertical !important;
             }
             .submit-container {
-                position: sticky;
-                bottom: 2rem;
-                z-index: 10;
-                padding-top: 2rem;
+                padding-top: 4rem;
+                padding-bottom: 2rem;
             }
             .renga-submit-btn {
                 width: 100%;
