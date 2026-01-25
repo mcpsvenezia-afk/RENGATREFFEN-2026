@@ -125,7 +125,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                 <div style={{ padding: '50px', backgroundColor: '#000', borderBottom: '2px solid #333' }}>
                     <h2 style={{ fontSize: '3.5rem', color: primaryColor, margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>{localItem.team_name || localItem.name}</h2>
                     <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <span style={idBadge}>IDENTIFICATIVO: {item.id.substring(0, 8)}</span>
+                        <span style={idBadgeStyle(accentColor)}>IDENTIFICATIVO: {item.id.substring(0, 8)}</span>
                         <div style={{ flex: 1 }}></div>
                         <button onClick={() => askConfirm('ELIMINAZIONE', 'Cancellare definitivamente?', async () => { await supabase.from(isMsg ? 'messages' : 'registrations').delete().eq('id', item.id); onRefresh(); onBack(); }, true)} style={btnDeleteStyle}>🗑️ ELIMINA</button>
                         {!isMsg && <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(loading.saving, primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>}
@@ -225,7 +225,7 @@ const modalContent = { backgroundColor: '#111', padding: '40px', borderRadius: '
 const btnModalCancel = { background: '#222', color: '#888', border: 'none', padding: '15px 30px', borderRadius: '15px', cursor: 'pointer', fontWeight: 900 };
 const btnModalConfirm = (c) => ({ background: c, color: '#000', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' });
 const btnModalDanger = { background: '#ff4444', color: '#fff', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' };
-const idBadge = { color: accentColor, fontSize: '0.8rem', fontWeight: 900, letterSpacing: '2px' };
+const idBadgeStyle = (c) => ({ color: c, fontSize: '0.8rem', fontWeight: 900, letterSpacing: '2px' });
 const btnSaveStyle = (l, c) => ({ backgroundColor: l ? '#333' : c, color: '#000', border: 'none', padding: '18px 45px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer', boxShadow: `0 10px 30px ${c}44` });
 const btnDeleteStyle = { background: 'transparent', color: '#ff4444', border: '2px solid #ff4444', padding: '18px 45px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer' };
 const tabStyle = (a, c) => ({ flex: 1, padding: '30px', border: 'none', background: a ? '#0d0d12' : 'transparent', color: a ? c : '#555', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', borderBottom: a ? `4px solid ${c}` : 'none', transition: '0.3s' });
