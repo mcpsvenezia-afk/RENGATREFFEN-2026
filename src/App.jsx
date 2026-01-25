@@ -41,6 +41,15 @@ function App() {
             setRegistrations(regData || []);
 
             const { data: msgData } = await supabase.from('messages').select('*').neq('status', 'Archiviato').order('created_at', { ascending: false });
+
+            // Check which messages have attachments
+            if (msgData && msgData.length > 0) {
+                const msgIds = msgData.map(m => m.id);
+                const { data: attachData } = await supabase.from('crm_attachments').select('message_id').in('message_id', msgIds);
+                const idsWithAttach = new Set(attachData?.map(a => a.message_id) || []);
+                msgData.forEach(m => { m.has_attachments = idsWithAttach.has(m.id); });
+            }
+
             setMessages(msgData || []);
 
             // 🧬 SYNC SELECTED ITEM: Se c'era un elemento aperto, aggiornalo con i nuovi dati

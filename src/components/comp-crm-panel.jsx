@@ -271,15 +271,45 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                     {notes.length === 0 && <div style={{ textAlign: 'center', color: '#444', marginTop: '20px' }}>Nessun log CRM presente.</div>}
                 </div>
 
-                {/* 4. CARICA ALLEGATO (A FONDO) */}
+                {/* 4. ALLEGATI (A FONDO) */}
                 <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid #222' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
-                        {attachments.map(a => (
-                            <div key={a.id} style={attachPill}>
-                                <a href={a.file_url} target="_blank" style={{ color: '#fff', textDecoration: 'none', fontSize: '0.7rem' }}>{a.file_name.substring(0, 10)}...</a>
-                            </div>
-                        ))}
-                    </div>
+                    <h4 style={{ color: '#888', fontSize: '0.75rem', fontWeight: 900, marginBottom: '15px', letterSpacing: '1px' }}>📎 ALLEGATI ({attachments.length})</h4>
+
+                    {attachments.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                            {attachments.map(a => {
+                                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(a.file_name);
+                                const isPdf = /\.pdf$/i.test(a.file_name);
+                                const icon = isImage ? '🖼️' : isPdf ? '📄' : '📎';
+                                return (
+                                    <a key={a.id} href={a.file_url} target="_blank" rel="noopener noreferrer" style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        padding: '12px 15px',
+                                        background: '#111',
+                                        border: '1px solid #333',
+                                        borderRadius: '12px',
+                                        textDecoration: 'none',
+                                        transition: '0.2s'
+                                    }}
+                                        onMouseOver={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.background = '#1a1a1a'; }}
+                                        onMouseOut={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.background = '#111'; }}
+                                    >
+                                        <span style={{ fontSize: '1.5rem' }}>{icon}</span>
+                                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                                            <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{a.file_name}</div>
+                                            <div style={{ color: '#555', fontSize: '0.7rem' }}>{a.file_size ? Math.round(a.file_size / 1024) + ' KB' : 'Clicca per aprire'}</div>
+                                        </div>
+                                        <span style={{ color: primaryColor, fontSize: '0.8rem', fontWeight: 900 }}>↗</span>
+                                    </a>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div style={{ color: '#333', fontSize: '0.85rem', marginBottom: '15px', textAlign: 'center' }}>Nessun allegato</div>
+                    )}
+
                     <div style={{ position: 'relative' }}>
                         <button style={btnAttachFullStyle}>{loading.attach ? 'CARICAMENTO...' : '📂 CARICA ALLEGATO'}</button>
                         <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
