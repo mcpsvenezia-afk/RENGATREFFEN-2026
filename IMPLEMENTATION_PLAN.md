@@ -13,10 +13,11 @@
 L'obiettivo immediato è proteggere l'accesso ai dati sensibili.
 
 ### Obiettivi Prioritari:
-1.  **Dashboard Auth**:
+1.  **Super Modulo di Registrazione**:
+    - Creare e testare un modulo di iscrizione avanzato (multi-step, validazione, UI premium).
+2.  **Dashboard Auth**:
     - Implementare Login (Magic Link o Password) per `dashboard.html`.
-    - Attualmente la dashboard è protetta solo dalla "scarsa conoscenza dell'URL": **URGENTE**.
-2.  **Cleanup**:
+3.  **Cleanup**:
     - Rimuovere `process_registration.php` (obsoleto).
 
 ## 📝 Appunti per il riavvio
