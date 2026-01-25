@@ -33,6 +33,14 @@ function App() {
 
             const { data: msgData } = await supabase.from('messages').select('*').neq('status', 'Archiviato').order('created_at', { ascending: false });
             setMessages(msgData || []);
+
+            // 🧬 SYNC SELECTED ITEM: Se c'era un elemento aperto, aggiornalo con i nuovi dati
+            if (selectedItem) {
+                const refreshed = regData?.find(r => r.id === selectedItem.data.id);
+                if (refreshed) {
+                    setSelectedItem(prev => ({ ...prev, data: refreshed }));
+                }
+            }
         } catch (err) {
             console.error('Error fetching data:', err);
         } finally {
