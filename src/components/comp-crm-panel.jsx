@@ -1,6 +1,10 @@
 /**
- * 🧬 COMPONENT: CRM Detail Panel v5.0 (Final Premium Layout)
- * Goal: Reordered Sidebar (Button-Input-Log-Attach), Editable Tabs, Note Management
+ * 🧬 COMPONENT: CRM Detail Panel v5.5 (Final Request Polish)
+ * Features:
+ * 1. Sidebar Order: Add Button -> Textarea -> Logs -> Attach Button
+ * 2. Full Delete/Edit for Notes
+ * 3. Logical Tab Groups (No Duplicates)
+ * 4. Reactive DB Sync
  */
 
 import React, { useState, useEffect } from 'react';
@@ -11,7 +15,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     const [notes, setNotes] = useState([]);
     const [attachments, setAttachments] = useState([]);
     const [newNote, setNewNote] = useState('');
-    const [editingNote, setEditingNote] = useState(null);
+    const [editingNoteId, setEditingNoteId] = useState(null);
     const [activeTab, setActiveTab] = useState(type === 'registration' ? 'management' : 'm');
 
     // UI Theme Settings
@@ -21,7 +25,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     const themeShadow = isMsg ? 'rgba(0,229,255,0.1)' : 'rgba(230,0,126,0.1)';
 
     const [status, setStatus] = useState({ type: '', message: '', visible: false });
-    const [loading, setLoading] = useState({ saving: false, deleting: false, photo: false, attach: false });
+    const [loading, setLoading] = useState({ saving: false, attach: false });
     const [modal, setModal] = useState({ visible: false, title: '', message: '', onConfirm: null, isDanger: false });
 
     const noteTable = isMsg ? 'message_notes' : 'registration_notes';
@@ -37,11 +41,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
 
     const showToast = (t, m) => {
         setStatus({ type: t, message: m, visible: true });
-        setTimeout(() => setStatus(prev => ({ ...prev, visible: false })), 4000);
-    };
-
-    const askConfirm = (title, message, onConfirm, isDanger = false) => {
-        setModal({ visible: true, title, message, onConfirm, isDanger });
+        setTimeout(() => setStatus(prev => ({ ...prev, visible: false })), 3000);
     };
 
     async function fetchNotes() {
@@ -62,32 +62,45 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             const table = isMsg ? 'messages' : 'registrations';
             const { error } = await supabase.from(table).update(localItem).eq('id', item.id);
             if (error) throw error;
-            showToast('success', 'DATI SALVATI');
+            showToast('success', 'SINCRONIZZATO');
             onRefresh();
         } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
     }
 
-    async function addNote() {
+    async function submitNote() {
         if (!newNote.trim()) return;
-        setLoading(prev => ({ ...prev, saving: true }));
         try {
-            if (editingNote) {
-                await supabase.from(noteTable).update({ content: newNote }).eq('id', editingNote.id);
-                setEditingNote(null);
+            if (editingNoteId) {
+                await supabase.from(noteTable).update({ content: newNote }).eq('id', editingNoteId);
+                setEditingNoteId(null);
             } else {
                 await supabase.from(noteTable).insert([{ [foreignKey]: item.id, content: newNote, admin_name: 'Admin' }]);
             }
             setNewNote('');
             fetchNotes();
-            showToast('success', 'NOTA AGGIORNATA');
-        } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
+            showToast('success', 'CRM AGGIORNATO');
+        } catch (err) { showToast('error', err.message); }
+    }
+
+    function startEditNote(n) {
+        setEditingNoteId(n.id);
+        setNewNote(n.content);
+        // Scroll slightly if needed? No, just focus
+        document.getElementById('note-input-area')?.focus();
     }
 
     async function deleteNote(id) {
-        askConfirm('ELIMINA NOTA', 'Sei sicuro di voler eliminare questa nota?', async () => {
-            const { error } = await supabase.from(noteTable).delete().eq('id', id);
-            if (!error) { fetchNotes(); showToast('success', 'NOTA ELIMINATA'); }
-        }, true);
+        setModal({
+            visible: true,
+            title: 'ELIMINA NOTA',
+            message: 'Questa azione è irreversibile. Procedere?',
+            isDanger: true,
+            onConfirm: async () => {
+                const { error } = await supabase.from(noteTable).delete().eq('id', id);
+                if (!error) { fetchNotes(); showToast('success', 'NOTA RIMOSTRA'); }
+                setModal({ ...modal, visible: false });
+            }
+        });
     }
 
     async function handleFileAttach(e) {
@@ -99,159 +112,164 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             const filePath = `${isMsg ? 'messages' : 'registrations'}/${fileName}`;
             await supabase.storage.from('attachments').upload(filePath, file);
             const { data: { publicUrl } } = supabase.storage.from('attachments').getPublicUrl(filePath);
-            await supabase.from('crm_attachments').insert([{ [foreignKey]: item.id, file_url: publicUrl, file_name: file.name, file_size: file.size }]);
+            await supabase.from('crm_attachments').insert([{ [foreignKey]: item.id, file_url: publicUrl, file_name: file.name }]);
             fetchAttachments();
-            showToast('success', 'ALLEGATO OK');
+            showToast('success', 'FILE SALVATO');
         } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, attach: false })); }
     }
 
     const regTabs = [
-        { id: 'management', label: 'GESTIONE EVENTO' },
-        { id: 'team', label: 'TEAM & MOTO' },
-        { id: 'personal', label: 'ANAGRAFICA' },
-        { id: 'partner', label: 'PARTNER' },
-        { id: 'bio', label: 'BIO PILOTA' },
-        { id: 'requirements', label: 'REQUISITI' },
-        { id: 'health', label: 'SALUTE & EXTRA' }
+        { id: 'management', label: 'GESTIONE', fields: ['is_paid', 'payment_date', 'bib_number', 'departure_time'] },
+        { id: 'team', label: 'TEAM & MOTO', fields: ['team_name', 'moto_details', 'team_role', 'is_mcps_member', 'mcps_delegation'] },
+        { id: 'personal', label: 'ANAGRAFICA', fields: ['nome', 'cognome', 'codice_fiscale', 'citta_nascita', 'citta_residenza', 'via_residenza', 'civico_residenza', 'cap_residenza', 'telefono', 'email'] },
+        { id: 'partner', label: 'PARTNER', fields: ['secondo_nome', 'secondo_cognome', 'secondo_cellulare'] },
+        { id: 'bio', label: 'BIO PILOTA', fields: ['pilot_photo', 'pilot_bio', 'authorize_media', 'authorize_pilot_profile'] },
+        { id: 'requirements', label: 'REQUISITI', fields: ['has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation'] },
+        { id: 'fango', label: 'SALUTE & FANGO', fields: ['is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance', 'food_preferences', 'emergency_contact_phone', 'emergency_contact_info'] }
     ];
 
     return (
-        <div style={{ maxWidth: '1450px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 450px', gap: '40px', position: 'relative' }}>
+        <div style={{ maxWidth: '1450px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 450px', gap: '30px', position: 'relative' }}>
 
-            {status.visible && <div style={toastStyle(status.type === 'success' ? '#4CAF50' : '#E6007E')}>{status.type === 'success' ? '✅ ' : '❌ '}{status.message}</div>}
+            {status.visible && <div style={toastStyle(status.type === 'success' ? '#4CAF50' : '#E6007E')}>{status.message}</div>}
 
             {modal.visible && (
                 <div style={modalOverlay}>
                     <div style={modalContent}>
-                        <h3 style={{ color: modal.isDanger ? '#ff4444' : primaryColor }}>{modal.title}</h3>
-                        <p style={{ color: '#fff' }}>{modal.message}</p>
-                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginTop: '30px' }}>
+                        <h3 style={{ color: modal.isDanger ? '#ff4444' : primaryColor, margin: 0 }}>{modal.title}</h3>
+                        <p style={{ color: '#fff', fontSize: '1.1rem', margin: '30px 0' }}>{modal.message}</p>
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
                             <button onClick={() => setModal({ ...modal, visible: false })} style={btnModalCancel}>ANNULLA</button>
-                            <button onClick={() => { modal.onConfirm(); setModal({ ...modal, visible: false }); }} style={modal.isDanger ? btnModalDanger : btnModalConfirm(primaryColor)}>CONFERMA</button>
+                            <button onClick={() => modal.onConfirm()} style={modal.isDanger ? btnModalDanger : btnModalConfirm(primaryColor)}>CONFERMA</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* LEFT PANEL: DATA */}
-            <div style={{ backgroundColor: '#09090b', borderRadius: '40px', border: `1px solid ${isMsg ? 'rgba(0,229,255,0.2)' : '#333'}`, overflow: 'hidden' }}>
+            {/* LEFT: MASTER DATA */}
+            <div style={{ backgroundColor: '#09090b', borderRadius: '40px', border: '1px solid #222', overflow: 'hidden', boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}>
                 <div style={{ padding: '50px', backgroundColor: '#000', borderBottom: '2px solid #333' }}>
-                    <h2 style={{ fontSize: '3rem', color: primaryColor, margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>{localItem.team_name || localItem.name}</h2>
-                    <div style={{ marginTop: '20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
-                        <span style={idBadgeStyle(accentColor)}>ID: {item.id}</span>
+                    <h2 style={{ fontSize: '3.2rem', color: primaryColor, margin: 0, fontWeight: 900 }}>{localItem.team_name || localItem.name}</h2>
+                    <div style={{ marginTop: '20px', display: 'flex', gap: '20px', alignItems: 'baseline' }}>
+                        <span style={idBadgeStyle(accentColor)}>REG_ID: {item.id}</span>
                         <div style={{ flex: 1 }}></div>
-                        <button onClick={() => askConfirm('ELIMINA!', 'Cancellare definitivamente?', async () => { await supabase.from(isMsg ? 'messages' : 'registrations').delete().eq('id', item.id); onRefresh(); onBack(); }, true)} style={btnDeleteStyle}>🗑️ ELIMINA</button>
-                        <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(primaryColor)}>{loading.saving ? 'SALVATAGGIO...' : '💾 SALVA TUTTO'}</button>
+                        <button onClick={onBack} style={btnBackStyle}>CHIUDI</button>
+                        <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', overflowX: 'auto', backgroundColor: '#111', borderBottom: '1px solid #333' }}>
+                <div style={{ display: 'flex', overflowX: 'auto', backgroundColor: '#111', borderBottom: '1px solid #222' }}>
                     {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map(t => (
                         <button key={t.id} onClick={() => setActiveTab(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
                     ))}
                 </div>
 
-                <div style={{ padding: '50px', minHeight: '600px' }}>
+                <div style={{ padding: '50px', minHeight: '650px', background: 'linear-gradient(to bottom, #09090b, #000)' }}>
                     {activeTab === 'm' ? (
-                        <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>CONTENUTO MESSAGGIO</h3><textarea value={localItem.message || ''} onChange={e => setLocalItem({ ...localItem, message: e.target.value })} style={ultraTextAreaStyle} /></div>
+                        <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>MESSAGGIO RICEVUTO</h3><textarea value={localItem.message || ''} onChange={e => setLocalItem({ ...localItem, message: e.target.value })} style={ultraTextAreaStyle} /></div>
                     ) : activeTab === 'bio' ? (
                         <div style={{ display: 'grid', gap: '40px' }}>
-                            <div style={photoSection}><div style={photoDropBox(primaryColor)}>{localItem.pilot_photo ? <img src={localItem.pilot_photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📷'}<input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} /></div><div><h4 style={{ color: primaryColor, margin: 0 }}>FOTO PROFILO</h4><p style={{ color: '#888', margin: 0, fontSize: '0.8rem' }}>Clicca per cambiare.</p></div></div>
-                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>BIOGRAFIA PILOTA</h3><textarea value={localItem.pilot_bio || ''} onChange={e => setLocalItem({ ...localItem, pilot_bio: e.target.value })} style={ultraTextAreaStyle} /></div>
-                        </div>
-                    ) : activeTab === 'management' ? (
-                        <div style={{ display: 'grid', gap: '30px' }}>
-                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>AMMINISTRAZIONE</h3><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}><div><label style={megaLabel(primaryColor)}>PAGATO</label><select value={localItem.is_paid || 'NO'} onChange={e => setLocalItem({ ...localItem, is_paid: e.target.value })} style={premiumSelect}><option value="NO">NO</option><option value="SI">SI</option></select></div><div><label style={megaLabel(primaryColor)}>DATA</label><input type="date" value={localItem.payment_date || ''} onChange={e => setLocalItem({ ...localItem, payment_date: e.target.value })} style={premiumInput} /></div></div></div>
-                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>GARA</h3><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}><div><label style={megaLabel(primaryColor)}>NUMERO</label><input value={localItem.bib_number || ''} onChange={e => setLocalItem({ ...localItem, bib_number: e.target.value })} style={premiumInput} /></div><div><label style={megaLabel(primaryColor)}>PARTENZA</label><input value={localItem.departure_time || ''} onChange={e => setLocalItem({ ...localItem, departure_time: e.target.value })} style={premiumInput} /></div></div></div>
+                            <div style={photoSection}><div style={photoDropBox(primaryColor)}>{localItem.pilot_photo ? <img src={localItem.pilot_photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📷'}<input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} /></div><div><h4 style={{ color: primaryColor, margin: 0, fontWeight: 900 }}>LOGO / FOTO</h4><p style={{ color: '#666', fontSize: '0.8rem' }}>Asset memorizzato nel profilo.</p></div></div>
+                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>BIOGRAFIA / CV</h3><textarea value={localItem.pilot_bio || ''} onChange={e => setLocalItem({ ...localItem, pilot_bio: e.target.value })} style={ultraTextAreaStyle} /></div>
                         </div>
                     ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '25px' }}>
-                            {Object.keys(localItem).filter(k => !['id', 'created_at', 'pilot_photo', 'pilot_bio', 'message', 'is_paid', 'payment_date', 'bib_number', 'departure_time'].includes(k)).map(k => (
-                                <div key={k} style={fieldContainerStyle}><label style={megaLabel(primaryColor)}>{k.toUpperCase().replace(/_/g, ' ')}</label><input value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumInput} /></div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
+                            {regTabs.find(t => t.id === activeTab)?.fields.map(k => (
+                                <div key={k} style={fieldContainerStyle}>
+                                    <label style={megaLabel(primaryColor)}>{k.toUpperCase().replace(/_/g, ' ')}</label>
+                                    {['is_paid', 'is_mcps_member', 'team_role', 'authorize_media', 'authorize_pilot_profile', 'has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation', 'is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance'].includes(k) ? (
+                                        <select value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumSelect}><option value="">--</option><option value="SI">SI</option><option value="NO">NO</option>{k === 'team_role' && <><option value="Capitano">Capitano</option><option value="partner">partner</option></>}</select>
+                                    ) : (
+                                        <input type={k.includes('date') ? 'date' : 'text'} value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumInput} />
+                                    )}
+                                </div>
                             ))}
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* RIGHT PANEL: REORDERED CRM SIDEBAR (Button -> Input -> Log -> Attach) */}
-            <div style={{ backgroundColor: '#09090b', borderRadius: '40px', padding: '40px', border: `2px solid ${accentColor}`, display: 'flex', flexDirection: 'column', height: 'fit-content', minHeight: '900px' }}>
-                <h3 style={{ color: accentColor, fontWeight: 900, marginBottom: '20px', textTransform: 'uppercase' }}>CRM Activity Log</h3>
+            {/* RIGHT: REORDERED CRM SIDEBAR */}
+            <div style={{ backgroundColor: '#09090b', borderRadius: '40px', padding: '40px', border: `2px solid ${accentColor}`, display: 'flex', flexDirection: 'column', height: 'fit-content', minHeight: '900px', boxShadow: `0 0 50px ${accentColor}11` }}>
+                <h3 style={{ color: accentColor, fontWeight: 900, marginBottom: '25px', letterSpacing: '2px', textTransform: 'uppercase' }}>CRM Activity Log</h3>
 
-                {/* 1. PULSANTE AGGIUNGI NOTA */}
-                <button onClick={addNote} style={btnAddNoteStyle(primaryColor)}>
-                    {editingNote ? '💾 SALVA MODIFICA' : '+ AGGIUNGI NOTA'}
+                {/* 1. PULSANTE AGGIUNGI NOTA (AL TOP) */}
+                <button onClick={submitNote} style={btnAddNoteStyle(primaryColor)}>
+                    {editingNoteId ? '💾 AGGIORNA NOTA' : '+ AGGIUNGI NOTA'}
                 </button>
 
-                {/* 2. CAMPO TESTO NOTA */}
-                <div style={{ marginTop: '20px', marginBottom: '30px' }}>
+                {/* 2. CAMPO PER SCRIVERE NOTA */}
+                <div style={{ margin: '20px 0 30px 0' }}>
                     <textarea
+                        id="note-input-area"
                         value={newNote}
                         onChange={e => setNewNote(e.target.value)}
                         style={darkInputArea}
-                        placeholder="Scrivi qui la tua nota..."
+                        placeholder="Annota progressi, telefonate o stati..."
                     />
-                    {editingNote && <button onClick={() => { setEditingNote(null); setNewNote(''); }} style={{ background: 'none', color: '#888', border: 'none', marginTop: '10px', cursor: 'pointer' }}>X Annulla Modifica</button>}
+                    {editingNoteId && <div onClick={() => { setEditingNoteId(null); setNewNote(''); }} style={{ textAlign: 'right', color: primaryColor, fontSize: '0.8rem', cursor: 'pointer', marginTop: '10px' }}>ANNULLA MODIFICA</div>}
                 </div>
 
-                <div style={{ height: '1px', background: '#222', marginBottom: '30px' }}></div>
+                <div style={{ height: '1px', background: '#333', marginBottom: '30px' }}></div>
 
                 {/* 3. AREA PER LE NOTE (LOG) */}
-                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px' }}>
+                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
                     {notes.map(n => (
                         <div key={n.id} style={noteItemBox(primaryColor)}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                 <span style={{ color: primaryColor, fontSize: '0.75rem', fontWeight: 900 }}>{new Date(n.created_at).toLocaleString()}</span>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <span onClick={() => { setEditingNote(n); setNewNote(n.content); }} style={{ cursor: 'pointer', opacity: 0.6 }}>✏️</span>
-                                    <span onClick={() => deleteNote(n.id)} style={{ cursor: 'pointer', opacity: 0.6 }}>🗑️</span>
+                                <div style={{ display: 'flex', gap: '12px', fontSize: '0.9rem' }}>
+                                    <span onClick={() => startEditNote(n)} style={{ cursor: 'pointer', filter: 'grayscale(1) brightness(2)' }}>✏️</span>
+                                    <span onClick={() => deleteNote(n.id)} style={{ cursor: 'pointer', filter: 'grayscale(1) brightness(1.5)' }}>🗑️</span>
                                 </div>
                             </div>
-                            <div style={{ color: '#fff', fontSize: '1.1rem', lineHeight: '1.5' }}>{n.content}</div>
+                            <div style={{ color: '#eee', fontSize: '1.1rem', lineHeight: '1.6', fontWeight: 500 }}>{n.content}</div>
                         </div>
                     ))}
-                    {notes.length === 0 && <div style={{ textAlign: 'center', color: '#444' }}>Nessuna attività registrata.</div>}
+                    {notes.length === 0 && <div style={{ textAlign: 'center', color: '#444', marginTop: '20px' }}>Nessun log CRM presente.</div>}
                 </div>
 
-                {/* 4. CARICA ALLEGATO (ALLA FINE) */}
-                <div style={{ position: 'relative', marginTop: 'auto' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '15px' }}>
+                {/* 4. CARICA ALLEGATO (A FONDO) */}
+                <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid #222' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
                         {attachments.map(a => (
                             <div key={a.id} style={attachPill}>
-                                <a href={a.file_url} target="_blank" style={{ color: '#fff', textDecoration: 'none', fontSize: '0.75rem' }}>{a.file_name}</a>
+                                <a href={a.file_url} target="_blank" style={{ color: '#fff', textDecoration: 'none', fontSize: '0.7rem' }}>{a.file_name.substring(0, 10)}...</a>
                             </div>
                         ))}
                     </div>
-                    <button style={btnAttachFullStyle}>📂 CARICA ALLEGATO</button>
-                    <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+                    <div style={{ position: 'relative' }}>
+                        <button style={btnAttachFullStyle}>{loading.attach ? 'CARICAMENTO...' : '📂 CARICA ALLEGATO'}</button>
+                        <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
 
-// STYLES
-const toastStyle = (c) => ({ position: 'fixed', bottom: '40px', left: '50%', transform: 'translateX(-50%)', backgroundColor: c, color: '#fff', padding: '15px 40px', borderRadius: '50px', fontWeight: 900, zIndex: 10000 });
-const modalOverlay = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)', zIndex: 11000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const modalContent = { backgroundColor: '#111', padding: '40px', borderRadius: '32px', border: '1px solid #333', maxWidth: '500px', width: '90%' };
-const btnModalCancel = { background: '#222', color: '#fff', border: 'none', padding: '12px 25px', borderRadius: '12px' };
-const btnModalConfirm = (c) => ({ background: c, color: '#000', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: 900 });
-const btnModalDanger = { background: '#ff4444', color: '#fff', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: 900 };
-const idBadgeStyle = (c) => ({ color: c, fontSize: '0.7rem', fontWeight: 900, border: `1px solid ${c}33`, padding: '5px 15px', borderRadius: '50px' });
-const btnSaveStyle = (c) => ({ backgroundColor: c, color: '#000', border: 'none', padding: '15px 35px', borderRadius: '15px', fontWeight: 900 });
-const btnDeleteStyle = { background: 'none', color: '#ff4444', border: '1px solid #ff4444', padding: '15px 35px', borderRadius: '15px', fontWeight: 900, marginRight: '10px' };
-const tabStyle = (a, c) => ({ padding: '25px 35px', border: 'none', background: a ? '#000' : 'transparent', color: a ? c : '#666', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer', borderBottom: a ? `4px solid ${c}` : 'none', whiteSpace: 'nowrap' });
-const sectionBox = { backgroundColor: '#111', padding: '35px', borderRadius: '24px', border: '1px solid #222' };
-const sectionTitle = (c) => ({ color: '#fff', fontSize: '1.1rem', fontWeight: 900, borderLeft: `5px solid ${c}`, paddingLeft: '15px', marginBottom: '25px' });
-const megaLabel = (c) => ({ color: c, fontSize: '0.7rem', fontWeight: 900, marginBottom: '8px', display: 'block' });
-const premiumInput = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', padding: '18px', borderRadius: '12px' };
-const premiumSelect = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', padding: '18px', borderRadius: '12px' };
-const ultraTextAreaStyle = { width: '100%', background: '#09090b', border: '1px solid #222', color: '#fff', padding: '30px', borderRadius: '24px', minHeight: '300px', fontSize: '1.2rem', lineHeight: '1.6' };
-const fieldContainerStyle = { background: '#111', padding: '20px', borderRadius: '16px', border: '1px solid #222' };
-const photoSection = { display: 'flex', gap: '30px', alignItems: 'center', background: '#111', padding: '30px', borderRadius: '24px' };
-const photoDropBox = (c) => ({ width: '160px', height: '160px', border: `2px dashed ${c}`, borderRadius: '24px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' });
-const btnAddNoteStyle = (c) => ({ width: '100%', background: c, color: '#000', border: 'none', padding: '20px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer' });
-const darkInputArea = { width: '100%', background: '#ccc', border: 'none', color: '#111', padding: '25px', borderRadius: '25px', minHeight: '180px', fontSize: '1.1rem', resize: 'none' };
-const noteItemBox = (c) => ({ backgroundColor: '#111', padding: '25px', borderRadius: '24px', borderLeft: `6px solid ${c}` });
-const attachPill = { background: '#222', padding: '8px 15px', borderRadius: '10px', fontSize: '0.75rem' };
-const btnAttachFullStyle = { width: '100%', background: 'none', color: '#FFCC00', border: '1px solid #FFCC00', padding: '18px', borderRadius: '100px', fontWeight: 900, fontSize: '1rem', cursor: 'pointer' };
+// PREMIUM STYLES DEFINITION
+const toastStyle = (c) => ({ position: 'fixed', bottom: '40px', left: '50%', transform: 'translateX(-50%)', backgroundColor: c, color: '#fff', padding: '15px 40px', borderRadius: '50px', fontWeight: 900, zIndex: 10000, boxShadow: '0 10px 40px rgba(0,0,0,0.5)' });
+const modalOverlay = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.95)', backdropFilter: 'blur(15px)', zIndex: 11000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const modalContent = { backgroundColor: '#111', padding: '40px', borderRadius: '40px', border: '1px solid #333', maxWidth: '450px', width: '90%' };
+const btnModalCancel = { background: '#222', color: '#888', border: 'none', padding: '15px 30px', borderRadius: '15px', cursor: 'pointer', fontWeight: 900 };
+const btnModalConfirm = (c) => ({ background: c, color: '#000', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' });
+const btnModalDanger = { background: '#ff4444', color: '#fff', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' };
+const idBadgeStyle = (c) => ({ color: c, fontSize: '0.75rem', fontWeight: 900, letterSpacing: '1px', background: `${c}11`, padding: '6px 15px', borderRadius: '50px', border: `1px solid ${c}33` });
+const btnSaveStyle = (c) => ({ backgroundColor: c, color: '#000', border: 'none', padding: '18px 45px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer', boxShadow: `0 10px 30px ${c}44` });
+const btnBackStyle = { background: 'none', color: '#666', border: '1px solid #333', padding: '18px 30px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer' };
+const tabStyle = (a, c) => ({ padding: '25px 35px', border: 'none', background: a ? '#000' : 'transparent', color: a ? c : '#666', fontWeight: 900, fontSize: '0.8rem', cursor: 'pointer', borderBottom: a ? `4px solid ${c}` : 'none', whiteSpace: 'nowrap', transition: '0.3s' });
+const sectionBox = { backgroundColor: '#111', padding: '35px', borderRadius: '32px', border: '1px solid #222' };
+const sectionTitle = (c) => ({ color: '#fff', fontSize: '1.2rem', fontWeight: 900, margin: '0 0 25px 0', borderLeft: `6px solid ${c}`, paddingLeft: '20px' });
+const megaLabel = (c) => ({ color: c, fontSize: '0.7rem', fontWeight: 900, display: 'block', marginBottom: '10px', letterSpacing: '1px' });
+const premiumInput = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', fontSize: '1.1rem', padding: '18px', borderRadius: '15px' };
+const premiumSelect = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', fontSize: '1.1rem', padding: '18px', borderRadius: '15px', cursor: 'pointer' };
+const ultraTextAreaStyle = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', padding: '30px', borderRadius: '24px', minHeight: '350px', fontSize: '1.2rem', lineHeight: '1.7', outline: 'none' };
+const fieldContainerStyle = { background: '#111', padding: '22px', borderRadius: '20px', border: '1px solid #222' };
+const photoSection = { display: 'flex', gap: '30px', alignItems: 'center', background: '#111', padding: '30px', borderRadius: '32px', border: '1px dashed #333' };
+const photoDropBox = (c) => ({ width: '150px', height: '150px', backgroundColor: '#000', border: `3px dashed ${c}`, borderRadius: '30px', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' });
+const btnAddNoteStyle = (c) => ({ width: '100%', background: c, color: '#000', border: 'none', padding: '22px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', boxShadow: `0 15px 30px ${c}22` });
+const darkInputArea = { width: '100%', background: '#ccc', border: 'none', color: '#111', padding: '25px', borderRadius: '25px', minHeight: '180px', fontSize: '1.1rem', fontWeight: 600, resize: 'none' };
+const noteItemBox = (c) => ({ backgroundColor: '#111', padding: '25px', borderRadius: '25px', borderLeft: `8px solid ${c}` });
+const attachPill = { backgroundColor: '#1a1a1a', padding: '8px 15px', borderRadius: '12px', fontSize: '0.7rem', border: '1px solid #333' };
+const btnAttachFullStyle = { width: '100%', background: 'none', color: '#FFCC00', border: '1px solid #FFCC00', padding: '20px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer' };
