@@ -58,6 +58,43 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         }
     }
 
+    const handlePhotoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const confirmUpload = confirm("Vuoi caricare questa foto per l'utente?");
+        if (!confirmUpload) return;
+
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${item.id}-${Date.now()}.${fileExt}`;
+            const filePath = `photos/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('registrations')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('registrations')
+                .getPublicUrl(filePath);
+
+            const { error: updateError } = await supabase
+                .from('registrations')
+                .update({ pilot_photo: publicUrl })
+                .eq('id', item.id);
+
+            if (updateError) throw updateError;
+
+            alert('Foto caricata con successo!');
+            onRefresh();
+        } catch (error) {
+            console.error('Upload Error:', error);
+            alert('Errore durante il caricamento: ' + error.message);
+        }
+    };
+
     // Tab Definitions for Registration
     const regTabs = [
         { id: 'general', label: 'GENERICI', fields: ['team_name', 'team_role', 'moto_details', 'is_mcps_member', 'mcps_delegation', 'is_fango_tours_member', 'request_fango_tours_membership'] },
@@ -67,23 +104,49 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     ];
 
     const renderFieldValue = (key, value) => {
-        if (!value) return <span style={{ color: '#444' }}>-</span>;
-
-        // Specifc display for Photo
         if (key === 'pilot_photo') {
             return (
                 <div style={{ marginTop: '10px' }}>
-                    <div style={{ width: '100px', height: '100px', backgroundColor: '#333', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '1px solid #FFCC00' }}>
-                        {typeof value === 'string' && value.includes('http') ? (
+                    <div style={{
+                        width: '120px',
+                        height: '120px',
+                        backgroundColor: '#111',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        border: '2px dashed #FFCC00',
+                        position: 'relative',
+                        transition: '0.3s'
+                    }}>
+                        {value && typeof value === 'string' && value.includes('http') ? (
                             <img src={value} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
-                            <span style={{ fontSize: '0.7rem', color: '#888', textAlign: 'center' }}>📷 {value}</span>
+                            <div style={{ textAlign: 'center', padding: '10px' }}>
+                                <span style={{ fontSize: '1.5rem' }}>📷</span>
+                                <div style={{ fontSize: '0.6rem', color: '#666', marginTop: '5px' }}>NESSUNA FOTO</div>
+                            </div>
                         )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoUpload}
+                            style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }}
+                        />
+                    </div>
+                    <div style={{ fontSize: '0.65rem', color: '#888', marginTop: '12px', lineHeight: '1.4' }}>
+                        <strong style={{ color: '#FFCC00' }}>GUIDA FOTO:</strong><br />
+                        Misure: <span style={{ color: '#fff' }}>600 x 600 px</span><br />
+                        Ratio: <span style={{ color: '#fff' }}>1:1 (Quadrata)</span><br />
+                        Max <span style={{ color: '#fff' }}>2MB</span> (JPG/PNG)
                     </div>
                 </div>
             );
         }
 
+        if (!value) return <span style={{ color: '#444' }}>-</span>;
         return <div style={{ fontSize: '0.9rem', color: '#fff' }}>{String(value)}</div>;
     };
 
