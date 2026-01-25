@@ -87,7 +87,14 @@ const ContactForm = () => {
 
         } catch (err) {
             console.error('Error sending message:', err);
-            alert('Errore durante l\'invio: ' + err.message);
+            if (window.Swal) {
+                window.Swal.fire({
+                    title: 'Errore!',
+                    text: 'Non è stato possibile inviare il messaggio: ' + err.message,
+                    icon: 'error',
+                    confirmButtonColor: '#00E5FF'
+                });
+            }
         } finally {
             setLoading(false);
         }

@@ -72,10 +72,8 @@ export function initContactEngine() {
                     icon: 'success',
                     title: 'Messaggio Inviato!',
                     text: 'Grazie per averci contattato. Ti risponderemo il prima possibile.',
-                    confirmButtonColor: '#ffcc00'
+                    confirmButtonColor: '#00E5FF' // Adjusted to message theme
                 });
-            } else {
-                alert('Messaggio Inviato con successo!');
             }
 
             // Reset form
@@ -93,10 +91,8 @@ export function initContactEngine() {
                     icon: 'error',
                     title: 'Ops! Errore',
                     text: error.message || 'Non è stato possibile inviare il messaggio. Riprova più tardi.',
-                    confirmButtonColor: '#ffcc00'
+                    confirmButtonColor: '#00E5FF'
                 });
-            } else {
-                alert('Errore nell\'invio del messaggio.');
             }
 
         } finally {

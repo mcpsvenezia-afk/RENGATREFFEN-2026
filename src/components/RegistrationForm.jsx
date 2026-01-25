@@ -51,8 +51,6 @@ const RegistrationForm = () => {
                     background: '#fff',
                     color: '#000'
                 });
-            } else {
-                alert('Iscrizione Inviata con successo!');
             }
 
             // Reset
@@ -70,8 +68,6 @@ const RegistrationForm = () => {
                     icon: 'error',
                     confirmButtonColor: '#000'
                 });
-            } else {
-                alert('Errore durante l\'invio. Riprova più tardi.');
             }
         } finally {
             setLoading(false);

@@ -87,9 +87,6 @@ export async function initRegistrationEngine() {
                     }).then(() => {
                         window.location.href = 'index.html';
                     });
-                } else {
-                    alert('Iscrizione salvata con successo!');
-                    window.location.href = 'index.html';
                 }
 
             } catch (err) {
