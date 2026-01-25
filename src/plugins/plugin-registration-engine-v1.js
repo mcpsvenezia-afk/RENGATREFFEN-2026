@@ -17,8 +17,8 @@ export async function initRegistrationEngine() {
     }
 
     try {
-        // Load Schema
-        const response = await fetch('/src/schemas/registration-schema-v1.1.0.json');
+        // Load Schema from public directory
+        const response = await fetch('/schemas/registration-schema-v1.1.0.json');
         const schema = await response.json();
 
         // Render Form
