@@ -42,7 +42,8 @@ export function PublicTeamList() {
                 return {
                     name,
                     pilots: sortedPilots,
-                    bib: sortedPilots[0].bib_number || '??'
+                    bib: sortedPilots[0].bib_number || '??',
+                    departure: sortedPilots[0].departure_time || '--:--'
                 };
             }).sort((a, b) => a.bib.localeCompare(b.bib));
 
@@ -69,7 +70,12 @@ export function PublicTeamList() {
                 <div key={idx} style={teamCardStyle}>
                     <div style={teamHeaderStyle}>
                         <h3 style={teamTitleStyle}>🏆 TEAM {team.name}</h3>
-                        <div style={badgeStyle}>#{team.bib}</div>
+                        <div style={badgeStyle}>
+                            <span style={{ opacity: 0.6, fontSize: '1rem', marginRight: '10px' }}>START:</span>
+                            {team.departure}
+                            <span style={{ margin: '0 15px', opacity: 0.3 }}>|</span>
+                            <span style={{ fontSize: '1.8rem' }}>#{team.bib}</span>
+                        </div>
                     </div>
 
                     <div style={pilotsGridStyle}>
@@ -117,10 +123,6 @@ function PilotCard({ pilot, suffix }) {
                         </span>
                     )}
                 </p>
-
-                {pilot.departure_time && (
-                    <div style={timeTagStyle}>🚀 PARTENZA: {pilot.departure_time}</div>
-                )}
             </div>
         </div>
     );
