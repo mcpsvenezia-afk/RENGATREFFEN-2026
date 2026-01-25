@@ -25,6 +25,14 @@ export async function initRegistrationEngine() {
         renderDynamicForm(schema, 'registration-form-outlet', async (formData) => {
             console.log('[PLUGIN] Registration Engine: Form Submitted', formData);
 
+            // 🧬 DATA CLEANING: Evitiamo di inviare oggetti File grezzi che Supabase non accetterebbe come TEXT
+            const cleanedData = { ...formData };
+            if (cleanedData.pilot_photo instanceof File) {
+                // Per ora salviamo solo il nome del file o un segnaposto
+                // Lo Storage verrà implementato nello step successivo
+                cleanedData.pilot_photo = cleanedData.pilot_photo.name || "";
+            }
+
             // UI Feedback
             // @ts-ignore
             if (window.Swal) {
@@ -44,7 +52,7 @@ export async function initRegistrationEngine() {
                 // Save to Supabase
                 const { error } = await supabase
                     .from('registrations')
-                    .insert([formData]);
+                    .insert([cleanedData]);
 
                 if (error) throw error;
 
