@@ -1,12 +1,13 @@
 /**
- * 🧬 COMPONENT: CRM Detail Panel v2.0
- * Goal: Detailed view with TABS, Photo display, and full CRUD for notes/items
+ * 🧬 COMPONENT: CRM Detail Panel v2.3
+ * Goal: Detailed view with TABS, Photo display with Cache Busting, and Item Update State
  */
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 export function CRMDetail({ item, type, onBack, onRefresh }) {
+    const [localItem, setLocalItem] = useState(item);
     const [notes, setNotes] = useState([]);
     const [newNote, setNewNote] = useState('');
     const [isNoteLoading, setIsNoteLoading] = useState(false);
@@ -18,7 +19,10 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     const foreignKey = type === 'registration' ? 'registration_id' : 'message_id';
 
     useEffect(() => {
-        if (item) fetchNotes();
+        if (item) {
+            setLocalItem(item);
+            fetchNotes();
+        }
     }, [item]);
 
     async function fetchNotes() {
@@ -70,22 +74,30 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             const fileName = `${item.id}-${Date.now()}.${fileExt}`;
             const filePath = `photos/${fileName}`;
 
+            // 1. Upload to Storage
             const { error: uploadError } = await supabase.storage
                 .from('registrations')
                 .upload(filePath, file);
 
             if (uploadError) throw uploadError;
 
+            // 2. Get URL
             const { data: { publicUrl } } = supabase.storage
                 .from('registrations')
                 .getPublicUrl(filePath);
 
+            console.log('🧬 DEBUG PHOTO URL:', publicUrl);
+
+            // 3. Update DB
             const { error: updateError } = await supabase
                 .from('registrations')
                 .update({ pilot_photo: publicUrl })
                 .eq('id', item.id);
 
             if (updateError) throw updateError;
+
+            // 4. Update Local State immediately
+            setLocalItem({ ...localItem, pilot_photo: publicUrl });
 
             alert('Foto caricata con successo!');
             onRefresh();
@@ -122,7 +134,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                         transition: '0.3s'
                     }}>
                         {value && typeof value === 'string' && value.includes('http') ? (
-                            <img src={value} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={`${value}?t=${Date.now()}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                             <div style={{ textAlign: 'center', padding: '10px' }}>
                                 <span style={{ fontSize: '1.5rem' }}>📷</span>
@@ -158,8 +170,8 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                 <div style={{ backgroundColor: '#1e1e1e', borderRadius: '16px', border: '1px solid #333', overflow: 'hidden' }}>
                     <div style={{ padding: '30px', borderBottom: '1px solid #333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <h2 style={{ fontSize: '1.8rem', color: '#FFCC00', margin: 0 }}>{type === 'registration' ? item.team_name : item.name}</h2>
-                            <p style={{ color: '#888', margin: '5px 0 0 0' }}>{type === 'registration' ? `${item.nome} ${item.cognome}` : item.email}</p>
+                            <h2 style={{ fontSize: '1.8rem', color: '#FFCC00', margin: 0 }}>{type === 'registration' ? localItem.team_name : localItem.name}</h2>
+                            <p style={{ color: '#888', margin: '5px 0 0 0' }}>{type === 'registration' ? `${localItem.nome} ${localItem.cognome}` : localItem.email}</p>
                         </div>
                         <button onClick={deleteItem} style={{ background: '#4a1111', color: '#ff4444', border: '1px solid #ff4444', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>🗑️ ELIMINA</button>
                     </div>
@@ -189,13 +201,13 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                         <label style={{ color: '#FFCC00', fontSize: '0.65rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
                                             {field.replace(/_/g, ' ')}
                                         </label>
-                                        {renderFieldValue(field, item[field])}
+                                        {renderFieldValue(field, localItem[field])}
                                     </div>
                                 ))}
                             </div>
                         ) : (
                             <div style={{ backgroundColor: '#262626', padding: '25px', borderRadius: '12px', border: '1px solid #FFCC00', lineHeight: '1.6', fontSize: '1.1rem' }}>
-                                {item.message}
+                                {localItem.message}
                             </div>
                         )}
                     </div>
@@ -203,6 +215,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             </div>
 
             {/* RIGHT COLUMN: CRM NOTES */}
+            {/* Same as before but consistent with localItem if needed, although notes don't depend on localItem fields */}
             <div style={{ backgroundColor: '#1e1e1e', borderRadius: '16px', border: '1px solid #333', padding: '25px', display: 'flex', flexDirection: 'column' }}>
                 <h3 style={{ fontSize: '0.8rem', color: '#FFCC00', fontWeight: '900', letterSpacing: '2px', margin: '0 0 20px 0' }}>CRM ACTIVITY LOG</h3>
 
@@ -238,6 +251,9 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                     </button>
                 </div>
             </div>
+            <style>{`
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+            `}</style>
         </div>
     );
 }
