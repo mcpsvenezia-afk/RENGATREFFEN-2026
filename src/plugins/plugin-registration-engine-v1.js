@@ -123,12 +123,17 @@ export async function initRegistrationEngine() {
                     // @ts-ignore
                     window.Swal.fire({
                         icon: 'success',
-                        title: 'Iscrizione Ricevuta!',
-                        text: 'Dati e documenti caricati correttamente. Verrai ricontattato via email.',
-                        confirmButtonColor: '#FFCC00'
+                        title: 'Iscrizione conclusa con successo!',
+                        text: 'Riceverai al più presto nostre comunicazioni via email o WhatsApp. Controlla anche nella casella spam.',
+                        confirmButtonColor: '#FFCC00',
+                        timer: 5000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
                     }).then(() => {
                         window.location.href = 'index.html';
                     });
+                } else {
+                    setTimeout(() => { window.location.href = 'index.html'; }, 3000);
                 }
 
             } catch (err) {
