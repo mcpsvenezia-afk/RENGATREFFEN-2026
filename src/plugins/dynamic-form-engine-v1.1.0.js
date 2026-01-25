@@ -1,7 +1,7 @@
 /**
- * 🧬 PLUGIN: Vanilla Dynamic Form Engine v1.1.0
+ * 🧬 PLUGIN: Vanilla Dynamic Form Engine v1.2.0
  * Goal: Render complex multi-section forms with Premium Renga Aesthetics
- * Status: MANDATORY | Priority: HIGH
+ * Features: Radio Buttons, Character Counters, Advanced Validation
  */
 
 export function renderDynamicForm(schema, outletId, onSubmitCallback) {
@@ -15,7 +15,7 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
     form.id = `form-${schema.meta.id}`;
     form.className = 'renga-dynamic-form';
 
-    // Style the form container via injected CSS for cleaner logic
+    // Style the form container via injected CSS
     const styleId = 'renga-form-styles';
     if (!document.getElementById(styleId)) {
         const style = document.createElement('style');
@@ -66,6 +66,7 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 display: flex;
                 flex-direction: column;
                 gap: 0.8rem;
+                position: relative;
             }
             .field-wrapper label {
                 font-size: 0.9rem;
@@ -90,17 +91,57 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
                 border-color: #FFCC00 !important;
                 box-shadow: 0 0 20px rgba(255, 204, 0, 0.15) !important;
             }
-            .renga-select {
-                appearance: none !important;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23FFCC00' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
-                background-repeat: no-repeat !important;
-                background-position: right 1.2rem center !important;
-                background-size: 1.2em !important;
+            
+            /* Radio Group Styles */
+            .radio-group {
+                display: flex;
+                gap: 1rem;
+                flex-wrap: wrap;
             }
+            .radio-item {
+                flex: 1;
+                min-width: 120px;
+            }
+            .radio-item input {
+                display: none;
+            }
+            .radio-item label {
+                display: block;
+                padding: 1rem;
+                background: #1a1a23;
+                border: 1px solid #333340;
+                border-radius: 12px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 0.9rem;
+                font-weight: 800;
+                color: #888;
+            }
+            .radio-item input:checked + label {
+                background: #FFCC00;
+                color: #000;
+                border-color: #FFCC00;
+                box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+            }
+
             .renga-textarea {
                 min-height: 150px !important;
                 resize: vertical !important;
             }
+            
+            /* Char Counter */
+            .char-counter {
+                font-size: 0.75rem;
+                color: #666;
+                text-align: right;
+                margin-top: 0.3rem;
+            }
+            .char-counter.limit-reached {
+                color: #E6007E;
+                font-weight: bold;
+            }
+
             .submit-container {
                 padding-top: 4rem;
                 padding-bottom: 2rem;
@@ -162,7 +203,6 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
             wrapper.className = 'field-wrapper';
             wrapper.dataset.fieldName = field.name;
 
-            // Handle Conditional Visibility
             if (field.condition) {
                 wrapper.style.display = 'none';
             }
@@ -172,68 +212,111 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
             wrapper.appendChild(label);
 
             let input;
-            if (field.type === 'select') {
-                input = document.createElement('select');
-                input.className = 'renga-input renga-select';
-
-                const defaultOpt = document.createElement('option');
-                defaultOpt.value = "";
-                defaultOpt.innerText = "Seleziona...";
-                defaultOpt.disabled = true;
-                defaultOpt.selected = true;
-                input.appendChild(defaultOpt);
+            if (field.type === 'radio') {
+                const radioGroup = document.createElement('div');
+                radioGroup.className = 'radio-group';
 
                 field.options.forEach(opt => {
-                    const o = document.createElement('option');
-                    o.value = opt;
-                    o.innerText = opt;
-                    input.appendChild(o);
+                    const item = document.createElement('div');
+                    item.className = 'radio-item';
+
+                    const radio = document.createElement('input');
+                    radio.type = 'radio';
+                    radio.name = field.name;
+                    radio.value = opt;
+                    radio.id = `radio-${field.name}-${opt}`;
+                    if (field.required) radio.required = true;
+
+                    const radioLabel = document.createElement('label');
+                    radioLabel.htmlFor = `radio-${field.name}-${opt}`;
+                    radioLabel.innerText = opt;
+
+                    // Logic to handle conditional visibility for radios
+                    radio.addEventListener('change', () => {
+                        schema.sections.forEach(s => {
+                            s.fields.forEach(f => {
+                                if (f.condition && f.condition.field === field.name) {
+                                    const depWrapper = form.querySelector(`[data-field-name="${f.name}"]`);
+                                    if (depWrapper) {
+                                        depWrapper.style.display = radio.value === f.condition.value ? 'flex' : 'none';
+                                        const depInput = depWrapper.querySelector('.renga-input, .radio-group');
+                                        // Handle input inside depWrapper
+                                    }
+                                }
+                            });
+                        });
+                    });
+
+                    item.appendChild(radio);
+                    item.appendChild(radioLabel);
+                    radioGroup.appendChild(item);
                 });
+                wrapper.appendChild(radioGroup);
             } else if (field.type === 'textarea') {
                 input = document.createElement('textarea');
                 input.className = 'renga-input renga-textarea';
+                input.name = field.name;
+                input.id = `field-${field.name}`;
+                if (field.required) input.required = true;
+                if (field.placeholder) input.placeholder = field.placeholder;
+                if (field.max_length) input.maxLength = field.max_length;
+
+                wrapper.appendChild(input);
+
+                // Add Char Counter
+                if (field.max_length) {
+                    const counter = document.createElement('div');
+                    counter.className = 'char-counter';
+                    counter.innerText = `0 / ${field.max_length}`;
+                    wrapper.appendChild(counter);
+
+                    input.addEventListener('input', () => {
+                        const count = input.value.length;
+                        counter.innerText = `${count} / ${field.max_length}`;
+                        if (count >= field.max_length) {
+                            counter.classList.add('limit-reached');
+                        } else {
+                            counter.classList.remove('limit-reached');
+                        }
+                    });
+                }
             } else {
                 input = document.createElement('input');
                 input.type = field.type;
                 input.className = 'renga-input';
+                input.name = field.name;
+                input.id = `field-${field.name}`;
+                if (field.required) input.required = true;
+                if (field.placeholder) input.placeholder = field.placeholder;
+                wrapper.appendChild(input);
             }
 
-            input.name = field.name;
-            input.id = `field-${field.name}`;
-            if (field.required) input.required = true;
-            if (field.placeholder) input.placeholder = field.placeholder;
-
-            // DNA Inspector (Ctrl + Click)
-            input.addEventListener('click', (e) => {
+            // Generic DNA Inspector for wrapper
+            wrapper.addEventListener('click', (e) => {
                 if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
                     console.group('🧬 DNA INSPECTOR: Field');
                     console.log('Name:', field.name);
                     console.log('Type:', field.type);
-                    console.log('Required:', field.required);
                     console.groupEnd();
-                    alert(`🧬 DNA DETECTED\nField: ${field.name}\nLogic: ${field.type}\nCheck console for payload.`);
                 }
             });
 
-            // Conditional Logic Event
-            input.addEventListener('change', () => {
-                // Check other fields that might depend on this one
-                schema.sections.forEach(s => {
-                    s.fields.forEach(f => {
-                        if (f.condition && f.condition.field === field.name) {
-                            const depWrapper = form.querySelector(`[data-field-name="${f.name}"]`);
-                            if (depWrapper) {
-                                depWrapper.style.display = input.value === f.condition.value ? 'flex' : 'none';
-                                const depInput = depWrapper.querySelector('.renga-input');
-                                if (depInput) depInput.required = (input.value === f.condition.value && f.required);
+            // Conditional Logic for inputs (non-radio)
+            if (input && field.type !== 'radio') {
+                input.addEventListener('change', () => {
+                    schema.sections.forEach(s => {
+                        s.fields.forEach(f => {
+                            if (f.condition && f.condition.field === field.name) {
+                                const depWrapper = form.querySelector(`[data-field-name="${f.name}"]`);
+                                if (depWrapper) {
+                                    depWrapper.style.display = input.value === f.condition.value ? 'flex' : 'none';
+                                }
                             }
-                        }
+                        });
                     });
                 });
-            });
-
-            wrapper.appendChild(input);
+            }
 
             if (field.help) {
                 const help = document.createElement('div');
@@ -248,7 +331,6 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
         sectionEl.appendChild(grid);
         form.appendChild(sectionEl);
 
-        // 🧬 DYNAMIC REVEAL TRIGGER
         setTimeout(() => sectionEl.classList.add('active'), 100 * (index + 1));
     });
 
@@ -272,11 +354,10 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
             result[key] = value;
         }
 
-        // Custom Validation for Bio (min words if authorized)
+        // Advanced Validation
         if (result.authorize_pilot_profile === 'SI' && result.pilot_bio) {
-            const words = result.pilot_bio.trim().split(/\s+/).length;
-            if (words < 200) {
-                alert('La biografia deve contenere almeno 200 parole.');
+            if (result.pilot_bio.length > 500) {
+                alert('La biografia supera il limite di 500 caratteri.');
                 return;
             }
         }
@@ -286,4 +367,9 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
 
     outlet.innerHTML = '';
     outlet.appendChild(form);
+
+    // Re-trigger reveal animations
+    if (window.dispatchEvent) {
+        window.dispatchEvent(new Event('scroll'));
+    }
 }

@@ -1,7 +1,7 @@
 {
     "meta": {
         "id": "blitz-registration-schema",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "name": "Super Registration Form 2026",
         "context": "Renga Treffen 2026"
     },
@@ -13,7 +13,7 @@
                 {
                     "name": "is_mcps_member",
                     "label": "Sei iscritto al Moto Club Polizia di Stato?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -53,7 +53,7 @@
                 {
                     "name": "team_role",
                     "label": "Il tuo ruolo nel Team",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "Capitano",
                         "partner"
@@ -160,7 +160,7 @@
                 {
                     "name": "has_roadbook_skill",
                     "label": "Uno dei componenti possiede e sa utilizzare lo strumento di lettura del Roadbook Digitale?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -170,7 +170,7 @@
                 {
                     "name": "understand_treasure_hunt",
                     "label": "Hai compreso che si tratta di una caccia al tesoro su strade a fondo naturale?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -180,7 +180,7 @@
                 {
                     "name": "understand_knobby_tires",
                     "label": "Hai compreso che è necessario montare ruote tassellate?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -190,7 +190,7 @@
                 {
                     "name": "understand_team_of_2",
                     "label": "Hai compreso che il TEAM è composto da 2 Piloti?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -200,7 +200,7 @@
                 {
                     "name": "understand_donation_no_refund",
                     "label": "Hai compreso che la quota versata è una donazione e non può essere restituita?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -210,7 +210,7 @@
                 {
                     "name": "understand_rain_or_shine",
                     "label": "Hai compreso che l'evento si svolgerà anche in caso di pioggia?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -226,7 +226,7 @@
                 {
                     "name": "authorize_media",
                     "label": "Autorizzi alla pubblicazione di foto/video sul sito e sui social?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -236,7 +236,7 @@
                 {
                     "name": "authorize_pilot_profile",
                     "label": "Autorizzi a pubblicare nel sito la tua foto e un breve CV motociclistico?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -255,9 +255,10 @@
                 },
                 {
                     "name": "pilot_bio",
-                    "label": "Raccontaci di te (almeno 200 parole)",
+                    "label": "Raccontaci di te (max 500 caratteri)",
                     "type": "textarea",
                     "required": false,
+                    "max_length": 500,
                     "placeholder": "La tua storia motociclistica...",
                     "condition": {
                         "field": "authorize_pilot_profile",
@@ -273,7 +274,7 @@
                 {
                     "name": "is_fango_tours_member",
                     "label": "Sei già tesserato con Fango Tours?",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -283,7 +284,7 @@
                 {
                     "name": "request_fango_tours_membership",
                     "label": "Dichiaro di volermi tesserare a Fango Tours (importo compreso nell'iscrizione)",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -293,7 +294,7 @@
                 {
                     "name": "accept_fango_insurance",
                     "label": "Dichiaro di aver letto le condizioni della polizza assicurativa Fango Tours",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
@@ -333,7 +334,7 @@
                 {
                     "name": "accept_regulation",
                     "label": "Dichiaro di aver letto e compreso il regolamento",
-                    "type": "select",
+                    "type": "radio",
                     "options": [
                         "SI",
                         "NO"
