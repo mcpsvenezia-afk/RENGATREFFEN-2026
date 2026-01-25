@@ -1,6 +1,6 @@
 /**
- * 🧬 COMPONENT: CRM Detail Panel v4.5 (Final Premium Layout)
- * Goal: Inverted Note/Log positions, High Contrast Pilot Bio, Sidebar UI Sync
+ * 🧬 COMPONENT: CRM Detail Panel v5.0 (Final Premium Layout)
+ * Goal: Reordered Sidebar (Button-Input-Log-Attach), Editable Tabs, Note Management
  */
 
 import React, { useState, useEffect } from 'react';
@@ -11,6 +11,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     const [notes, setNotes] = useState([]);
     const [attachments, setAttachments] = useState([]);
     const [newNote, setNewNote] = useState('');
+    const [editingNote, setEditingNote] = useState(null);
     const [activeTab, setActiveTab] = useState(type === 'registration' ? 'management' : 'm');
 
     // UI Theme Settings
@@ -59,18 +60,34 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         setLoading(prev => ({ ...prev, saving: true }));
         try {
             const table = isMsg ? 'messages' : 'registrations';
-            const allowedFields = isMsg ? ['name', 'email', 'message', 'status'] : [
-                'team_name', 'moto_details', 'nome', 'cognome', 'email', 'telefono',
-                'codice_fiscale', 'pilot_bio', 'pilot_photo', 'is_paid', 'payment_date',
-                'bib_number', 'departure_time', 'secondo_nome', 'secondo_cognome', 'secondo_cellulare'
-            ];
-            const updateData = {};
-            allowedFields.forEach(f => { if (localItem[f] !== undefined) updateData[f] = localItem[f]; });
-            const { error } = await supabase.from(table).update(updateData).eq('id', item.id);
+            const { error } = await supabase.from(table).update(localItem).eq('id', item.id);
             if (error) throw error;
-            showToast('success', 'SINCRO COMPLETATA');
+            showToast('success', 'DATI SALVATI');
             onRefresh();
         } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
+    }
+
+    async function addNote() {
+        if (!newNote.trim()) return;
+        setLoading(prev => ({ ...prev, saving: true }));
+        try {
+            if (editingNote) {
+                await supabase.from(noteTable).update({ content: newNote }).eq('id', editingNote.id);
+                setEditingNote(null);
+            } else {
+                await supabase.from(noteTable).insert([{ [foreignKey]: item.id, content: newNote, admin_name: 'Admin' }]);
+            }
+            setNewNote('');
+            fetchNotes();
+            showToast('success', 'NOTA AGGIORNATA');
+        } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
+    }
+
+    async function deleteNote(id) {
+        askConfirm('ELIMINA NOTA', 'Sei sicuro di voler eliminare questa nota?', async () => {
+            const { error } = await supabase.from(noteTable).delete().eq('id', id);
+            if (!error) { fetchNotes(); showToast('success', 'NOTA ELIMINATA'); }
+        }, true);
     }
 
     async function handleFileAttach(e) {
@@ -88,17 +105,14 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, attach: false })); }
     }
 
-    async function addNote() {
-        if (!newNote.trim()) return;
-        const { error } = await supabase.from(noteTable).insert([{ [foreignKey]: item.id, content: newNote, admin_name: 'Admin' }]);
-        if (!error) { setNewNote(''); fetchNotes(); showToast('success', 'NOTA SALVATA'); }
-    }
-
     const regTabs = [
         { id: 'management', label: 'GESTIONE EVENTO' },
-        { id: 'general', label: 'TEAM & MOTO' },
+        { id: 'team', label: 'TEAM & MOTO' },
         { id: 'personal', label: 'ANAGRAFICA' },
-        { id: 'bio', label: 'PILOT BIO' }
+        { id: 'partner', label: 'PARTNER' },
+        { id: 'bio', label: 'BIO PILOTA' },
+        { id: 'requirements', label: 'REQUISITI' },
+        { id: 'health', label: 'SALUTE & EXTRA' }
     ];
 
     return (
@@ -111,8 +125,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                     <div style={modalContent}>
                         <h3 style={{ color: modal.isDanger ? '#ff4444' : primaryColor }}>{modal.title}</h3>
                         <p style={{ color: '#fff' }}>{modal.message}</p>
-                        <hr style={{ opacity: 0.1, margin: '20px 0' }} />
-                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginTop: '30px' }}>
                             <button onClick={() => setModal({ ...modal, visible: false })} style={btnModalCancel}>ANNULLA</button>
                             <button onClick={() => { modal.onConfirm(); setModal({ ...modal, visible: false }); }} style={modal.isDanger ? btnModalDanger : btnModalConfirm(primaryColor)}>CONFERMA</button>
                         </div>
@@ -120,126 +133,125 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                 </div>
             )}
 
-            {/* LEFT COLUMN: DATA PANEL */}
-            <div style={{ backgroundColor: '#09090b', borderRadius: '40px', border: `1px solid ${isMsg ? 'rgba(0,229,255,0.2)' : '#333'}`, overflow: 'hidden', boxShadow: `0 40px 100px ${themeShadow}` }}>
+            {/* LEFT PANEL: DATA */}
+            <div style={{ backgroundColor: '#09090b', borderRadius: '40px', border: `1px solid ${isMsg ? 'rgba(0,229,255,0.2)' : '#333'}`, overflow: 'hidden' }}>
                 <div style={{ padding: '50px', backgroundColor: '#000', borderBottom: '2px solid #333' }}>
-                    <h2 style={{ fontSize: '3.5rem', color: primaryColor, margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>{localItem.team_name || localItem.name}</h2>
-                    <div style={{ marginTop: '15px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <span style={idBadgeStyle(accentColor)}>IDENTIFICATIVO: {item.id.substring(0, 8)}</span>
+                    <h2 style={{ fontSize: '3rem', color: primaryColor, margin: 0, fontWeight: 900, textTransform: 'uppercase' }}>{localItem.team_name || localItem.name}</h2>
+                    <div style={{ marginTop: '20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
+                        <span style={idBadgeStyle(accentColor)}>ID: {item.id}</span>
                         <div style={{ flex: 1 }}></div>
-                        <button onClick={() => askConfirm('ELIMINAZIONE', 'Cancellare definitivamente?', async () => { await supabase.from(isMsg ? 'messages' : 'registrations').delete().eq('id', item.id); onRefresh(); onBack(); }, true)} style={btnDeleteStyle}>🗑️ ELIMINA</button>
-                        {!isMsg && <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(loading.saving, primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>}
+                        <button onClick={() => askConfirm('ELIMINA!', 'Cancellare definitivamente?', async () => { await supabase.from(isMsg ? 'messages' : 'registrations').delete().eq('id', item.id); onRefresh(); onBack(); }, true)} style={btnDeleteStyle}>🗑️ ELIMINA</button>
+                        <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(primaryColor)}>{loading.saving ? 'SALVATAGGIO...' : '💾 SALVA TUTTO'}</button>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', backgroundColor: '#111', borderBottom: '1px solid #333' }}>
+                <div style={{ display: 'flex', overflowX: 'auto', backgroundColor: '#111', borderBottom: '1px solid #333' }}>
                     {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map(t => (
                         <button key={t.id} onClick={() => setActiveTab(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
                     ))}
                 </div>
 
-                <div style={{ padding: '50px', minHeight: '650px' }}>
+                <div style={{ padding: '50px', minHeight: '600px' }}>
                     {activeTab === 'm' ? (
-                        <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>CONTENUTO</h3><div style={{ color: '#fff', fontSize: '1.4rem', lineHeight: '1.8' }}>{localItem.message}</div></div>
+                        <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>CONTENUTO MESSAGGIO</h3><textarea value={localItem.message || ''} onChange={e => setLocalItem({ ...localItem, message: e.target.value })} style={ultraTextAreaStyle} /></div>
                     ) : activeTab === 'bio' ? (
                         <div style={{ display: 'grid', gap: '40px' }}>
-                            <div style={photoFlex}>
-                                <div style={photoDisplayBox(primaryColor)}>
-                                    {localItem.pilot_photo ? <img src={localItem.pilot_photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📷'}
-                                    <input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <h4 style={{ color: primaryColor, textTransform: 'uppercase', margin: 0, fontWeight: 900 }}>Foto Profilo</h4>
-                                    <p style={{ color: '#888', margin: '5px 0 0 0', fontSize: '0.9rem' }}>Clicca sul riquadro per caricare.<br />Misure: 1:1 Quadrata.</p>
-                                </div>
-                            </div>
-                            <div>
-                                <h4 style={{ color: primaryColor, textTransform: 'uppercase', fontSize: '0.8rem', fontWeight: 900, marginBottom: '20px' }}>Biografia Pilota</h4>
-                                <div style={bioGlassWrapper}>
-                                    <textarea value={localItem.pilot_bio || ''} onChange={e => setLocalItem({ ...localItem, pilot_bio: e.target.value })} style={ultraBioInput} placeholder="Raccontaci di te..." />
-                                </div>
-                            </div>
+                            <div style={photoSection}><div style={photoDropBox(primaryColor)}>{localItem.pilot_photo ? <img src={localItem.pilot_photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📷'}<input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} /></div><div><h4 style={{ color: primaryColor, margin: 0 }}>FOTO PROFILO</h4><p style={{ color: '#888', margin: 0, fontSize: '0.8rem' }}>Clicca per cambiare.</p></div></div>
+                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>BIOGRAFIA PILOTA</h3><textarea value={localItem.pilot_bio || ''} onChange={e => setLocalItem({ ...localItem, pilot_bio: e.target.value })} style={ultraTextAreaStyle} /></div>
                         </div>
                     ) : activeTab === 'management' ? (
-                        <div style={{ display: 'grid', gap: '40px' }}>
-                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>💰 PAGAMENTO</h3><div style={{ display: 'flex', gap: '20px' }}><div style={{ flex: 1 }}><label style={megaLabel(primaryColor)}>STATO</label><select value={localItem.is_paid || 'NO'} onChange={e => setLocalItem({ ...localItem, is_paid: e.target.value })} style={premiumSelect}><option value="NO">❌ NO</option><option value="SI">✅ SI</option></select></div><div style={{ flex: 1 }}><label style={megaLabel(primaryColor)}>DATA</label><input type="date" value={localItem.payment_date || ''} onChange={e => setLocalItem({ ...localItem, payment_date: e.target.value })} style={premiumInput} /></div></div></div>
-                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>🏁 GARA</h3><div style={{ display: 'flex', gap: '20px' }}><div style={{ flex: 1 }}><label style={megaLabel(primaryColor)}>NR. TABELLA</label><input value={localItem.bib_number || ''} onChange={e => setLocalItem({ ...localItem, bib_number: e.target.value })} style={premiumInput} /></div><div style={{ flex: 1 }}><label style={megaLabel(primaryColor)}>PARTENZA</label><input value={localItem.departure_time || ''} onChange={e => setLocalItem({ ...localItem, departure_time: e.target.value })} style={premiumInput} /></div></div></div>
+                        <div style={{ display: 'grid', gap: '30px' }}>
+                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>AMMINISTRAZIONE</h3><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}><div><label style={megaLabel(primaryColor)}>PAGATO</label><select value={localItem.is_paid || 'NO'} onChange={e => setLocalItem({ ...localItem, is_paid: e.target.value })} style={premiumSelect}><option value="NO">NO</option><option value="SI">SI</option></select></div><div><label style={megaLabel(primaryColor)}>DATA</label><input type="date" value={localItem.payment_date || ''} onChange={e => setLocalItem({ ...localItem, payment_date: e.target.value })} style={premiumInput} /></div></div></div>
+                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>GARA</h3><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}><div><label style={megaLabel(primaryColor)}>NUMERO</label><input value={localItem.bib_number || ''} onChange={e => setLocalItem({ ...localItem, bib_number: e.target.value })} style={premiumInput} /></div><div><label style={megaLabel(primaryColor)}>PARTENZA</label><input value={localItem.departure_time || ''} onChange={e => setLocalItem({ ...localItem, departure_time: e.target.value })} style={premiumInput} /></div></div></div>
                         </div>
                     ) : (
-                        <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>ANAGRAFICA DETTAGLIATA</h3><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
-                            <div><label style={megaLabel(primaryColor)}>NOME</label><input value={localItem.nome || localItem.name || ''} onChange={e => setLocalItem({ ...localItem, nome: e.target.value })} style={premiumInput} /></div>
-                            <div><label style={megaLabel(primaryColor)}>COGNOME</label><input value={localItem.cognome || ''} onChange={e => setLocalItem({ ...localItem, cognome: e.target.value })} style={premiumInput} /></div>
-                        </div></div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '25px' }}>
+                            {Object.keys(localItem).filter(k => !['id', 'created_at', 'pilot_photo', 'pilot_bio', 'message', 'is_paid', 'payment_date', 'bib_number', 'departure_time'].includes(k)).map(k => (
+                                <div key={k} style={fieldContainerStyle}><label style={megaLabel(primaryColor)}>{k.toUpperCase().replace(/_/g, ' ')}</label><input value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumInput} /></div>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
 
-            {/* RIGHT COLUMN: REVERSED CRM PANEL */}
+            {/* RIGHT PANEL: REORDERED CRM SIDEBAR (Button -> Input -> Log -> Attach) */}
             <div style={{ backgroundColor: '#09090b', borderRadius: '40px', padding: '40px', border: `2px solid ${accentColor}`, display: 'flex', flexDirection: 'column', height: 'fit-content', minHeight: '900px' }}>
-                <h3 style={{ color: accentColor, fontWeight: 900, marginBottom: '30px', letterSpacing: '2px', textTransform: 'uppercase' }}>CRM Activity Log</h3>
+                <h3 style={{ color: accentColor, fontWeight: 900, marginBottom: '20px', textTransform: 'uppercase' }}>CRM Activity Log</h3>
 
-                {/* 1. LISTA NOTE (ORA SOPRA) */}
+                {/* 1. PULSANTE AGGIUNGI NOTA */}
+                <button onClick={addNote} style={btnAddNoteStyle(primaryColor)}>
+                    {editingNote ? '💾 SALVA MODIFICA' : '+ AGGIUNGI NOTA'}
+                </button>
+
+                {/* 2. CAMPO TESTO NOTA */}
+                <div style={{ marginTop: '20px', marginBottom: '30px' }}>
+                    <textarea
+                        value={newNote}
+                        onChange={e => setNewNote(e.target.value)}
+                        style={darkInputArea}
+                        placeholder="Scrivi qui la tua nota..."
+                    />
+                    {editingNote && <button onClick={() => { setEditingNote(null); setNewNote(''); }} style={{ background: 'none', color: '#888', border: 'none', marginTop: '10px', cursor: 'pointer' }}>X Annulla Modifica</button>}
+                </div>
+
+                <div style={{ height: '1px', background: '#222', marginBottom: '30px' }}></div>
+
+                {/* 3. AREA PER LE NOTE (LOG) */}
                 <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '40px' }}>
-                    {notes.length === 0 && <div style={{ textAlign: 'center', color: '#444', marginTop: '50px' }}>Nessuna attività.</div>}
                     {notes.map(n => (
                         <div key={n.id} style={noteItemBox(primaryColor)}>
-                            <div style={{ color: primaryColor, fontSize: '0.7rem', fontWeight: 900, marginBottom: '5px' }}>{new Date(n.created_at).toLocaleString()}</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                <span style={{ color: primaryColor, fontSize: '0.75rem', fontWeight: 900 }}>{new Date(n.created_at).toLocaleString()}</span>
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    <span onClick={() => { setEditingNote(n); setNewNote(n.content); }} style={{ cursor: 'pointer', opacity: 0.6 }}>✏️</span>
+                                    <span onClick={() => deleteNote(n.id)} style={{ cursor: 'pointer', opacity: 0.6 }}>🗑️</span>
+                                </div>
+                            </div>
                             <div style={{ color: '#fff', fontSize: '1.1rem', lineHeight: '1.5' }}>{n.content}</div>
                         </div>
                     ))}
+                    {notes.length === 0 && <div style={{ textAlign: 'center', color: '#444' }}>Nessuna attività registrata.</div>}
                 </div>
 
-                {/* 2. INPUT AREA (ORA SOTTO) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', borderTop: '1px solid #222', paddingTop: '30px' }}>
-                    <textarea value={newNote} onChange={e => setNewNote(e.target.value)} style={darkInputArea} placeholder="Scrivi una nota..." />
-                    <button onClick={addNote} style={btnAddNoteStyle(primaryColor)}>+ AGGIUNGI NOTA</button>
-
-                    {/* Quick Attachments inside CRM bottom */}
-                    <div style={{ marginTop: '20px' }}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '15px' }}>
-                            {attachments.map(a => (
-                                <div key={a.id} style={attachPill}>
-                                    <a href={a.file_url} target="_blank" style={{ color: '#fff', fontSize: '0.7rem' }}>{a.file_name.substring(0, 10)}...</a>
-                                </div>
-                            ))}
-                        </div>
-                        <div style={{ position: 'relative' }}>
-                            <button style={btnSmallAttach(primaryColor)}>📂 CARICA ALLEGATO</button>
-                            <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
-                        </div>
+                {/* 4. CARICA ALLEGATO (ALLA FINE) */}
+                <div style={{ position: 'relative', marginTop: 'auto' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '15px' }}>
+                        {attachments.map(a => (
+                            <div key={a.id} style={attachPill}>
+                                <a href={a.file_url} target="_blank" style={{ color: '#fff', textDecoration: 'none', fontSize: '0.75rem' }}>{a.file_name}</a>
+                            </div>
+                        ))}
                     </div>
+                    <button style={btnAttachFullStyle}>📂 CARICA ALLEGATO</button>
+                    <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
                 </div>
             </div>
-
-            <style>{`
-                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-            `}</style>
         </div>
     );
 }
 
-// PREMIUM STYLES DEFINITION
-const toastStyle = (c) => ({ position: 'fixed', bottom: '40px', left: '50%', transform: 'translateX(-50%)', backgroundColor: c, color: '#fff', padding: '15px 40px', borderRadius: '50px', fontWeight: 900, zIndex: 10000, boxShadow: '0 10px 40px rgba(0,0,0,0.5)' });
-const modalOverlay = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(15px)', zIndex: 11000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const modalContent = { backgroundColor: '#111', padding: '40px', borderRadius: '40px', border: '1px solid #333', maxWidth: '500px', width: '90%' };
-const btnModalCancel = { background: '#222', color: '#888', border: 'none', padding: '15px 30px', borderRadius: '15px', cursor: 'pointer', fontWeight: 900 };
-const btnModalConfirm = (c) => ({ background: c, color: '#000', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' });
-const btnModalDanger = { background: '#ff4444', color: '#fff', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' };
-const idBadgeStyle = (c) => ({ color: c, fontSize: '0.8rem', fontWeight: 900, letterSpacing: '2px' });
-const btnSaveStyle = (l, c) => ({ backgroundColor: l ? '#333' : c, color: '#000', border: 'none', padding: '18px 45px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer', boxShadow: `0 10px 30px ${c}44` });
-const btnDeleteStyle = { background: 'transparent', color: '#ff4444', border: '2px solid #ff4444', padding: '18px 45px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer' };
-const tabStyle = (a, c) => ({ flex: 1, padding: '30px', border: 'none', background: a ? '#0d0d12' : 'transparent', color: a ? c : '#555', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', borderBottom: a ? `4px solid ${c}` : 'none', transition: '0.3s' });
-const sectionBox = { backgroundColor: '#121217', padding: '40px', borderRadius: '32px', border: '1px solid #222' };
-const sectionTitle = (c) => ({ color: '#fff', fontSize: '1.2rem', fontWeight: 900, margin: '0 0 30px 0', borderLeft: `6px solid ${c}`, paddingLeft: '20px' });
-const megaLabel = (c) => ({ color: c, fontSize: '0.75rem', fontWeight: 900, display: 'block', marginBottom: '12px', letterSpacing: '1px' });
-const premiumInput = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', fontSize: '1.2rem', padding: '20px', borderRadius: '18px' };
-const premiumSelect = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', fontSize: '1.2rem', padding: '20px', borderRadius: '18px' };
-const photoFlex = { display: 'flex', gap: '40px', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '30px', borderRadius: '32px', border: '1px dashed #333' };
-const photoDisplayBox = (c) => ({ width: '220px', height: '220px', backgroundColor: '#000', border: `4px dashed ${c}`, borderRadius: '40px', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' });
-const bioGlassWrapper = { backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '32px', padding: '5px', border: '1px solid rgba(255,255,255,0.1)' };
-const ultraBioInput = { width: '100%', backgroundColor: 'transparent', border: 'none', color: '#fff', fontSize: '1.4rem', padding: '40px', borderRadius: '32px', minHeight: '400px', lineHeight: '1.6', outline: 'none' };
-const btnAddNoteStyle = (c) => ({ width: '100%', background: c, color: '#000', border: 'none', padding: '22px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', boxShadow: `0 15px 30px ${c}33` });
-const btnSmallAttach = (c) => ({ background: 'transparent', color: c, border: `1px solid ${c}`, padding: '12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 900, cursor: 'pointer', width: '100%' });
-const darkInputArea = { width: '100%', background: '#ccc', border: 'none', color: '#111', padding: '25px', borderRadius: '25px', minHeight: '180px', fontSize: '1.1rem', fontWeight: 500 };
-const noteItemBox = (c) => ({ backgroundColor: '#111', padding: '30px', borderRadius: '30px', borderLeft: `8px solid ${c}` });
-const attachPill = { backgroundColor: '#1a1a1a', padding: '6px 12px', borderRadius: '10px', display: 'flex', alignItems: 'center', border: '1px solid #333' };
+// STYLES
+const toastStyle = (c) => ({ position: 'fixed', bottom: '40px', left: '50%', transform: 'translateX(-50%)', backgroundColor: c, color: '#fff', padding: '15px 40px', borderRadius: '50px', fontWeight: 900, zIndex: 10000 });
+const modalOverlay = { position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)', zIndex: 11000, display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const modalContent = { backgroundColor: '#111', padding: '40px', borderRadius: '32px', border: '1px solid #333', maxWidth: '500px', width: '90%' };
+const btnModalCancel = { background: '#222', color: '#fff', border: 'none', padding: '12px 25px', borderRadius: '12px' };
+const btnModalConfirm = (c) => ({ background: c, color: '#000', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: 900 });
+const btnModalDanger = { background: '#ff4444', color: '#fff', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: 900 };
+const idBadgeStyle = (c) => ({ color: c, fontSize: '0.7rem', fontWeight: 900, border: `1px solid ${c}33`, padding: '5px 15px', borderRadius: '50px' });
+const btnSaveStyle = (c) => ({ backgroundColor: c, color: '#000', border: 'none', padding: '15px 35px', borderRadius: '15px', fontWeight: 900 });
+const btnDeleteStyle = { background: 'none', color: '#ff4444', border: '1px solid #ff4444', padding: '15px 35px', borderRadius: '15px', fontWeight: 900, marginRight: '10px' };
+const tabStyle = (a, c) => ({ padding: '25px 35px', border: 'none', background: a ? '#000' : 'transparent', color: a ? c : '#666', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer', borderBottom: a ? `4px solid ${c}` : 'none', whiteSpace: 'nowrap' });
+const sectionBox = { backgroundColor: '#111', padding: '35px', borderRadius: '24px', border: '1px solid #222' };
+const sectionTitle = (c) => ({ color: '#fff', fontSize: '1.1rem', fontWeight: 900, borderLeft: `5px solid ${c}`, paddingLeft: '15px', marginBottom: '25px' });
+const megaLabel = (c) => ({ color: c, fontSize: '0.7rem', fontWeight: 900, marginBottom: '8px', display: 'block' });
+const premiumInput = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', padding: '18px', borderRadius: '12px' };
+const premiumSelect = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', padding: '18px', borderRadius: '12px' };
+const ultraTextAreaStyle = { width: '100%', background: '#09090b', border: '1px solid #222', color: '#fff', padding: '30px', borderRadius: '24px', minHeight: '300px', fontSize: '1.2rem', lineHeight: '1.6' };
+const fieldContainerStyle = { background: '#111', padding: '20px', borderRadius: '16px', border: '1px solid #222' };
+const photoSection = { display: 'flex', gap: '30px', alignItems: 'center', background: '#111', padding: '30px', borderRadius: '24px' };
+const photoDropBox = (c) => ({ width: '160px', height: '160px', border: `2px dashed ${c}`, borderRadius: '24px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' });
+const btnAddNoteStyle = (c) => ({ width: '100%', background: c, color: '#000', border: 'none', padding: '20px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer' });
+const darkInputArea = { width: '100%', background: '#ccc', border: 'none', color: '#111', padding: '25px', borderRadius: '25px', minHeight: '180px', fontSize: '1.1rem', resize: 'none' };
+const noteItemBox = (c) => ({ backgroundColor: '#111', padding: '25px', borderRadius: '24px', borderLeft: `6px solid ${c}` });
+const attachPill = { background: '#222', padding: '8px 15px', borderRadius: '10px', fontSize: '0.75rem' };
+const btnAttachFullStyle = { width: '100%', background: 'none', color: '#FFCC00', border: '1px solid #FFCC00', padding: '18px', borderRadius: '100px', fontWeight: 900, fontSize: '1rem', cursor: 'pointer' };
