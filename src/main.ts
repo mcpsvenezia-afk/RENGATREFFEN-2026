@@ -1,28 +1,16 @@
 import './style.css'
-import './style.css'
-import { supabase } from './lib/supabaseClient'
+import { supabase } from './lib/supabaseClient.js'
 import './plugins/renga-dev-loader-v1.js' // 🧬 INJECT DEV MODE
 
-// TEST_CONNECTION_v1
-(async () => {
-    console.log('--- TEST_CONNECTION_v1 START ---');
-    try {
-        const { error } = await supabase.from('test').select('*');
-        if (error) {
-            // PGRST116 = Tabella non trovata
-            if (error.code === 'PGRST116' || error.message.includes('not found')) {
-                console.log('✅ TEST SUPERATO: Tabella "test" non trovata. Chiavi VALIDE.');
-            } else {
-                console.error('❌ TEST FALLITO: Errore di autenticazione/chiavi:', error);
-            }
-        } else {
-            console.log('✅ TEST SUPERATO: Connessione riuscita.');
-        }
-    } catch (err) {
-        console.error('❌ TEST FALLITO: Errore imprevisto:', err);
-    }
-    console.log('--- TEST_CONNECTION_v1 END ---');
-})();
+// 🎨 FORCED VISIBILITY FIX (Nuclear Option)
+const styleFix = document.createElement('style');
+styleFix.innerHTML = `
+    input, textarea { color: #111 !important; background: rgba(255,255,255,0.9) !important; }
+    ::placeholder { color: #888 !important; }
+`;
+document.head.appendChild(styleFix);
+console.log('--- 🧬 RENGA CORE v1.0.5 (FINAL FIX) READY ---');
+window.RENGA_VERSION = '1.0.5';
 
 // Mobile Menu Toggle
 const mobileBtn = document.querySelector('.mobile-menu-btn');
@@ -37,15 +25,16 @@ mobileBtn?.addEventListener('click', () => {
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', (e) => {
         e.preventDefault();
-        const targetId = anchor.getAttribute('href');
-        if (targetId === '#') return;
+        const href = anchor.getAttribute('href');
+        if (!href || href === '#') return;
 
-        const targetElement = document.querySelector(targetId);
+        const targetElement = document.querySelector(href);
         if (targetElement) {
             navLinks?.classList.remove('active');
             mobileBtn?.classList.remove('active');
 
-            const offsetNav = document.getElementById('main-nav')?.offsetHeight || 0;
+            const navElement = document.getElementById('main-nav');
+            const offsetNav = navElement ? navElement.offsetHeight : 0;
             const elementPosition = targetElement.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - offsetNav;
 
@@ -84,7 +73,9 @@ const accordionHeaders = document.querySelectorAll('.accordion-header');
 accordionHeaders.forEach(header => {
     header.addEventListener('click', () => {
         const item = header.parentElement;
-        const isActive = item?.classList.contains('active');
+        if (!item) return;
+
+        const isActive = item.classList.contains('active');
 
         // Close all other items
         document.querySelectorAll('.accordion-item').forEach(otherItem => {
@@ -93,91 +84,16 @@ accordionHeaders.forEach(header => {
 
         // Toggle current item
         if (!isActive) {
-            item?.classList.add('active');
+            item.classList.add('active');
         }
     });
 });
 
-// Form Submission handling (Supabase)
-const regForm = document.getElementById('registration-form') as HTMLFormElement;
-regForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+// 🧬 MODULES & PLUGINS
+// @ts-ignore
+import { initContactEngine } from './plugins/plugin-contact-engine-v1.js'
+// @ts-ignore
+import { initRegistrationEngine } from './plugins/plugin-registration-engine-v1.js'
 
-    // @ts-ignore (SweetAlert2 is loaded via CDN)
-    Swal.fire({
-        title: 'Invio in corso...',
-        text: 'Salvataggio iscrizione su Supabase',
-        allowOutsideClick: false,
-        didOpen: () => {
-            // @ts-ignore
-            Swal.showLoading();
-        }
-    });
-
-    const formData = new FormData(regForm);
-    const registrationData = {
-        nome: formData.get('p1_name'),
-        cognome: formData.get('p1_name'), // In the original form, it's combined or separate?
-        email: formData.get('p1_email'),
-        telefono: formData.get('phone'),
-        partner_name: formData.get('p2_name'),
-        created_at: new Date().toISOString()
-    };
-
-    // Note: The original form has p1_name, p2_name, etc.
-    // Matching with PROJECT_GOAL_BLITZ_REG_v1 schema: nome, cognome, email, telefono, partner_name
-
-    try {
-        const { error } = await supabase
-            .from('registrations')
-            .insert([registrationData]);
-
-        if (error) throw error;
-
-        // @ts-ignore
-        Swal.fire({
-            icon: 'success',
-            title: 'Iscrizione Inviata!',
-            text: 'I tuoi dati sono stati salvati correttamente su Supabase.',
-            confirmButtonColor: '#ffcc00'
-        });
-        regForm.reset();
-
-    } catch (error: any) {
-        console.error('Supabase Error:', error);
-        // @ts-ignore
-        Swal.fire({
-            icon: 'error',
-            title: 'Ops! Errore Supabase',
-            text: error.message || 'Errore durante il salvataggio.',
-            confirmButtonColor: '#ffcc00'
-        });
-    }
-});
-// Contact Form Submission (Mock for now)
-const contactForm = document.getElementById('contact-form-page');
-contactForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    // @ts-ignore
-    Swal.fire({
-        icon: 'success',
-        title: 'Messaggio Inviato!',
-        text: 'Grazie per averci contattato. Ti risponderemo il prima possibile.',
-        confirmButtonColor: '#ffcc00'
-    });
-    (contactForm as HTMLFormElement).reset();
-});
-
-// Registration Form Submission (Mock for now - DB integration coming soon)
-const regFormPage = document.getElementById('registration-form-page');
-regFormPage?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    // @ts-ignore
-    Swal.fire({
-        icon: 'success',
-        title: 'Pre-Iscrizione Inviata!',
-        text: 'Riceverai un\'email con le istruzioni per il pagamento a breve.',
-        confirmButtonColor: '#ffcc00'
-    });
-    (regFormPage as HTMLFormElement).reset();
-});
+initContactEngine();
+initRegistrationEngine();

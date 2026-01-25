@@ -42,14 +42,18 @@ const RegistrationForm = () => {
             if (error) throw error;
 
             // Success
-            Swal.fire({
-                title: 'Iscrizione Inviata!',
-                text: 'Il tuo team è stato registrato. Riceverai una mail con le info per il bonifico.',
-                icon: 'success',
-                confirmButtonColor: '#FFCC00',
-                background: '#fff',
-                color: '#000'
-            });
+            if (window.Swal) {
+                window.Swal.fire({
+                    title: 'Iscrizione Inviata!',
+                    text: 'Il tuo team è stato registrato. Riceverai una mail con le info per il bonifico.',
+                    icon: 'success',
+                    confirmButtonColor: '#FFCC00',
+                    background: '#fff',
+                    color: '#000'
+                });
+            } else {
+                alert('Iscrizione Inviata con successo!');
+            }
 
             // Reset
             setFormData({
@@ -59,12 +63,16 @@ const RegistrationForm = () => {
 
         } catch (err) {
             console.error('Error adding registration:', err);
-            Swal.fire({
-                title: 'Errore!',
-                text: 'Qualcosa è andato storto. Riprova più tardi.',
-                icon: 'error',
-                confirmButtonColor: '#000'
-            });
+            if (window.Swal) {
+                window.Swal.fire({
+                    title: 'Errore!',
+                    text: 'Qualcosa è andato storto. Riprova più tardi.',
+                    icon: 'error',
+                    confirmButtonColor: '#000'
+                });
+            } else {
+                alert('Errore durante l\'invio. Riprova più tardi.');
+            }
         } finally {
             setLoading(false);
         }

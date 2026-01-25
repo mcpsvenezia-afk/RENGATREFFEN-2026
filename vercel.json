@@ -1,12 +1,38 @@
 {
+    "cleanUrls": true,
+    "trailingSlash": false,
     "rewrites": [
         {
             "source": "/dashboard",
             "destination": "/dashboard.html"
         },
         {
-            "source": "/(.*)",
-            "destination": "/index.html"
+            "source": "/contatti",
+            "destination": "/contatti.html"
+        },
+        {
+            "source": "/iscrizioni",
+            "destination": "/iscrizioni.html"
+        },
+        {
+            "source": "/regolamento",
+            "destination": "/regolamento.html"
+        },
+        {
+            "source": "/team",
+            "destination": "/team.html"
+        },
+        {
+            "source": "/timetable",
+            "destination": "/timetable.html"
+        },
+        {
+            "source": "/tutorials",
+            "destination": "/tutorials.html"
+        },
+        {
+            "source": "/sponsor",
+            "destination": "/sponsor.html"
         }
     ]
 }

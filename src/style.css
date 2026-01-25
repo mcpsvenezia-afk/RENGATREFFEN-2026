@@ -497,11 +497,11 @@ body {
 
 .form-group input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.8) !important;
   border: 1px solid var(--glass-border);
   padding: 1.2rem;
   border-radius: 12px;
-  color: white;
+  color: #111 !important;
   transition: 0.3s;
 }
 
@@ -543,7 +543,7 @@ body {
 
 .cta-button.primary {
   background: var(--primary-color);
-  color: var(--bg-dark);
+  color: #111;
 }
 
 .cta-button.secondary {
@@ -1290,11 +1290,11 @@ body {
 
 textarea {
   width: 100%;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.8) !important;
   border: 1px solid var(--glass-border);
   padding: 1.2rem;
   border-radius: 12px;
-  color: white;
+  color: #111 !important;
   transition: 0.3s;
   font-family: 'Inter', sans-serif;
   resize: vertical;
