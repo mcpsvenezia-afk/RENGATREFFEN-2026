@@ -71,10 +71,7 @@ export function PublicTeamList() {
                     <div style={teamHeaderStyle}>
                         <h3 style={teamTitleStyle}>🏆 TEAM {team.name}</h3>
                         <div style={badgeStyle}>
-                            <span style={{ opacity: 0.6, fontSize: '1rem', marginRight: '10px' }}>START:</span>
                             {team.departure}
-                            <span style={{ margin: '0 15px', opacity: 0.3 }}>|</span>
-                            <span style={{ fontSize: '1.8rem' }}>#{team.bib}</span>
                         </div>
                     </div>
 
