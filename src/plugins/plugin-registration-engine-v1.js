@@ -1,100 +1,88 @@
 /**
- * 🧬 PLUGIN: REGISTRATION ENGINE v1.0.0
- * Goal: Handle team registrations on iscrizioni.html and save to Supabase
- * Target: #registration-form-page
+ * 🧬 PLUGIN: REGISTRATION ENGINE v1.1.0
+ * Goal: Handle advanced team registrations using Dynamic Form Engine
+ * Target: #registration-form-outlet
  */
 
 import { supabase } from '../lib/supabaseClient.js';
+import { renderDynamicForm } from './dynamic-form-engine-v1.1.0.js';
 
-export function initRegistrationEngine() {
-    console.log('[PLUGIN] Registration Engine v1.0.0 - INITIALIZING');
+export async function initRegistrationEngine() {
+    console.log('[PLUGIN] Registration Engine v1.1.0 - INITIALIZING');
 
-    const form = document.getElementById('registration-form-page');
-    if (!form) {
-        console.log('[PLUGIN] Registration Engine: Form #registration-form-page not found. Skipping.');
+    const outlet = document.getElementById('registration-form-outlet');
+    if (!outlet) {
+        console.log('[PLUGIN] Registration Engine: Outlet #registration-form-outlet not found. Skipping.');
         return;
     }
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    try {
+        // Load Schema
+        const response = await fetch('/src/schemas/registration-schema-v1.1.0.json');
+        const schema = await response.json();
 
-        // UI Feedback with SweetAlert2
-        // @ts-ignore
-        if (window.Swal) {
+        // Render Form
+        renderDynamicForm(schema, 'registration-form-outlet', async (formData) => {
+            console.log('[PLUGIN] Registration Engine: Form Submitted', formData);
+
+            // UI Feedback
             // @ts-ignore
-            window.Swal.fire({
-                title: 'Invio in corso...',
-                text: 'Stiamo salvando la tua iscrizione.',
-                allowOutsideClick: false,
-                didOpen: () => {
+            if (window.Swal) {
+                // @ts-ignore
+                window.Swal.fire({
+                    title: 'Salvataggio in corso...',
+                    text: 'Stiamo processando la tua iscrizione per il 2026.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        // @ts-ignore
+                        window.Swal.showLoading();
+                    }
+                });
+            }
+
+            try {
+                // Save to Supabase
+                const { error } = await supabase
+                    .from('registrations')
+                    .insert([formData]);
+
+                if (error) throw error;
+
+                // Success Notification
+                // @ts-ignore
+                if (window.Swal) {
                     // @ts-ignore
-                    window.Swal.showLoading();
+                    window.Swal.fire({
+                        icon: 'success',
+                        title: 'Iscrizione Ricevuta!',
+                        text: 'Verrai ricontattato via email per completare il pagamento.',
+                        confirmButtonColor: '#FFCC00'
+                    }).then(() => {
+                        window.location.href = 'index.html';
+                    });
+                } else {
+                    alert('Iscrizione salvata con successo!');
+                    window.location.href = 'index.html';
                 }
-            });
-        }
 
-        const formData = new FormData(form);
-
-        // Mapping fields to 'registrations' table
-        // Following PROJECT_GOAL_BLITZ_REG_v1 + Form Fields
-        const registrationData = {
-            team_name: formData.get('team_name'),
-            nome: formData.get('p1_name'),
-            email: formData.get('p1_email'),
-            partner_name: formData.get('p2_name'),
-            partner_email: formData.get('p2_email'), // Extended
-            moto: formData.get('moto'),              // Extended
-            telefono: formData.get('phone'),
-            created_at: new Date().toISOString()
-        };
-
-        try {
-            console.log('[PLUGIN] Registration Engine: Sending data to Supabase...', registrationData);
-
-            const { error } = await supabase
-                .from('registrations')
-                .insert([registrationData]);
-
-            if (error) throw error;
-
-            console.log('[PLUGIN] Registration Engine: SUCCESS');
-
-            // Success Notification
-            // @ts-ignore
-            if (window.Swal) {
+            } catch (err) {
+                console.error('[PLUGIN] Registration Engine: DB Error', err);
                 // @ts-ignore
-                window.Swal.fire({
-                    icon: 'success',
-                    title: 'Pre-Iscrizione Inviata!',
-                    text: 'Riceverai un\'email con le istruzioni per il pagamento a breve.',
-                    confirmButtonColor: '#ffcc00'
-                });
-            } else {
-                alert('Iscrizione Inviata con successo!');
+                if (window.Swal) {
+                    // @ts-ignore
+                    window.Swal.fire({
+                        icon: 'error',
+                        title: 'Errore durante il salvataggio',
+                        text: err.message || 'Riprova più tardi.',
+                        confirmButtonColor: '#E6007E'
+                    });
+                }
             }
+        });
 
-            // Reset form
-            // @ts-ignore
-            form.reset();
+    } catch (error) {
+        console.error('[PLUGIN] Registration Engine: Fatal Error', error);
+    }
 
-        } catch (error) {
-            console.error('[PLUGIN] Registration Engine: ERROR', error);
-
-            // Error Notification
-            // @ts-ignore
-            if (window.Swal) {
-                // @ts-ignore
-                window.Swal.fire({
-                    icon: 'error',
-                    title: 'Ops! Errore',
-                    text: error.message || 'Errore durante il salvataggio. Riprova più tardi.',
-                    confirmButtonColor: '#ffcc00'
-                });
-            } else {
-                alert('Errore nell\'invio dell\'iscrizione.');
-            }
-        }
-    });
-
-    console.log('[PLUGIN] Registration Engine v1.0.0 - READY');
+    console.log('[PLUGIN] Registration Engine v1.1.0 - READY');
 }
