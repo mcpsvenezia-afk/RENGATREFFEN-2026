@@ -71,7 +71,7 @@ export function PublicTeamList() {
                     <div style={teamHeaderStyle}>
                         <h3 style={teamTitleStyle}>🏆 TEAM {team.name}</h3>
                         <div style={badgeStyle}>
-                            {team.departure}
+                            START {team.departure}
                         </div>
                     </div>
 
