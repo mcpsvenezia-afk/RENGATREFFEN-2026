@@ -72,10 +72,10 @@ function App() {
                     <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
                         {/* MAIN TABS BIG */}
                         <div style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
-                            <button onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations')}>
+                            <button onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations', 'registrations')}>
                                 ISCRIZIONI ({registrations.length})
                             </button>
-                            <button onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages')}>
+                            <button onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages', 'messages')}>
                                 MESSAGGI ({messages.length})
                             </button>
                         </div>
@@ -131,17 +131,22 @@ function App() {
 
 const btnGhostStyle = { background: '#1a1a1f', border: '1px solid #333', color: '#fff', padding: '12px 25px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 900, cursor: 'pointer' };
 const btnBackStyle = { marginBottom: '40px', backgroundColor: '#FFCC00', color: '#000', border: 'none', padding: '18px 40px', borderRadius: '50px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 20px 40px rgba(255,204,0,0.3)' };
-const mainTabStyle = (active) => ({
-    padding: '25px 50px',
-    backgroundColor: active ? '#FFCC00' : '#1a1a1f',
-    color: active ? '#000' : '#888',
-    border: 'none',
-    borderRadius: '24px',
-    cursor: 'pointer',
-    fontWeight: 900,
-    fontSize: '1.2rem',
-    transition: '0.3s',
-    boxShadow: active ? '0 20px 40px rgba(255,204,0,0.2)' : 'none'
-});
+const mainTabStyle = (active, type) => {
+    const activeColor = type === 'messages' ? '#00E5FF' : '#FFCC00';
+    const shadowColor = type === 'messages' ? 'rgba(0,229,255,0.2)' : 'rgba(255,204,0,0.2)';
+
+    return {
+        padding: '25px 50px',
+        backgroundColor: active ? activeColor : '#1a1a1f',
+        color: active ? '#000' : '#888',
+        border: 'none',
+        borderRadius: '24px',
+        cursor: 'pointer',
+        fontWeight: 900,
+        fontSize: '1.2rem',
+        transition: '0.3s',
+        boxShadow: active ? `0 20px 40px ${shadowColor}` : 'none'
+    };
+};
 
 export default App;

@@ -1,4 +1,10 @@
+/**
+ * 🧬 COMPONENT: ContactForm v4.0
+ * Features: DB Integration, Multi-file Attachment Manager
+ */
+
 import React, { useState } from 'react';
+import { supabase } from '../lib/supabaseClient';
 
 const ContactForm = () => {
     const [loading, setLoading] = useState(false);
@@ -8,35 +14,83 @@ const ContactForm = () => {
         email: '',
         note: ''
     });
+    const [files, setFiles] = useState([]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleFileChange = (e) => {
+        const selectedFiles = Array.from(e.target.files);
+        setFiles(selectedFiles);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        // Simulazione Invio (DB integration later)
-        setTimeout(() => {
-            setLoading(false);
+        try {
+            // 1. Inserimento Messaggio
+            const { data: msgData, error: msgError } = await supabase
+                .from('messages')
+                .insert([{
+                    name: `${formData.nome} ${formData.cognome}`,
+                    email: formData.email,
+                    message: formData.note,
+                    status: 'Nuovo'
+                }])
+                .select();
 
-            // SweetAlert2 via CDN (già presente in index.html)
+            if (msgError) throw msgError;
+            const messageId = msgData[0].id;
+
+            // 2. Upload Allegati (se presenti)
+            if (files.length > 0) {
+                for (const file of files) {
+                    const fileName = `${messageId}-${Date.now()}-${file.name}`;
+                    const filePath = `messages/${fileName}`;
+
+                    const { error: upError } = await supabase.storage
+                        .from('attachments')
+                        .upload(filePath, file);
+
+                    if (upError) throw upError;
+
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('attachments')
+                        .getPublicUrl(filePath);
+
+                    // Salva riferimento nel DB
+                    await supabase.from('crm_attachments').insert([{
+                        message_id: messageId,
+                        file_url: publicUrl,
+                        file_name: file.name,
+                        file_size: file.size
+                    }]);
+                }
+            }
+
+            // Successo
             if (window.Swal) {
                 window.Swal.fire({
-                    title: 'Messaggio Ricevuto!',
-                    text: 'Grazie per averci contattato. Ti risponderemo al più presto.',
+                    title: 'Messaggio Inviato!',
+                    text: 'Abbiamo ricevuto la tua richiesta e i documenti allegati.',
                     icon: 'success',
-                    confirmButtonColor: '#ffcc00',
+                    confirmButtonColor: '#00E5FF', // Cyan color for messages
                     color: '#000',
                     background: '#fff'
                 });
-            } else {
-                alert('Messaggio inviato con successo!');
             }
 
             setFormData({ nome: '', cognome: '', email: '', note: '' });
-        }, 1500);
+            setFiles([]);
+
+        } catch (err) {
+            console.error('Error sending message:', err);
+            alert('Errore durante l\'invio: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -83,6 +137,21 @@ const ContactForm = () => {
                 ></textarea>
             </div>
 
+            <div style={inputGroupStyle}>
+                <label style={labelStyle}>Allegati (Documenti, Foto, ecc.)</label>
+                <input
+                    type="file"
+                    multiple
+                    onChange={handleFileChange}
+                    style={{ ...inputStyle, padding: '10px' }}
+                />
+                {files.length > 0 && (
+                    <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#00E5FF' }}>
+                        📂 {files.length} file selezionati
+                    </div>
+                )}
+            </div>
+
             <button
                 type="submit"
                 disabled={loading}
@@ -90,7 +159,7 @@ const ContactForm = () => {
                     width: '100%',
                     padding: '16px',
                     marginTop: '20px',
-                    backgroundColor: '#FFCC00',
+                    backgroundColor: '#00E5FF', // Distinctive Cyan for items related to messages
                     color: '#000',
                     border: 'none',
                     borderRadius: '8px',
@@ -99,10 +168,10 @@ const ContactForm = () => {
                     textTransform: 'uppercase',
                     cursor: loading ? 'wait' : 'pointer',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 4px 15px rgba(255, 204, 0, 0.3)'
+                    boxShadow: '0 4px 15px rgba(0, 229, 255, 0.3)'
                 }}
             >
-                {loading ? 'INVIO IN CORSO...' : 'INVIA MESSAGGIO'}
+                {loading ? 'CARICAMENTO...' : 'INVIA MESSAGGIO'}
             </button>
         </form>
     );
@@ -116,41 +185,13 @@ const formStyle = {
     background: 'rgba(255, 255, 255, 0.05)',
     backdropFilter: 'blur(10px)',
     borderRadius: '16px',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    border: '1px solid rgba(0, 229, 255, 0.2)', // Cyan border
     marginTop: '30px'
 };
 
-const gridRowStyle = {
-    display: 'flex',
-    gap: '20px',
-    marginBottom: '20px'
-};
-
-const inputGroupStyle = {
-    flex: 1,
-    marginBottom: '20px'
-};
-
-const labelStyle = {
-    display: 'block',
-    marginBottom: '8px',
-    color: '#ccc',
-    fontSize: '0.9rem',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px'
-};
-
-const inputStyle = {
-    width: '100%',
-    padding: '12px 16px',
-    borderRadius: '8px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    color: '#fff',
-    fontSize: '1rem',
-    outline: 'none',
-    boxSizing: 'border-box'
-};
+const gridRowStyle = { display: 'flex', gap: '20px', marginBottom: '20px' };
+const inputGroupStyle = { flex: 1, marginBottom: '20px' };
+const labelStyle = { display: 'block', marginBottom: '8px', color: '#ccc', fontSize: '0.9rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' };
+const inputStyle = { width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.2)', backgroundColor: 'rgba(0, 0, 0, 0.3)', color: '#fff', fontSize: '1rem', outline: 'none', boxSizing: 'border-box' };
 
 export default ContactForm;

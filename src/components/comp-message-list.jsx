@@ -43,7 +43,7 @@ export function MessageList({ data, onSelect, onInspect, isDevMode }) {
                             </td>
                             <td style={tdStyle}>
                                 <span style={{
-                                    color: msg.status === 'Archiviato' ? '#888' : '#FFCC00',
+                                    color: msg.status === 'Archiviato' ? '#888' : '#00E5FF',
                                     fontSize: '0.7rem',
                                     fontWeight: 'bold',
                                     textTransform: 'uppercase'
