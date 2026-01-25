@@ -32,8 +32,11 @@ export function PublicTeamList() {
             }, {});
 
             const teamsArray = Object.keys(grouped).map(name => {
-                // Ensure Captain is ALWAYS first (Left position)
-                const sortedPilots = [...grouped[name]].sort((a, b) => {
+                const pilots = grouped[name];
+                // 🧬 TEAM-WIDE BIB SYNC: If any record for this team has a bib_number, use it as base
+                const teamBib = pilots.find(p => p.bib_number)?.bib_number?.replace(/[A-Za-z]/g, '') || '';
+
+                const sortedPilots = [...pilots].sort((a, b) => {
                     if (a.team_role?.toLowerCase() === 'capitano') return -1;
                     if (b.team_role?.toLowerCase() === 'capitano') return 1;
                     return 0;
@@ -42,10 +45,14 @@ export function PublicTeamList() {
                 return {
                     name,
                     pilots: sortedPilots,
-                    bib: sortedPilots[0].bib_number || '??',
+                    bib: teamBib,
                     departure: sortedPilots[0].departure_time || '--:--'
                 };
-            }).sort((a, b) => a.bib.localeCompare(b.bib));
+            }).sort((a, b) => {
+                const numA = parseInt(a.bib) || 999;
+                const numB = parseInt(b.bib) || 999;
+                return numA - numB;
+            });
 
             setTeams(teamsArray);
         } catch (err) {
@@ -69,7 +76,7 @@ export function PublicTeamList() {
             {teams.map((team, idx) => (
                 <div key={idx} style={teamCardStyle}>
                     <div style={teamHeaderStyle}>
-                        <h3 style={teamTitleStyle}>🏆 TEAM {team.name}</h3>
+                        <h3 style={teamTitleStyle}>🏆 TEAM {team.bib ? `#${team.bib}` : ''} {team.name} <span style={{ fontSize: '0.6rem', opacity: 0.2, verticalAlign: 'middle' }}>v1.1.2</span></h3>
                         <div style={badgeStyle}>
                             START {team.departure}
                         </div>
@@ -80,6 +87,7 @@ export function PublicTeamList() {
                             <PilotCard
                                 key={pIdx}
                                 pilot={pilot}
+                                bib={team.bib}
                                 suffix={pilot.team_role?.toLowerCase() === 'capitano' ? 'A' : 'B'}
                             />
                         ))}
@@ -90,7 +98,7 @@ export function PublicTeamList() {
     );
 }
 
-function PilotCard({ pilot, suffix }) {
+function PilotCard({ pilot, bib, suffix }) {
     const [expanded, setExpanded] = useState(false);
     const bioText = pilot.pilot_bio || 'Nessuna biografia inserita.';
     const isLong = bioText.length > 140;
@@ -107,8 +115,8 @@ function PilotCard({ pilot, suffix }) {
             </div>
             <div style={{ flex: 1 }}>
                 <h4 style={pilotNameStyle}>
-                    {pilot.nome?.toUpperCase()} {pilot.cognome?.toUpperCase()}
-                    <span style={suffixStyle}>#{suffix}</span>
+                    <span style={{ flex: 1 }}>{pilot.nome?.toUpperCase()} {pilot.cognome?.toUpperCase()}</span>
+                    <span style={suffixStyle}>#{pilot.bib_number ?? (bib ? `${bib}${suffix}` : suffix)}</span>
                 </h4>
                 <div style={roleTagStyle}>{pilot.team_role?.toUpperCase() || 'PILOTA'}</div>
 
@@ -198,19 +206,26 @@ const avatarFallbackStyle = {
 };
 
 const pilotNameStyle = {
-    fontSize: '1.8rem',
+    fontSize: '2rem',
     fontWeight: 900,
-    color: '#fff',
+    color: '#FFFFFF',
     margin: '0 0 8px 0',
     display: 'flex',
     alignItems: 'center',
-    gap: '15px'
+    justifyContent: 'space-between',
+    width: '100%',
+    textShadow: '0 2px 10px rgba(0,0,0,0.8)'
 };
 
 const suffixStyle = {
-    color: 'rgba(255,255,255,0.15)',
-    fontSize: '1.1rem',
-    fontWeight: 900
+    color: '#FFFFFF', // Pure White for MAX Contrast
+    fontSize: '2.5rem',
+    fontWeight: 900,
+    marginLeft: 'auto',
+    opacity: 1,
+    textShadow: '0 0 20px rgba(255,204,0,0.8)', // Gold Glow
+    fontFamily: 'var(--font-display)',
+    letterSpacing: '-2px'
 };
 
 const roleTagStyle = {

@@ -1,6 +1,13 @@
 import './style.css'
-import { supabase } from './lib/supabaseClient.js'
+// --- 🛰️ SUPABASE & CORE PLUGINS ---
 import './plugins/renga-dev-loader-v1.js' // 🧬 INJECT DEV MODE
+
+declare global {
+    interface Window {
+        RENGA_VERSION: string;
+        RENGA_INSPECTOR_LOADED: boolean;
+    }
+}
 
 // 🎨 FORCED VISIBILITY FIX (Nuclear Option)
 const styleFix = document.createElement('style');
@@ -9,41 +16,79 @@ styleFix.innerHTML = `
     ::placeholder { color: #888 !important; }
 `;
 document.head.appendChild(styleFix);
-console.log('--- 🧬 RENGA CORE v1.0.5 (FINAL FIX) READY ---');
-window.RENGA_VERSION = '1.0.5';
+console.log('--- 🧬 RENGA CORE v1.0.6 (NAVIGATION FIX) READY ---');
+window.RENGA_VERSION = '1.0.6';
 
-// Mobile Menu Toggle
+// --- 📱 NAVIGATION & MOBILE ENGINE v1.1.0 ---
 const mobileBtn = document.querySelector('.mobile-menu-btn');
 const navLinks = document.querySelector('.nav-links');
 
-mobileBtn?.addEventListener('click', () => {
+const toggleMenu = () => {
     navLinks?.classList.toggle('active');
-    mobileBtn.classList.toggle('active');
+    mobileBtn?.classList.toggle('active');
+};
+
+const closeMenu = () => {
+    navLinks?.classList.remove('active');
+    mobileBtn?.classList.remove('active');
+};
+
+mobileBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu();
 });
 
-// Smooth Scroll
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', (e) => {
-        e.preventDefault();
-        const href = anchor.getAttribute('href');
-        if (!href || href === '#') return;
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (navLinks?.classList.contains('active') && !navLinks.contains(target) && !mobileBtn?.contains(target)) {
+        closeMenu();
+    }
+});
 
-        const targetElement = document.querySelector(href);
-        if (targetElement) {
-            navLinks?.classList.remove('active');
-            mobileBtn?.classList.remove('active');
+// Intelligent Scroll & Navigation
+document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const anchor = target.closest('a');
+    if (!anchor) return;
 
-            const navElement = document.getElementById('main-nav');
-            const offsetNav = navElement ? navElement.offsetHeight : 0;
-            const elementPosition = targetElement.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - offsetNav;
+    const href = anchor.getAttribute('href');
+    if (!href || href === '#') return;
 
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
+    // Handle local anchors or same-page links with hashes
+    if (href.startsWith('#') || href.includes('#')) {
+        try {
+            const url = new URL(anchor.href);
+            const isSamePage = url.pathname === window.location.pathname ||
+                (url.pathname === '/' && window.location.pathname.endsWith('index.html')) ||
+                (window.location.pathname === '/' && url.pathname.endsWith('index.html'));
+
+            if (isSamePage && url.hash) {
+                const targetElement = document.querySelector(url.hash);
+                if (targetElement) {
+                    e.preventDefault();
+                    closeMenu();
+
+                    const navElement = document.getElementById('main-nav');
+                    const offsetNav = navElement ? navElement.offsetHeight : 0;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offsetNav;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        } catch (err) {
+            console.warn("Navigation error:", err);
         }
-    });
+    }
+
+    // Always close menu on link click inside nav
+    if (anchor.closest('.nav-links')) {
+        setTimeout(closeMenu, 100);
+    }
 });
 
 // Scroll Reveal Animation
