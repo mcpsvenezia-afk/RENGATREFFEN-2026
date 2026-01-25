@@ -107,8 +107,8 @@ function PilotCard({ pilot, bib, suffix }) {
     return (
         <div style={pilotContainerStyle}>
             <div style={avatarWrapperStyle}>
-                {pilot.pilot_photo ? (
-                    <img src={pilot.pilot_photo} alt={pilot.nome} style={avatarImgStyle} />
+                {pilot.pilot_photo_url ? (
+                    <img src={pilot.pilot_photo_url} alt={pilot.nome} style={avatarImgStyle} />
                 ) : (
                     <div style={avatarFallbackStyle}>👤</div>
                 )}
