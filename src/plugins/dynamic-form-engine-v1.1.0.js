@@ -256,7 +256,7 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
     const btn = document.createElement('button');
     btn.type = 'submit';
     btn.className = 'renga-submit-btn';
-    btn.innerText = 'Invia Pre-Iscrizione';
+    btn.innerText = 'INVIA ISCRIZIONE';
     submitContainer.appendChild(btn);
     form.appendChild(submitContainer);
 
