@@ -1,5 +1,8 @@
 # Progetto Renga Treffen 2026 - Recap e Next Steps
 
+> [!IMPORTANT]
+> **CRITICAL RULE**: "Ogni modifica va deployata (git push) immediatamente, altrimenti non è visibile su Vercel." - *Memorizzato il 25/01/2026*
+
 ## 🏁 Stato Attuale del Progetto
 1.  **Sito Web & Dashboard**: Online su Vercel.
 2.  **Integrazione Database**: 
