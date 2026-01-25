@@ -1,18 +1,15 @@
 /**
  * 🧬 PAGE: Admin Dashboard (Main Entry)
- * Goal: Orchestrate Admin UI with Auth and Atomic Components
+ * Goal: Orchestrate Admin UI with Atomic Components (DEV ACCESS)
  */
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from './lib/supabaseClient';
-import { useAdminAuth } from './logic/logic-admin-auth';
-import { AdminLogin } from './components/comp-login';
 import { RegistrationList } from './components/comp-registration-list';
 import { MessageList } from './components/comp-message-list';
 import { CRMDetail } from './components/comp-crm-panel';
 
 function App() {
-    const { user, loading: authLoading, loginWithMagicLink, logout } = useAdminAuth();
     const [registrations, setRegistrations] = useState([]);
     const [messages, setMessages] = useState([]);
     const [activeTab, setActiveTab] = useState('registrations');
@@ -21,8 +18,8 @@ function App() {
     const [isDevMode, setIsDevMode] = useState(false);
 
     useEffect(() => {
-        if (user) fetchAllData();
-    }, [user]);
+        fetchAllData();
+    }, []);
 
     async function fetchAllData() {
         setLoading(true);
@@ -39,13 +36,6 @@ function App() {
         }
     }
 
-    if (authLoading) return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#0d0d12', color: '#FFCC00' }}>⚡ LOADING RENGA CORE...</div>;
-
-    // Auth Guard
-    if (!user) {
-        return <AdminLogin onLogin={loginWithMagicLink} />;
-    }
-
     return (
         <div style={{ backgroundColor: '#111116', minHeight: '100vh', color: '#fff', fontFamily: '"Inter", sans-serif', padding: '20px' }}>
             {/* HEADER */}
@@ -60,7 +50,6 @@ function App() {
                     <div onClick={() => setIsDevMode(!isDevMode)} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', opacity: isDevMode ? 1 : 0.5 }}>
                         <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#FFCC00' }}>DNA MODE</span>
                     </div>
-                    <button onClick={logout} style={{ color: '#E6007E', background: 'none', border: 'none', fontWeight: 800, cursor: 'pointer', fontSize: '0.8rem' }}>LOGOUT</button>
                 </div>
             </header>
 
