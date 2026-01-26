@@ -17,7 +17,8 @@ export default async function handler(req, res) {
 
     try {
         const { data, error } = await resend.emails.send({
-            from: 'Renga Treffen <onboarding@resend.dev>',
+            from: 'Renga Treffen <info@rengatreffen.it>',
+            reply_to: 'info@rengatreffen.it',
             to: [userData.email],
             subject: 'Conferma Iscrizione - Renga Treffen 2026 🏁',
             html: `
@@ -63,7 +64,7 @@ export default async function handler(req, res) {
                     
                     <div style="text-align: center; color: #999999; font-size: 12px;">
                         <p style="margin: 5px 0;">Organizzazione: <strong>Brussa Team ASD</strong></p>
-                        <p style="margin: 5px 0;">Questa è una comunicazione automatica, non rispondere a questo indirizzo.</p>
+                        <p style="margin: 5px 0;">Per qualsiasi domanda puoi rispondere direttamente a questa email.</p>
                     </div>
                 </div>
             `
