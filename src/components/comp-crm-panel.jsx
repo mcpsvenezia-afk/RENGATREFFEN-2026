@@ -197,7 +197,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     ];
 
     return (
-        <div data-component="CRMDetail" style={{ maxWidth: '1250px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '30px', position: 'relative' }}>
+        <div data-component="CRMDetail" style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative' }}>
 
             {status.visible && <div style={toastStyle(status.type === 'success' ? '#4CAF50' : '#E6007E')}>{status.message}</div>}
 
@@ -205,8 +205,8 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                 <div style={modalOverlay}>
                     <div style={modalContent}>
                         <h3 style={{ color: modal.isDanger ? '#ff4444' : primaryColor, margin: 0 }}>{modal.title}</h3>
-                        <p style={{ color: '#fff', fontSize: '1.1rem', margin: '30px 0' }}>{modal.message}</p>
-                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+                        <p style={{ color: '#fff', fontSize: '1.2rem', margin: '30px 0' }}>{modal.message}</p>
+                        <div style={{ display: 'flex', gap: '20px', justifyContent: 'flex-end' }}>
                             <button onClick={() => setModal({ ...modal, visible: false })} style={btnModalCancel}>ANNULLA</button>
                             <button onClick={() => modal.onConfirm()} style={modal.isDanger ? btnModalDanger : btnModalConfirm(primaryColor)}>CONFERMA</button>
                         </div>
@@ -215,29 +215,29 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             )}
 
             {/* HEADER MASTER AREA */}
-            <div style={{ backgroundColor: '#09090b', borderRadius: '40px', border: '1px solid #222', overflow: 'hidden', boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}>
-                <div style={{ padding: '40px 50px', backgroundColor: '#000', borderBottom: '2px solid #333' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+            <div style={{ backgroundColor: '#1a1b26', borderRadius: '40px', border: '1px solid #2f334d', overflow: 'hidden', boxShadow: '0 30px 100px rgba(0,0,0,0.6)' }}>
+                <div style={{ padding: '50px 60px', background: 'linear-gradient(135deg, #16161e, #1a1b26)', borderBottom: '1px solid #2f334d' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '25px' }}>
                         <div>
-                            <h2 style={{ fontSize: '2.6rem', color: primaryColor, margin: 0, fontWeight: 900, lineHeight: 1.1 }}>{localItem.team_name || localItem.name || localItem.nome}</h2>
-                            <div style={{ marginTop: '10px' }}>
+                            <h2 style={{ fontSize: '3.4rem', color: primaryColor, margin: 0, fontWeight: 900, lineHeight: 1, letterSpacing: '-1px' }}>{localItem.team_name || localItem.name || localItem.nome}</h2>
+                            <div style={{ marginTop: '15px' }}>
                                 <span style={idBadgeStyle(accentColor)}>ISCRIZIONE #{item.id}</span>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                             <button onClick={onBack} style={btnBackStyle}>CHIUDI</button>
                             <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>
                         </div>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#111', borderBottom: '1px solid #222', padding: '10px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#16161e', borderBottom: '1px solid #2f334d', padding: '15px 30px' }}>
                     {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map(t => (
                         <button key={t.id} onClick={() => setActiveTab(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
                     ))}
                 </div>
 
-                <div style={{ padding: '50px', minHeight: '650px', background: 'linear-gradient(to bottom, #09090b, #000)' }}>
+                <div style={{ padding: '60px', minHeight: '650px', background: '#1a1b26' }}>
                     {activeTab === 'm' ? (
                         <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>MESSAGGIO RICEVUTO</h3><textarea value={localItem.message || ''} onChange={e => setLocalItem({ ...localItem, message: e.target.value })} style={ultraTextAreaStyle} /></div>
                     ) : activeTab === 'bio' ? (
@@ -361,22 +361,21 @@ const modalContent = { backgroundColor: '#111', padding: '40px', borderRadius: '
 const btnModalCancel = { background: '#222', color: '#888', border: 'none', padding: '15px 30px', borderRadius: '15px', cursor: 'pointer', fontWeight: 900 };
 const btnModalConfirm = (c) => ({ background: c, color: '#000', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' });
 const btnModalDanger = { background: '#ff4444', color: '#fff', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' };
-const idBadgeStyle = (c) => ({ color: c, fontSize: '0.75rem', fontWeight: 900, letterSpacing: '1px', background: `${c}11`, padding: '6px 15px', borderRadius: '50px', border: `1px solid ${c}33` });
-const btnSaveStyle = (c) => ({ backgroundColor: c, color: '#000', border: 'none', padding: '18px 45px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer', boxShadow: `0 10px 30px ${c}44` });
-const btnBackStyle = { background: 'none', color: '#666', border: '1px solid #333', padding: '15px 30px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer', fontSize: '0.9rem' };
-const tabStyle = (a, c) => ({ padding: '15px 25px', margin: '5px', border: '1px solid', borderColor: a ? c : '#222', background: a ? `${c}11` : '#000', color: a ? c : '#666', fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer', borderRadius: '12px', transition: '0.3s', whiteSpace: 'nowrap' });
-const sectionBox = { backgroundColor: '#111', padding: '35px', borderRadius: '32px', border: '1px solid #222' };
-const sectionTitle = (c) => ({ color: '#fff', fontSize: '1.2rem', fontWeight: 900, margin: '0 0 25px 0', borderLeft: `6px solid ${c}`, paddingLeft: '20px' });
-const megaLabel = (c) => ({ color: c, fontSize: '0.7rem', fontWeight: 900, display: 'block', marginBottom: '10px', letterSpacing: '1px' });
-const premiumInput = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', fontSize: '1.1rem', padding: '18px', borderRadius: '15px' };
-const premiumSelect = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', fontSize: '1.1rem', padding: '18px', borderRadius: '15px', cursor: 'pointer' };
-const ultraTextAreaStyle = { width: '100%', background: '#000', border: '1px solid #333', color: '#fff', padding: '30px', borderRadius: '24px', minHeight: '350px', fontSize: '1.2rem', lineHeight: '1.7', outline: 'none' };
-const fieldContainerStyle = { background: '#111', padding: '22px', borderRadius: '20px', border: '1px solid #222' };
-const photoSection = { display: 'flex', gap: '30px', alignItems: 'center', background: '#111', padding: '30px', borderRadius: '32px', border: '1px dashed #333' };
-const photoDropBox = (c) => ({ width: '150px', height: '150px', backgroundColor: '#000', border: `3px dashed ${c}`, borderRadius: '30px', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' });
-const btnAddNoteStyle = (c) => ({ width: '100%', background: c, color: '#000', border: 'none', padding: '22px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', boxShadow: `0 15px 30px ${c}22` });
-const darkInputArea = { width: '100%', background: '#ccc', border: 'none', color: '#111', padding: '25px', borderRadius: '25px', minHeight: '180px', fontSize: '1.1rem', fontWeight: 600, resize: 'none' };
-const noteItemBox = (c) => ({ backgroundColor: '#111', padding: '25px', borderRadius: '25px', borderLeft: `8px solid ${c}` });
-const attachPill = { backgroundColor: '#1a1a1a', padding: '8px 15px', borderRadius: '12px', fontSize: '0.7rem', border: '1px solid #333' };
-const btnAttachFullStyle = { width: '100%', background: 'none', color: '#FFCC00', border: '1px solid #FFCC00', padding: '20px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer' };
-const btnActionStyle = (c) => ({ width: '100%', background: `${c}22`, color: c, border: `2px solid ${c}`, padding: '22px', borderRadius: '20px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', transition: '0.3s', textAlign: 'center' });
+const idBadgeStyle = (c) => ({ color: c, fontSize: '0.85rem', fontWeight: 900, letterSpacing: '2px', background: `${c}22`, padding: '8px 20px', borderRadius: '50px', border: `2px solid ${c}44`, display: 'inline-block' });
+const btnSaveStyle = (c) => ({ backgroundColor: c, color: '#000', border: 'none', padding: '20px 50px', borderRadius: '25px', fontWeight: 900, cursor: 'pointer', boxShadow: `0 15px 40px ${c}44`, fontSize: '1rem', letterSpacing: '1px' });
+const btnBackStyle = { background: '#24283b', color: '#c0caf5', border: '1px solid #414868', padding: '18px 35px', borderRadius: '25px', fontWeight: 900, cursor: 'pointer', fontSize: '0.95rem' };
+const tabStyle = (a, c) => ({ padding: '16px 30px', margin: '6px', border: '2px solid', borderColor: a ? c : 'transparent', background: a ? `${c}22` : '#24283b', color: a ? c : '#9499b8', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer', borderRadius: '15px', transition: '0.3s', whiteSpace: 'nowrap', letterSpacing: '0.5px' });
+const sectionBox = { backgroundColor: '#24283b', padding: '45px', borderRadius: '35px', border: '1px solid #414868', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' };
+const sectionTitle = (c) => ({ color: '#fff', fontSize: '1.4rem', fontWeight: 900, margin: '0 0 35px 0', borderLeft: `8px solid ${c}`, paddingLeft: '25px', letterSpacing: '1px' });
+const megaLabel = (c) => ({ color: '#a9b1d6', fontSize: '0.85rem', fontWeight: 900, display: 'block', marginBottom: '12px', letterSpacing: '1.5px', textTransform: 'uppercase' });
+const premiumInput = { width: '100%', background: '#16161e', border: '2px solid #414868', color: '#fff', fontSize: '1.2rem', padding: '20px', borderRadius: '18px', fontWeight: 500 };
+const premiumSelect = { width: '100%', background: '#16161e', border: '2px solid #414868', color: '#fff', fontSize: '1.2rem', padding: '20px', borderRadius: '18px', cursor: 'pointer', fontWeight: 500 };
+const ultraTextAreaStyle = { width: '100%', background: '#16161e', border: '2px solid #414868', color: '#fff', padding: '35px', borderRadius: '30px', minHeight: '400px', fontSize: '1.3rem', lineHeight: '1.8', outline: 'none' };
+const fieldContainerStyle = { background: '#24283b', padding: '30px', borderRadius: '25px', border: '2px solid #2f334d' };
+const photoSection = { display: 'flex', gap: '40px', alignItems: 'center', background: '#24283b', padding: '40px', borderRadius: '35px', border: '2px dashed #414868' };
+const photoDropBox = (c) => ({ width: '180px', height: '180px', backgroundColor: '#16161e', border: `4px dashed ${c}`, borderRadius: '35px', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' });
+const btnAddNoteStyle = (c) => ({ width: 'auto', minWidth: '220px', background: c, color: '#000', border: 'none', padding: '22px 40px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', boxShadow: `0 15px 35px ${c}33`, cursor: 'pointer' });
+const darkInputArea = { width: '100%', background: '#e0e0e0', border: 'none', color: '#111', padding: '30px', borderRadius: '30px', minHeight: '200px', fontSize: '1.2rem', fontWeight: 500, resize: 'none' };
+const noteItemBox = (c) => ({ backgroundColor: '#1a1b26', padding: '30px', borderRadius: '30px', borderLeft: `10px solid ${c}`, boxShadow: '0 5px 15px rgba(0,0,0,0.1)' });
+const btnAttachFullStyle = { width: '100%', background: 'none', color: '#FFCC00', border: '2px solid #FFCC00', padding: '22px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer' };
+const btnActionStyle = (c) => ({ width: '100%', background: `${c}`, color: '#000', border: 'none', padding: '25px', borderRadius: '25px', fontWeight: 900, fontSize: '1rem', cursor: 'pointer', transition: '0.3s', textAlign: 'center', boxShadow: `0 10px 30px ${c}44` });
