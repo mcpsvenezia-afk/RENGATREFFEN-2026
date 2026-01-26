@@ -192,11 +192,12 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         { id: 'bio', label: 'BIO PILOTA', fields: ['pilot_photo', 'pilot_bio', 'authorize_media', 'authorize_pilot_profile'] },
         { id: 'requirements', label: 'REQUISITI', fields: ['has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation'] },
         { id: 'fango', label: 'SALUTE & FANGO', fields: ['is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance', 'food_preferences', 'emergency_contact_phone', 'emergency_contact_info'] },
-        { id: 'comms', label: 'COMUNICAZIONI', fields: [] }
+        { id: 'comms', label: 'COMUNICAZIONI', fields: [] },
+        { id: 'crm', label: 'LOG / CRM', fields: [] }
     ];
 
     return (
-        <div data-component="CRMDetail" style={{ maxWidth: '1450px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 450px', gap: '30px', position: 'relative' }}>
+        <div data-component="CRMDetail" style={{ maxWidth: '1250px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '30px', position: 'relative' }}>
 
             {status.visible && <div style={toastStyle(status.type === 'success' ? '#4CAF50' : '#E6007E')}>{status.message}</div>}
 
@@ -213,19 +214,24 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                 </div>
             )}
 
-            {/* LEFT: MASTER DATA */}
+            {/* HEADER MASTER AREA */}
             <div style={{ backgroundColor: '#09090b', borderRadius: '40px', border: '1px solid #222', overflow: 'hidden', boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}>
-                <div style={{ padding: '50px', backgroundColor: '#000', borderBottom: '2px solid #333' }}>
-                    <h2 style={{ fontSize: '3.2rem', color: primaryColor, margin: 0, fontWeight: 900 }}>{localItem.team_name || localItem.name || localItem.nome}</h2>
-                    <div style={{ marginTop: '20px', display: 'flex', gap: '20px', alignItems: 'baseline' }}>
-                        <span style={idBadgeStyle(accentColor)}>ID ISCRIZIONE: {item.id}</span>
-                        <div style={{ flex: 1 }}></div>
-                        <button onClick={onBack} style={btnBackStyle}>CHIUDI</button>
-                        <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>
+                <div style={{ padding: '40px 50px', backgroundColor: '#000', borderBottom: '2px solid #333' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                        <div>
+                            <h2 style={{ fontSize: '2.6rem', color: primaryColor, margin: 0, fontWeight: 900, lineHeight: 1.1 }}>{localItem.team_name || localItem.name || localItem.nome}</h2>
+                            <div style={{ marginTop: '10px' }}>
+                                <span style={idBadgeStyle(accentColor)}>ISCRIZIONE #{item.id}</span>
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                            <button onClick={onBack} style={btnBackStyle}>CHIUDI</button>
+                            <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>
+                        </div>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', overflowX: 'auto', backgroundColor: '#111', borderBottom: '1px solid #222' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#111', borderBottom: '1px solid #222', padding: '10px' }}>
                     {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map(t => (
                         <button key={t.id} onClick={() => setActiveTab(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
                     ))}
@@ -259,6 +265,75 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                 </div>
                             </div>
                         </div>
+                    ) : activeTab === 'crm' ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px' }}>
+                            {/* CRM LOGS (Main side of tab) */}
+                            <div style={sectionBox}>
+                                <h3 style={sectionTitle(primaryColor)}>REGISTRO ATTIVITÀ CRM</h3>
+
+                                <div style={{ marginBottom: '30px' }}>
+                                    <textarea
+                                        id="note-input-area"
+                                        value={newNote}
+                                        onChange={e => setNewNote(e.target.value)}
+                                        style={darkInputArea}
+                                        placeholder="Annota progressi, telefonate o stati..."
+                                    />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
+                                        {editingNoteId && <span onClick={() => { setEditingNoteId(null); setNewNote(''); }} style={{ color: primaryColor, fontSize: '0.9rem', cursor: 'pointer' }}>ANNULLA MODIFICA</span>}
+                                        <div style={{ flex: 1 }}></div>
+                                        <button onClick={submitNote} style={btnAddNoteStyle(primaryColor)}>
+                                            {editingNoteId ? '💾 AGGIORNA NOTA' : '+ AGGIUNGI NOTA'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                    {notes.map(n => (
+                                        <div key={n.id} style={noteItemBox(primaryColor)}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                                <span style={{ color: primaryColor, fontSize: '0.75rem', fontWeight: 900 }}>{new Date(n.created_at).toLocaleString()}</span>
+                                                <div style={{ display: 'flex', gap: '12px' }}>
+                                                    <span onClick={() => startEditNote(n)} style={{ cursor: 'pointer', opacity: 0.5 }}>✏️</span>
+                                                    <span onClick={() => deleteNote(n.id)} style={{ cursor: 'pointer', opacity: 0.5 }}>🗑️</span>
+                                                </div>
+                                            </div>
+                                            <div style={{ color: '#eee', fontSize: '1.05rem', lineHeight: '1.5' }}>{n.content}</div>
+                                        </div>
+                                    ))}
+                                    {notes.length === 0 && <div style={{ textAlign: 'center', color: '#444', padding: '40px' }}>Nessun log CRM presente.</div>}
+                                </div>
+                            </div>
+
+                            {/* ATTACHMENTS (Side of CRM tab) */}
+                            <div style={sectionBox}>
+                                <h3 style={sectionTitle(primaryColor)}>📎 ALLEGATI</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                                    {attachments.map(a => (
+                                        <a key={a.id} href={a.file_url} target="_blank" rel="noopener noreferrer" style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '12px',
+                                            padding: '12px 15px',
+                                            background: '#000',
+                                            border: '1px solid #333',
+                                            borderRadius: '12px',
+                                            textDecoration: 'none'
+                                        }}>
+                                            <span style={{ fontSize: '1.2rem' }}>📎</span>
+                                            <div style={{ flex: 1, overflow: 'hidden' }}>
+                                                <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.8rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{a.file_name}</div>
+                                            </div>
+                                        </a>
+                                    ))}
+                                    {attachments.length === 0 && <div style={{ color: '#444', fontSize: '0.85rem', textAlign: 'center' }}>Nessun allegato</div>}
+                                </div>
+                                <div style={{ position: 'relative' }}>
+                                    <button style={btnAttachFullStyle}>{loading.attach ? '...' : '+ CARICA'}</button>
+                                    <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+                                </div>
+                            </div>
+                        </div>
                     ) : (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
                             {regTabs.find(t => t.id === activeTab)?.fields.map(k => (
@@ -275,92 +350,6 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                     )}
                 </div>
             </div>
-
-            {/* RIGHT: REORDERED CRM SIDEBAR */}
-            <div style={{ backgroundColor: '#09090b', borderRadius: '40px', padding: '40px', border: `2px solid ${accentColor}`, display: 'flex', flexDirection: 'column', height: 'fit-content', minHeight: '900px', boxShadow: `0 0 50px ${accentColor}11` }}>
-                <h3 style={{ color: accentColor, fontWeight: 900, marginBottom: '25px', letterSpacing: '2px', textTransform: 'uppercase' }}>REGISTRO ATTIVITÀ CRM</h3>
-
-                {/* 1. PULSANTE AGGIUNGI NOTA (AL TOP) */}
-                <button onClick={submitNote} style={btnAddNoteStyle(primaryColor)}>
-                    {editingNoteId ? '💾 AGGIORNA NOTA' : '+ AGGIUNGI NOTA'}
-                </button>
-
-                {/* 2. CAMPO PER SCRIVERE NOTA */}
-                <div style={{ margin: '20px 0 30px 0' }}>
-                    <textarea
-                        id="note-input-area"
-                        value={newNote}
-                        onChange={e => setNewNote(e.target.value)}
-                        style={darkInputArea}
-                        placeholder="Annota progressi, telefonate o stati..."
-                    />
-                    {editingNoteId && <div onClick={() => { setEditingNoteId(null); setNewNote(''); }} style={{ textAlign: 'right', color: primaryColor, fontSize: '0.8rem', cursor: 'pointer', marginTop: '10px' }}>ANNULLA MODIFICA</div>}
-                </div>
-
-                <div style={{ height: '1px', background: '#333', marginBottom: '30px' }}></div>
-
-                {/* 3. AREA PER LE NOTE (LOG) */}
-                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
-                    {notes.map(n => (
-                        <div key={n.id} style={noteItemBox(primaryColor)}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                <span style={{ color: primaryColor, fontSize: '0.75rem', fontWeight: 900 }}>{new Date(n.created_at).toLocaleString()}</span>
-                                <div style={{ display: 'flex', gap: '12px', fontSize: '0.9rem' }}>
-                                    <span onClick={() => startEditNote(n)} style={{ cursor: 'pointer', filter: 'grayscale(1) brightness(2)' }}>✏️</span>
-                                    <span onClick={() => deleteNote(n.id)} style={{ cursor: 'pointer', filter: 'grayscale(1) brightness(1.5)' }}>🗑️</span>
-                                </div>
-                            </div>
-                            <div style={{ color: '#eee', fontSize: '1.1rem', lineHeight: '1.6', fontWeight: 500 }}>{n.content}</div>
-                        </div>
-                    ))}
-                    {notes.length === 0 && <div style={{ textAlign: 'center', color: '#444', marginTop: '20px' }}>Nessun log CRM presente.</div>}
-                </div>
-
-                {/* 4. ALLEGATI (A FONDO) */}
-                <div style={{ marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid #222' }}>
-                    <h4 style={{ color: '#888', fontSize: '0.75rem', fontWeight: 900, marginBottom: '15px', letterSpacing: '1px' }}>📎 ALLEGATI ({attachments.length})</h4>
-
-                    {attachments.length > 0 ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-                            {attachments.map(a => {
-                                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(a.file_name);
-                                const isPdf = /\.pdf$/i.test(a.file_name);
-                                const icon = isImage ? '🖼️' : isPdf ? '📄' : '📎';
-                                return (
-                                    <a key={a.id} href={a.file_url} target="_blank" rel="noopener noreferrer" style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '12px',
-                                        padding: '12px 15px',
-                                        background: '#111',
-                                        border: '1px solid #333',
-                                        borderRadius: '12px',
-                                        textDecoration: 'none',
-                                        transition: '0.2s'
-                                    }}
-                                        onMouseOver={e => { e.currentTarget.style.borderColor = primaryColor; e.currentTarget.style.background = '#1a1a1a'; }}
-                                        onMouseOut={e => { e.currentTarget.style.borderColor = '#333'; e.currentTarget.style.background = '#111'; }}
-                                    >
-                                        <span style={{ fontSize: '1.5rem' }}>{icon}</span>
-                                        <div style={{ flex: 1, overflow: 'hidden' }}>
-                                            <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{a.file_name}</div>
-                                            <div style={{ color: '#555', fontSize: '0.7rem' }}>{a.file_size ? Math.round(a.file_size / 1024) + ' KB' : 'Clicca per aprire'}</div>
-                                        </div>
-                                        <span style={{ color: primaryColor, fontSize: '0.8rem', fontWeight: 900 }}>↗</span>
-                                    </a>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div style={{ color: '#333', fontSize: '0.85rem', marginBottom: '15px', textAlign: 'center' }}>Nessun allegato</div>
-                    )}
-
-                    <div style={{ position: 'relative' }}>
-                        <button style={btnAttachFullStyle}>{loading.attach ? 'CARICAMENTO...' : '📂 CARICA ALLEGATO'}</button>
-                        <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }
@@ -374,8 +363,8 @@ const btnModalConfirm = (c) => ({ background: c, color: '#000', border: 'none', 
 const btnModalDanger = { background: '#ff4444', color: '#fff', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' };
 const idBadgeStyle = (c) => ({ color: c, fontSize: '0.75rem', fontWeight: 900, letterSpacing: '1px', background: `${c}11`, padding: '6px 15px', borderRadius: '50px', border: `1px solid ${c}33` });
 const btnSaveStyle = (c) => ({ backgroundColor: c, color: '#000', border: 'none', padding: '18px 45px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer', boxShadow: `0 10px 30px ${c}44` });
-const btnBackStyle = { background: 'none', color: '#666', border: '1px solid #333', padding: '18px 30px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer' };
-const tabStyle = (a, c) => ({ padding: '25px 35px', border: 'none', background: a ? '#000' : 'transparent', color: a ? c : '#666', fontWeight: 900, fontSize: '0.8rem', cursor: 'pointer', borderBottom: a ? `4px solid ${c}` : 'none', whiteSpace: 'nowrap', transition: '0.3s' });
+const btnBackStyle = { background: 'none', color: '#666', border: '1px solid #333', padding: '15px 30px', borderRadius: '20px', fontWeight: 900, cursor: 'pointer', fontSize: '0.9rem' };
+const tabStyle = (a, c) => ({ padding: '15px 25px', margin: '5px', border: '1px solid', borderColor: a ? c : '#222', background: a ? `${c}11` : '#000', color: a ? c : '#666', fontWeight: 900, fontSize: '0.75rem', cursor: 'pointer', borderRadius: '12px', transition: '0.3s', whiteSpace: 'nowrap' });
 const sectionBox = { backgroundColor: '#111', padding: '35px', borderRadius: '32px', border: '1px solid #222' };
 const sectionTitle = (c) => ({ color: '#fff', fontSize: '1.2rem', fontWeight: 900, margin: '0 0 25px 0', borderLeft: `6px solid ${c}`, paddingLeft: '20px' });
 const megaLabel = (c) => ({ color: c, fontSize: '0.7rem', fontWeight: 900, display: 'block', marginBottom: '10px', letterSpacing: '1px' });
