@@ -27,6 +27,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
 
     const [status, setStatus] = useState({ type: '', message: '', visible: false });
     const [loading, setLoading] = useState({ saving: false, attach: false });
+    const [saveStatus, setSaveStatus] = useState('idle'); // idle, saving, saved, error
     const [modal, setModal] = useState({ visible: false, title: '', message: '', onConfirm: null, isDanger: false });
 
     const noteTable = isMsg ? 'message_notes' : 'registration_notes';
@@ -39,6 +40,29 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             fetchAttachments();
         }
     }, [item, type]);
+
+    // AUTO-SAVE LOGIC (Debounced 1.5s)
+    useEffect(() => {
+        const hasChanged = JSON.stringify(localItem) !== JSON.stringify(item);
+        if (!hasChanged) return;
+
+        setSaveStatus('saving');
+        const timer = setTimeout(() => {
+            commitAllChanges(true); // true = silent save
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [localItem]);
+
+    const handleTabChange = (tabId) => {
+        if (activeTab !== tabId) {
+            // Se ci sono modifiche pendenti, salva immediatamente prima di cambiare tab
+            if (JSON.stringify(localItem) !== JSON.stringify(item)) {
+                commitAllChanges(true);
+            }
+            setActiveTab(tabId);
+        }
+    };
 
     const showToast = (t, m) => {
         setStatus({ type: t, message: m, visible: true });
@@ -57,15 +81,27 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         if (!error) setAttachments(data);
     }
 
-    async function commitAllChanges() {
-        setLoading(prev => ({ ...prev, saving: true }));
+    async function commitAllChanges(silent = false) {
+        if (!silent) setLoading(prev => ({ ...prev, saving: true }));
+        setSaveStatus('saving');
+
         try {
             const table = isMsg ? 'messages' : 'registrations';
             const { error } = await supabase.from(table).update(localItem).eq('id', item.id);
             if (error) throw error;
-            showToast('success', 'SINCRONIZZATO');
+
+            setSaveStatus('saved');
+            if (!silent) showToast('success', 'SINCRONIZZATO');
             onRefresh();
-        } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
+
+            // Reset "saved" status after 3 seconds
+            setTimeout(() => setSaveStatus(prev => prev === 'saved' ? 'idle' : prev), 3000);
+        } catch (err) {
+            setSaveStatus('error');
+            showToast('error', err.message);
+        } finally {
+            if (!silent) setLoading(prev => ({ ...prev, saving: false }));
+        }
     }
 
     async function handleSendConfirmationEmail() {
@@ -219,21 +255,30 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                 <div style={{ padding: '50px 60px', background: 'linear-gradient(135deg, #16161e, #1a1b26)', borderBottom: '1px solid #2f334d' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '25px' }}>
                         <div>
-                            <h2 style={{ fontSize: '3.4rem', color: primaryColor, margin: 0, fontWeight: 900, lineHeight: 1, letterSpacing: '-1px' }}>{localItem.team_name || localItem.name || localItem.nome}</h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                <h2 style={{ fontSize: '3.4rem', color: primaryColor, margin: 0, fontWeight: 900, lineHeight: 1, letterSpacing: '-1px' }}>{localItem.team_name || localItem.name || localItem.nome}</h2>
+
+                                {/* AUTO-SAVE INDICATOR */}
+                                <div style={{ fontSize: '0.9rem', fontWeight: 700, transition: '0.3s', opacity: saveStatus === 'idle' ? 0 : 1, color: saveStatus === 'saving' ? '#aaa' : saveStatus === 'saved' ? '#4CAF50' : '#E6007E', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.3)', padding: '8px 15px', borderRadius: '12px' }}>
+                                    {saveStatus === 'saving' && <span>⏳ Salvataggio in corso...</span>}
+                                    {saveStatus === 'saved' && <span>✅ Dati salvati</span>}
+                                    {saveStatus === 'error' && <span>❌ Errore salvataggio</span>}
+                                </div>
+                            </div>
                             <div style={{ marginTop: '15px' }}>
                                 <span style={idBadgeStyle(accentColor)}>ISCRIZIONE #{item.id}</span>
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                             <button onClick={onBack} style={btnBackStyle}>CHIUDI</button>
-                            <button onClick={commitAllChanges} disabled={loading.saving} style={btnSaveStyle(primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>
+                            <button onClick={() => commitAllChanges(false)} disabled={loading.saving || saveStatus === 'saving'} style={btnSaveStyleSmall(primaryColor)}>{loading.saving ? 'SINCRO...' : '💾 SALVA TUTTO'}</button>
                         </div>
                     </div>
                 </div>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#16161e', borderBottom: '1px solid #2f334d', padding: '15px 30px' }}>
                     {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map(t => (
-                        <button key={t.id} onClick={() => setActiveTab(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
+                        <button key={t.id} onClick={() => handleTabChange(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
                     ))}
                 </div>
 
@@ -363,6 +408,7 @@ const btnModalConfirm = (c) => ({ background: c, color: '#000', border: 'none', 
 const btnModalDanger = { background: '#ff4444', color: '#fff', border: 'none', padding: '15px 30px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer' };
 const idBadgeStyle = (c) => ({ color: c, fontSize: '0.85rem', fontWeight: 900, letterSpacing: '2px', background: `${c}22`, padding: '8px 20px', borderRadius: '50px', border: `2px solid ${c}44`, display: 'inline-block' });
 const btnSaveStyle = (c) => ({ backgroundColor: c, color: '#000', border: 'none', padding: '20px 50px', borderRadius: '25px', fontWeight: 900, cursor: 'pointer', boxShadow: `0 15px 40px ${c}44`, fontSize: '1rem', letterSpacing: '1px' });
+const btnSaveStyleSmall = (c) => ({ backgroundColor: 'transparent', color: c, border: `2px solid ${c}`, padding: '12px 25px', borderRadius: '15px', fontWeight: 900, cursor: 'pointer', fontSize: '0.8rem', opacity: 0.6, transition: '0.3s' });
 const btnBackStyle = { background: '#24283b', color: '#c0caf5', border: '1px solid #414868', padding: '18px 35px', borderRadius: '25px', fontWeight: 900, cursor: 'pointer', fontSize: '0.95rem' };
 const tabStyle = (a, c) => ({ padding: '16px 30px', margin: '6px', border: '2px solid', borderColor: a ? c : 'transparent', background: a ? `${c}22` : '#24283b', color: a ? c : '#9499b8', fontWeight: 900, fontSize: '0.85rem', cursor: 'pointer', borderRadius: '15px', transition: '0.3s', whiteSpace: 'nowrap', letterSpacing: '0.5px' });
 const sectionBox = { backgroundColor: '#24283b', padding: '45px', borderRadius: '35px', border: '1px solid #414868', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' };
