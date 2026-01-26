@@ -12,7 +12,12 @@ import { Resend } from 'resend';
  */
 export async function sendWelcomeEmail(userData) {
     // In Vite, le variabili d'ambiente devono iniziare con VITE_ per essere esposte al client
-    const apiKey = import.meta.env.VITE_RESEND_API_KEY || (typeof process !== 'undefined' ? process.env.RESEND_API_KEY : null);
+    const vKey = import.meta.env.VITE_RESEND_API_KEY;
+    const pKey = typeof process !== 'undefined' ? process.env.RESEND_API_KEY : null;
+    const apiKey = vKey || pKey;
+
+    // DEBUG OFFUSCATO
+    console.log('[EMAIL] Key Check:', vKey ? 'VITE_KEY OK' : 'VITE_KEY MISSING', '|', pKey ? 'PROC_KEY OK' : 'PROC_KEY MISSING');
 
     if (!apiKey) {
         console.warn('[EMAIL] Configurazione mancante: VITE_RESEND_API_KEY non trovata. L\'invio email non sarà disponibile.');
