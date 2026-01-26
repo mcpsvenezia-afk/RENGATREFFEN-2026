@@ -9,6 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { sendWelcomeEmail } from '../core/logic-email-v1.js';
 
 export function CRMDetail({ item, type, onBack, onRefresh }) {
     const [localItem, setLocalItem] = useState(item);
@@ -65,6 +66,29 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             showToast('success', 'SINCRONIZZATO');
             onRefresh();
         } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
+    }
+
+    async function handleSendConfirmationEmail() {
+        setLoading(prev => ({ ...prev, saving: true }));
+        try {
+            const res = await sendWelcomeEmail(localItem);
+            if (res.success) {
+                showToast('success', 'EMAIL INVIATA');
+                // Aggiungiamo una nota automatica nel CRM
+                await supabase.from(noteTable).insert([{
+                    [foreignKey]: item.id,
+                    content: '🤖 AUTO: Inviata email di conferma iscrizione via Resend.',
+                    admin_name: 'System'
+                }]);
+                fetchNotes();
+            } else {
+                throw new Error(res.error?.message || 'Errore invio email');
+            }
+        } catch (err) {
+            showToast('error', err.message);
+        } finally {
+            setLoading(prev => ({ ...prev, saving: false }));
+        }
     }
 
     async function submitNote() {
@@ -167,7 +191,8 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         { id: 'partner', label: 'PARTNER', fields: ['secondo_nome', 'secondo_cognome', 'secondo_cellulare'] },
         { id: 'bio', label: 'BIO PILOTA', fields: ['pilot_photo', 'pilot_bio', 'authorize_media', 'authorize_pilot_profile'] },
         { id: 'requirements', label: 'REQUISITI', fields: ['has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation'] },
-        { id: 'fango', label: 'SALUTE & FANGO', fields: ['is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance', 'food_preferences', 'emergency_contact_phone', 'emergency_contact_info'] }
+        { id: 'fango', label: 'SALUTE & FANGO', fields: ['is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance', 'food_preferences', 'emergency_contact_phone', 'emergency_contact_info'] },
+        { id: 'comms', label: 'COMUNICAZIONI', fields: [] }
     ];
 
     return (
@@ -191,7 +216,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             {/* LEFT: MASTER DATA */}
             <div style={{ backgroundColor: '#09090b', borderRadius: '40px', border: '1px solid #222', overflow: 'hidden', boxShadow: '0 20px 80px rgba(0,0,0,0.5)' }}>
                 <div style={{ padding: '50px', backgroundColor: '#000', borderBottom: '2px solid #333' }}>
-                    <h2 style={{ fontSize: '3.2rem', color: primaryColor, margin: 0, fontWeight: 900 }}>{localItem.team_name || localItem.name}</h2>
+                    <h2 style={{ fontSize: '3.2rem', color: primaryColor, margin: 0, fontWeight: 900 }}>{localItem.team_name || localItem.name || localItem.nome}</h2>
                     <div style={{ marginTop: '20px', display: 'flex', gap: '20px', alignItems: 'baseline' }}>
                         <span style={idBadgeStyle(accentColor)}>ID ISCRIZIONE: {item.id}</span>
                         <div style={{ flex: 1 }}></div>
@@ -213,6 +238,26 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                         <div style={{ display: 'grid', gap: '40px' }}>
                             <div style={photoSection}><div style={photoDropBox(primaryColor)}>{localItem.pilot_photo ? <img src={localItem.pilot_photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📷'}<input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} /></div><div><h4 style={{ color: primaryColor, margin: 0, fontWeight: 900 }}>LOGO / FOTO</h4><p style={{ color: '#666', fontSize: '0.8rem' }}>Asset memorizzato nel profilo.</p></div></div>
                             <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>BIOGRAFIA / CV</h3><textarea value={localItem.pilot_bio || ''} onChange={e => setLocalItem({ ...localItem, pilot_bio: e.target.value })} style={ultraTextAreaStyle} /></div>
+                        </div>
+                    ) : activeTab === 'comms' ? (
+                        <div style={sectionBox}>
+                            <h3 style={sectionTitle(primaryColor)}>CENTRO COMUNICAZIONI</h3>
+                            <p style={{ color: '#888', marginBottom: '30px' }}>Invia comunicazioni ufficiali al pilota tramite Resend.</p>
+
+                            <div style={{ display: 'grid', gap: '20px', maxWidth: '400px' }}>
+                                <button
+                                    onClick={handleSendConfirmationEmail}
+                                    disabled={loading.saving}
+                                    style={btnActionStyle(primaryColor)}
+                                >
+                                    {loading.saving ? 'INVIO IN CORSO...' : '✉️ INVIA EMAIL DI CONFERMA ISCRIZIONE'}
+                                </button>
+
+                                <div style={{ padding: '20px', backgroundColor: '#000', borderRadius: '15px', border: '1px solid #333' }}>
+                                    <span style={{ color: '#555', fontSize: '0.8rem', fontWeight: 700 }}>STATO: PRONTO</span>
+                                    <p style={{ color: '#444', fontSize: '0.75rem', margin: '5px 0 0 0' }}>L'email invierà il template di benvenuto a: <strong>{localItem.email}</strong></p>
+                                </div>
+                            </div>
                         </div>
                     ) : (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
@@ -345,3 +390,4 @@ const darkInputArea = { width: '100%', background: '#ccc', border: 'none', color
 const noteItemBox = (c) => ({ backgroundColor: '#111', padding: '25px', borderRadius: '25px', borderLeft: `8px solid ${c}` });
 const attachPill = { backgroundColor: '#1a1a1a', padding: '8px 15px', borderRadius: '12px', fontSize: '0.7rem', border: '1px solid #333' };
 const btnAttachFullStyle = { width: '100%', background: 'none', color: '#FFCC00', border: '1px solid #FFCC00', padding: '20px', borderRadius: '100px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer' };
+const btnActionStyle = (c) => ({ width: '100%', background: `${c}22`, color: c, border: `2px solid ${c}`, padding: '22px', borderRadius: '20px', fontWeight: 900, fontSize: '0.9rem', cursor: 'pointer', transition: '0.3s', textAlign: 'center' });
