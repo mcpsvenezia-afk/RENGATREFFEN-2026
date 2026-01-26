@@ -1,18 +1,25 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 /**
- * 🧬 HEARTBEAT v1.0
+ * 🧬 HEARTBEAT v1.0 (ESM Version)
  * Automated mapping and convention validation for Renga Treffen 2026.
  */
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Definiamo i percorsi relativi alla root del progetto
+// Siamo in /src/core, quindi la root è due livelli sopra
+const PROJECT_ROOT = path.resolve(__dirname, '../../');
 const TARGET_DIRECTORIES = {
-    skills: './skills',
-    plugins: './src/plugins',
-    schemas: './src/schemas'
+    skills: path.join(PROJECT_ROOT, 'skills'),
+    plugins: path.join(PROJECT_ROOT, 'src/plugins'),
+    schemas: path.join(PROJECT_ROOT, 'src/schemas')
 };
 
-const LOG_DIR = './docs/heartbeats';
+const LOG_DIR = path.join(PROJECT_ROOT, 'docs/heartbeats');
 
 // Ensure log directory exists
 if (!fs.existsSync(LOG_DIR)) {
@@ -20,6 +27,7 @@ if (!fs.existsSync(LOG_DIR)) {
 }
 
 function isKebabCase(str) {
+    // Regex per kebab-case, ammettendo estensioni file
     return /^[a-z0-9]+(-[a-z0-9]+)*(\.[a-z0-9]+)*$/.test(str);
 }
 
