@@ -41,45 +41,82 @@
 
   <main>
     <!-- 1. HOME / BENVENUTI -->
-    <section id="home" class="hero">
-      <div class="hero-bg" style="background-image: url('/hero.png'); opacity: 0.8;"></div>
-      <div class="hero-overlay" style="background: linear-gradient(to bottom, transparent, var(--bg-dark));"></div>
-      <div class="content">
-        <h1 class="reveal" style="color: #111; text-shadow: 0 0 0; text-transform: uppercase;">RENGA TREFFEN 22/02/2026
-        </h1>
-        <p class="subtitle reveal"
-          style="color: var(--secondary-color); font-size: 1.5rem; text-transform: uppercase; font-weight: 900;">
-          2° MEMORIAL ANTONIO ARMELLIN</p>
+    <section id="home" class="hero" style="justify-content: flex-start; text-align: left;">
+      <div class="hero-bg" style="background-image: url('/hero.png'); opacity: 0.9; transform: scale(1);"></div>
+      <div class="hero-overlay"
+        style="background: linear-gradient(90deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 50%, transparent 100%);">
+      </div>
 
-        <div class="hero-badges reveal">
-          <span class="badge"
-            style="color: #fff; border: 2px solid #fff; background: rgba(0,0,0,0.5); font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">22
-            FEBBRAIO 2026</span>
-          <span class="badge"
-            style="color: #111; border: 2px solid var(--primary-color); background: var(--primary-color); font-weight: 900; box-shadow: 0 10px 20px rgba(255,204,0,0.3);">CAMPAGNE
-            FRIULANE</span>
-          <span class="badge"
-            style="color: #fff; border: 2px solid #fff; background: rgba(0,0,0,0.5); font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">SCOPO
-            BENEFICO</span>
-        </div>
-
-        <div class="hero-text reveal">
-          <p style="color: #333; font-weight: 500; font-size: 1.1rem; line-height: 1.6;">
-            Unisciti a noi per il 5° Renga Treffen 2026, un evento motociclistico a coppie con scopo benefico dedicato
-            alla
-            memoria di Antonio Armellin.<br><br>
-            Si snoderà su un percorso della lunghezza di circa 140 km di strade a fondo Naturale nelle campagne
-            Friulane, con l'utilizzo obbligatorio di pneumatici tassellati nel territorio di Talmassons (UD).
+      <div class="container" style="z-index: 10; padding-left: 5%;">
+        <div class="hero-main-content" style="max-width: 700px;">
+          <h1 class="reveal"
+            style="color: #000; font-size: clamp(3rem, 8vw, 5.5rem); line-height: 0.9; margin-bottom: 10px; text-transform: uppercase; font-weight: 950; filter: drop-shadow(0 2px 10px rgba(255,255,255,0.5));">
+            RENGA<br><span
+              style="color: #FFCC00; -webkit-text-stroke: 2px #000; -webkit-text-fill-color: #FFCC00;">TREFFEN</span>
+          </h1>
+          <p class="subtitle reveal"
+            style="color: #E6007E; font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 30px; text-transform: uppercase;">
+            2° Memorial Antonio Armellin
           </p>
+
+          <div class="hero-text reveal"
+            style="margin-bottom: 40px; border-left: 4px solid #FFCC00; padding-left: 25px;">
+            <p style="color: #111; font-weight: 600; font-size: 1.25rem; line-height: 1.5; max-width: 500px;">
+              Una caccia al tesoro motociclistica a coppie dedicata alla solidarietà e alla memoria.
+            </p>
+          </div>
+
+          <div class="hero-actions reveal" style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <a href="/iscrizioni.html" class="cta-button primary"
+              style="padding: 18px 40px; font-size: 1.1rem; box-shadow: 0 10px 30px rgba(255,204,0,0.4);">ISCRIVITI
+              ORA</a>
+            <a href="/regolamento.html" class="cta-button secondary"
+              style="color: #000; border: 3px solid #000; padding: 18px 40px; font-size: 1.1rem; background: rgba(255,255,255,0.5); backdrop-filter: blur(5px);">IL
+              REGOLAMENTO</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- FLOATING INFO STRIP "AD EFFETTO" -->
+      <div class="hero-info-strip reveal"
+        style="position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 20px; padding: 0 20px; z-index: 20;">
+
+        <!-- CARD 1: DATA -->
+        <div class="floating-info-card"
+          style="background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 20px 35px; display: flex; align-items: center; gap: 15px; backdrop-filter: blur(10px); color: #fff; min-width: 280px; transition: 0.3s; transform: translateY(0);">
+          <div style="font-size: 2.5rem;">📅</div>
+          <div style="text-align: left;">
+            <div
+              style="color: #FFCC00; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+              Quando</div>
+            <div style="font-weight: 700; font-size: 1.4rem;">22 Febbraio 2026</div>
+          </div>
         </div>
 
-        <div class="hero-actions reveal">
-          <a href="/regolamento.html" class="cta-button secondary"
-            style="color: #000; border-color: #000;">REGOLAMENTO</a>
-          <a href="/iscrizioni.html" class="cta-button primary">ISCRIVITI ORA</a>
-          <a href="/sponsor.html" class="cta-button secondary" style="color: #000; border-color: #000;">PREMI E
-            SPONSOR</a>
+        <!-- CARD 2: LUOGO -->
+        <div class="floating-info-card"
+          style="background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 20px 35px; display: flex; align-items: center; gap: 15px; backdrop-filter: blur(10px); color: #fff; min-width: 280px; transition: 0.3s; transform: translateY(0);">
+          <div style="font-size: 2.5rem;">📍</div>
+          <div style="text-align: left;">
+            <div
+              style="color: #FFCC00; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+              Dove</div>
+            <div style="font-weight: 700; font-size: 1.4rem;">Talmassons (UD)</div>
+          </div>
         </div>
+
+        <!-- CARD 3: SCOPO -->
+        <div class="floating-info-card"
+          style="background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 20px 35px; display: flex; align-items: center; gap: 15px; backdrop-filter: blur(10px); color: #fff; min-width: 280px; transition: 0.3s; transform: translateY(0);">
+          <div style="font-size: 2.5rem;">🤝</div>
+          <div style="text-align: left;">
+            <div
+              style="color: #FFCC00; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+              Scopo</div>
+            <div style="font-weight: 700; font-size: 1.4rem;">100% Beneficenza</div>
+          </div>
+        </div>
+
       </div>
     </section>
 
