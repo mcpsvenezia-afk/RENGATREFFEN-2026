@@ -5,15 +5,22 @@ import { Resend } from 'resend';
  * Sistema di notifiche email tramite Resend API.
  */
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 /**
  * Invia un'email di benvenuto dopo l'iscrizione.
  * @param {Object} userData - Dati dell'utente (nome, email)
  * @returns {Promise<{success: boolean, error?: any}>}
  */
 export async function sendWelcomeEmail(userData) {
+    // In Vite, le variabili d'ambiente devono iniziare con VITE_ per essere esposte al client
+    const apiKey = import.meta.env.VITE_RESEND_API_KEY || (typeof process !== 'undefined' ? process.env.RESEND_API_KEY : null);
+
+    if (!apiKey) {
+        console.warn('[EMAIL] Configurazione mancante: VITE_RESEND_API_KEY non trovata. L\'invio email non sarà disponibile.');
+        return { success: false, error: 'Configurazione email mancante.' };
+    }
+
     try {
+        const resend = new Resend(apiKey);
         const { data, error } = await resend.emails.send({
             from: 'Renga Treffen <onboarding@resend.dev>',
             to: [userData.email],
