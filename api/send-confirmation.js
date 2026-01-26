@@ -1,6 +1,5 @@
 import { Resend } from 'resend';
 
-// Per evitare problemi di CORS, questa funzione deve girare Lato Server (Vercel Serverless)
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
@@ -18,7 +17,7 @@ export default async function handler(req, res) {
     try {
         const { data, error } = await resend.emails.send({
             from: 'Renga Treffen <info@rengatreffen.it>',
-            reply_to: 'info@rengatreffen.it',
+            reply_to: 'renga.treffen@gmail.com',
             to: [userData.email],
             subject: 'Conferma Iscrizione - Renga Treffen 2026 🏁',
             html: `
