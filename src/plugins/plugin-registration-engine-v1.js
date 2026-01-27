@@ -6,6 +6,7 @@
 
 import { supabase } from '../lib/supabaseClient.js';
 import { renderDynamicForm } from './dynamic-form-engine-v1.1.0.js';
+import { sendWelcomeEmail } from '../core/logic-email-v1.js';
 
 export async function initRegistrationEngine() {
     console.log('[PLUGIN] Registration Engine v1.1.0 - INITIALIZING');
@@ -118,14 +119,22 @@ export async function initRegistrationEngine() {
                     }
                 }
 
+                // 🧬 AUTOMATED EMAIL NOTIFICATION
+                try {
+                    console.log('[PLUGIN] Registration Engine: Triggering email confirmation for', cleanedData.email);
+                    await sendWelcomeEmail(cleanedData);
+                } catch (emailErr) {
+                    console.warn('[PLUGIN] Email trigger failed (silent)', emailErr);
+                }
+
                 // Success Notification
                 // @ts-ignore
                 if (window.Swal) {
                     // @ts-ignore
                     window.Swal.fire({
                         icon: 'success',
-                        title: 'Iscrizione conclusa con successo!',
-                        text: 'Riceverai al più presto nostre comunicazioni via email o WhatsApp. Controlla anche nella casella spam.',
+                        title: 'Registrazione completata!',
+                        text: 'Abbiamo ricevuto i tuoi dati. Controlla la tua email per la conferma.',
                         confirmButtonColor: '#FFCC00',
                         timer: 5000,
                         timerProgressBar: true,
