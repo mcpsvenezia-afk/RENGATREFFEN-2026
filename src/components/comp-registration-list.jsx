@@ -5,7 +5,7 @@
 
 import React from 'react';
 
-export function RegistrationList({ data, onSelect, onInspect, isDevMode }) {
+export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMode }) {
     const tdStyle = { padding: '15px', fontSize: '0.85rem', whiteSpace: 'nowrap' };
     const thStyle = { padding: '15px', textAlign: 'left', fontSize: '0.7rem', color: '#8d8d8d', textTransform: 'uppercase', letterSpacing: '1px' };
 
@@ -21,6 +21,7 @@ export function RegistrationList({ data, onSelect, onInspect, isDevMode }) {
                         <th style={thStyle}>MCPS</th>
                         <th style={thStyle}>Fango</th>
                         <th style={thStyle}>Data</th>
+                        <th style={{ ...thStyle, textAlign: 'center' }}>Azioni</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,6 +64,31 @@ export function RegistrationList({ data, onSelect, onInspect, isDevMode }) {
                                 </span>
                             </td>
                             <td style={tdStyle}>{new Date(reg.created_at).toLocaleDateString()}</td>
+                            <td style={{ ...tdStyle, textAlign: 'center' }}>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm(`Sei sicuro di voler eliminare l'iscrizione di ${reg.nome} ${reg.cognome}?`)) {
+                                            onDelete(reg.id);
+                                        }
+                                    }}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#E6007E',
+                                        cursor: 'pointer',
+                                        fontSize: '1.2rem',
+                                        padding: '5px 10px',
+                                        borderRadius: '8px',
+                                        transition: '0.3s'
+                                    }}
+                                    onMouseOver={e => e.currentTarget.style.backgroundColor = 'rgba(230,0,126,0.1)'}
+                                    onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                                    title="Elimina Iscrizione"
+                                >
+                                    🗑️
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

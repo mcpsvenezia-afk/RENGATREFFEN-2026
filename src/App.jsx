@@ -66,6 +66,21 @@ function App() {
         }
     }
 
+    async function handleDeleteRegistration(id) {
+        setLoading(true);
+        try {
+            const { error } = await supabase.from('registrations').delete().eq('id', id);
+            if (error) throw error;
+            // Aggiorna la lista locale per reattività immediata
+            setRegistrations(prev => prev.filter(r => r.id !== id));
+        } catch (err) {
+            console.error('Error deleting registration:', err);
+            alert('Errore durante l\'eliminazione: ' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div data-component="DashboardApp" style={{ backgroundColor: '#09090b', minHeight: '100vh', color: '#fff', fontFamily: '"Inter", sans-serif' }}>
 
@@ -104,6 +119,7 @@ function App() {
                                 <RegistrationList
                                     data={registrations}
                                     onSelect={(reg) => setSelectedItem({ data: reg, type: 'registration' })}
+                                    onDelete={handleDeleteRegistration}
                                     isDevMode={isDevMode}
                                     onInspect={(reg) => navigator.clipboard.writeText(JSON.stringify(reg, null, 2))}
                                 />
