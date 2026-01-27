@@ -9,7 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { sendWelcomeEmail } from '../core/logic-email-v1.js';
+import { sendWelcomeEmail, sendApprovalEmail } from '../core/logic-email-v1.js';
 
 export function CRMDetail({ item, type, onBack, onRefresh }) {
     const [localItem, setLocalItem] = useState(item);
@@ -107,7 +107,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     async function handleSendConfirmationEmail() {
         setLoading(prev => ({ ...prev, saving: true }));
         try {
-            const res = await sendWelcomeEmail(localItem);
+            const res = await sendApprovalEmail(localItem);
             if (res.success) {
                 showToast('success', 'EMAIL INVIATA');
                 // Aggiungiamo una nota automatica nel CRM
