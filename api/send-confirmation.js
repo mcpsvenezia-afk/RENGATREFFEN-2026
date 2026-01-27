@@ -24,7 +24,7 @@ export default async function handler(req, res) {
                 <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: auto; padding: 40px; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 20px; color: #333333;">
                     <div style="text-align: center; margin-bottom: 30px;">
                         <h1 style="color: #E6007E; margin: 0; font-size: 28px; font-weight: 900;">RENGA TREFFEN 🏁</h1>
-                        <p style="color: #666; font-size: 14px; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px;">Venezia - Brussa Team</p>
+                        <p style="color: #666; font-size: 14px; margin-top: 5px; text-transform: uppercase; letter-spacing: 2px;">2° Memorial Antonio Armellin</p>
                     </div>
 
                     <h2 style="color: #333; font-size: 22px; border-bottom: 2px solid #FFCC00; padding-bottom: 10px; display: inline-block;">Ciao ${userData.nome}! 👋</h2>
@@ -64,8 +64,7 @@ export default async function handler(req, res) {
                     <hr style="border: none; border-top: 1px solid #eeeeee; margin: 40px 0;">
                     
                     <div style="text-align: center; color: #999999; font-size: 12px;">
-                        <p style="margin: 5px 0;">Organizzazione: <strong>Brussa Team ASD</strong></p>
-                        <p style="margin: 5px 0;">Per qualsiasi domanda puoi rispondere direttamente a questa email.</p>
+                        <p style="margin: 5px 0;">Renga Treffen 2026, Per qualsiasi domanda puoi rispondere direttamente a questa email.</p>
                     </div>
                 </div>
             `
