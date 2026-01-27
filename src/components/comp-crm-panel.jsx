@@ -341,7 +341,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                             }}>
                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <span style={{ color: '#4CAF50', fontSize: '0.7rem', fontWeight: 900, background: 'rgba(76,175,80,0.1)', padding: '4px 10px', borderRadius: '50px' }}>INVIO EFFETTUATO</span>
+                                                        <span style={{ color: '#4CAF50', fontSize: '0.7rem', fontWeight: 900, background: 'rgba(76,175,80,0.1)', padding: '4px 10px', borderRadius: '50px' }}>EMAIL DI CONFERMA ISCRIZIONE - INVIATA</span>
                                                     </div>
                                                     <div style={{ color: '#aaa', fontSize: '0.9rem', fontWeight: 500 }}>{new Date(log.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                                                 </div>
