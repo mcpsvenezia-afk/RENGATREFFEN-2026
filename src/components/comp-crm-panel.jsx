@@ -157,7 +157,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             isDanger: true,
             onConfirm: async () => {
                 const { error } = await supabase.from(noteTable).delete().eq('id', id);
-                if (!error) { fetchNotes(); showToast('success', 'NOTA RIMOSTRA'); }
+                if (!error) { fetchNotes(); showToast('success', 'LOG RIMOSSO'); }
                 setModal({ ...modal, visible: false });
             }
         });
@@ -231,6 +231,9 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         { id: 'comms', label: 'COMUNICAZIONI', fields: [] },
         { id: 'crm', label: 'LOG / CRM', fields: [] }
     ];
+
+    const commsLogs = notes.filter(n => n.content?.includes('🤖 AUTO: Inviata email'));
+    const manualNotes = notes.filter(n => !n.content?.includes('🤖 AUTO: Inviata email'));
 
     return (
         <div data-component="CRMDetail" style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative' }}>
@@ -306,7 +309,33 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
 
                                 <div style={{ padding: '20px', backgroundColor: '#000', borderRadius: '15px', border: '1px solid #333' }}>
                                     <span style={{ color: '#555', fontSize: '0.8rem', fontWeight: 700 }}>STATO: PRONTO</span>
-                                    <p style={{ color: '#444', fontSize: '0.75rem', margin: '5px 0 0 0' }}>L'email invierà il template di benvenuto a: <strong>{localItem.email}</strong></p>
+                                    <p style={{ color: '#444', fontSize: '0.75rem', margin: '5px 0 0 0' }}>L'email invierà il template ufficiale a: <strong>{localItem.email}</strong></p>
+                                </div>
+
+                                {/* STORICO INVII INTEGRATO NEL GRID */}
+                                <div style={{ marginTop: '10px' }}>
+                                    <h4 style={{ color: '#555', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '15px', letterSpacing: '2px' }}>STORICO INVII</h4>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                        {commsLogs.map(log => (
+                                            <div key={log.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)', padding: '15px 20px', borderRadius: '15px', border: '1px solid #2f334d' }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                    <div style={{ color: '#4CAF50', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '0.5px' }}>✅ INVIATA</div>
+                                                    <div style={{ color: '#888', fontSize: '0.85rem' }}>{new Date(log.created_at).toLocaleString('it-IT')}</div>
+                                                </div>
+                                                <button
+                                                    onClick={() => deleteNote(log.id)}
+                                                    style={{ background: 'rgba(230,0,126,0.1)', border: 'none', color: '#E6007E', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 900, padding: '8px 12px', borderRadius: '8px', textTransform: 'uppercase', transition: '0.3s' }}
+                                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(230,0,126,0.2)'}
+                                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(230,0,126,0.1)'}
+                                                >
+                                                    Elimina
+                                                </button>
+                                            </div>
+                                        ))}
+                                        {commsLogs.length === 0 && (
+                                            <div style={{ color: '#444', fontSize: '0.8rem', fontStyle: 'italic' }}>Nessuna comunicazione registrata.</div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -334,7 +363,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                 </div>
 
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                    {notes.map(n => (
+                                    {manualNotes.map(n => (
                                         <div key={n.id} style={noteItemBox(primaryColor)}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
                                                 <span style={{ color: primaryColor, fontSize: '0.75rem', fontWeight: 900 }}>{new Date(n.created_at).toLocaleString()}</span>
@@ -346,7 +375,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                             <div style={{ color: '#eee', fontSize: '1.05rem', lineHeight: '1.5' }}>{n.content}</div>
                                         </div>
                                     ))}
-                                    {notes.length === 0 && <div style={{ textAlign: 'center', color: '#444', padding: '40px' }}>Nessun log CRM presente.</div>}
+                                    {manualNotes.length === 0 && <div style={{ textAlign: 'center', color: '#444', padding: '40px' }}>Nessun log CRM presente.</div>}
                                 </div>
                             </div>
 
