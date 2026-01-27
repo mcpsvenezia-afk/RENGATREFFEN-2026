@@ -296,44 +296,78 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                     ) : activeTab === 'comms' ? (
                         <div style={sectionBox}>
                             <h3 style={sectionTitle(primaryColor)}>CENTRO COMUNICAZIONI</h3>
-                            <p style={{ color: '#888', marginBottom: '30px' }}>Invia comunicazioni ufficiali al pilota tramite Resend.</p>
 
-                            <div style={{ display: 'grid', gap: '20px', maxWidth: '400px' }}>
-                                <button
-                                    onClick={handleSendConfirmationEmail}
-                                    disabled={loading.saving}
-                                    style={btnActionStyle(primaryColor)}
-                                >
-                                    {loading.saving ? 'INVIO IN CORSO...' : '✉️ INVIA EMAIL DI CONFERMA ISCRIZIONE'}
-                                </button>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 400px) 1fr', gap: '60px', alignItems: 'start' }}>
+                                {/* COLONNA SINISTRA: AZIONI */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                                    <p style={{ color: '#888', margin: 0, fontSize: '0.95rem', lineHeight: '1.5' }}>Invia comunicazioni ufficiali al pilota tramite il motore Resend.</p>
 
-                                <div style={{ padding: '20px', backgroundColor: '#000', borderRadius: '15px', border: '1px solid #333' }}>
-                                    <span style={{ color: '#555', fontSize: '0.8rem', fontWeight: 700 }}>STATO: PRONTO</span>
-                                    <p style={{ color: '#444', fontSize: '0.75rem', margin: '5px 0 0 0' }}>L'email invierà il template ufficiale a: <strong>{localItem.email}</strong></p>
+                                    <button
+                                        onClick={handleSendConfirmationEmail}
+                                        disabled={loading.saving}
+                                        style={btnActionStyle(primaryColor)}
+                                    >
+                                        {loading.saving ? 'INVIO IN CORSO...' : '✉️ INVIA EMAIL DI CONFERMA ISCRIZIONE'}
+                                    </button>
+
+                                    <div style={{ padding: '25px', backgroundColor: '#000', borderRadius: '20px', border: '1px solid #333', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4CAF50', boxShadow: '0 0 10px #4CAF50' }}></div>
+                                            <span style={{ color: '#555', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '1px' }}>STATO: PRONTO</span>
+                                        </div>
+                                        <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>L'email invierà il template ufficiale a:<br /><strong style={{ color: '#aaa' }}>{localItem.email}</strong></p>
+                                    </div>
                                 </div>
 
-                                {/* STORICO INVII INTEGRATO NEL GRID */}
-                                <div style={{ marginTop: '10px' }}>
-                                    <h4 style={{ color: '#555', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '15px', letterSpacing: '2px' }}>STORICO INVII</h4>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                {/* COLONNA DESTRA: STORICO PREMIUM */}
+                                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '40px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)', minHeight: '300px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px', borderBottom: '1px solid #333', paddingBottom: '20px' }}>
+                                        <span style={{ fontSize: '1.5rem' }}>📜</span>
+                                        <h4 style={{ color: '#fff', fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', margin: 0, letterSpacing: '2px' }}>STORICO INVII</h4>
+                                    </div>
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                         {commsLogs.map(log => (
-                                            <div key={log.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)', padding: '15px 20px', borderRadius: '15px', border: '1px solid #2f334d' }}>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                                    <div style={{ color: '#4CAF50', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '0.5px' }}>✅ INVIATA</div>
-                                                    <div style={{ color: '#888', fontSize: '0.85rem' }}>{new Date(log.created_at).toLocaleString('it-IT')}</div>
+                                            <div key={log.id} style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                backgroundColor: '#16161e',
+                                                padding: '18px 25px',
+                                                borderRadius: '20px',
+                                                border: '1px solid #2f334d',
+                                                boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                                                transition: '0.3s'
+                                            }}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <span style={{ color: '#4CAF50', fontSize: '0.7rem', fontWeight: 900, background: 'rgba(76,175,80,0.1)', padding: '4px 10px', borderRadius: '50px' }}>INVIO EFFETTUATO</span>
+                                                    </div>
+                                                    <div style={{ color: '#aaa', fontSize: '0.9rem', fontWeight: 500 }}>{new Date(log.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                                                 </div>
                                                 <button
                                                     onClick={() => deleteNote(log.id)}
-                                                    style={{ background: 'rgba(230,0,126,0.1)', border: 'none', color: '#E6007E', cursor: 'pointer', fontSize: '0.65rem', fontWeight: 900, padding: '8px 12px', borderRadius: '8px', textTransform: 'uppercase', transition: '0.3s' }}
-                                                    onMouseOver={e => e.currentTarget.style.background = 'rgba(230,0,126,0.2)'}
-                                                    onMouseOut={e => e.currentTarget.style.background = 'rgba(230,0,126,0.1)'}
+                                                    style={{
+                                                        background: 'rgba(230,0,126,0.1)',
+                                                        border: '1px solid rgba(230,0,126,0.2)',
+                                                        color: '#E6007E',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.7rem',
+                                                        fontWeight: 900,
+                                                        padding: '10px 18px',
+                                                        borderRadius: '12px',
+                                                        textTransform: 'uppercase'
+                                                    }}
                                                 >
                                                     Elimina
                                                 </button>
                                             </div>
                                         ))}
                                         {commsLogs.length === 0 && (
-                                            <div style={{ color: '#444', fontSize: '0.8rem', fontStyle: 'italic' }}>Nessuna comunicazione registrata.</div>
+                                            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                                                <div style={{ fontSize: '3rem', opacity: 0.2, marginBottom: '15px' }}>📩</div>
+                                                <div style={{ color: '#444', fontSize: '0.9rem', fontStyle: 'italic', letterSpacing: '0.5px' }}>Nessuna comunicazione registrata per questo pilota.</div>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
