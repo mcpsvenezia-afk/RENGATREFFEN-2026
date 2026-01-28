@@ -2012,19 +2012,25 @@ textarea:focus {
 
 .app-icon {
   flex-shrink: 0;
-  width: 70px;
-  height: 70px;
+  width: 84px;
+  height: 84px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 14px;
   overflow: hidden;
+  background: #f8f9fa;
 }
 
 .app-icon img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.app-download-btn:hover .app-icon img {
+  transform: scale(1.05);
 }
 
 .app-info {
