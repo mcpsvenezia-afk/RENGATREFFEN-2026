@@ -62,12 +62,110 @@
         <!-- FORM SECTION -->
         <section class="section dark-alt" style="padding-top: 60px;">
             <div class="container">
-                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3002 -->
-                <div id="registration-form-outlet" class="reveal" style="max-width: 900px; margin: 0 auto;">
-                    <!-- Form dynamically rendered by plugin-registration-engine-v1.js -->
-                    <div style="text-align: center; padding: 4rem; color: #FFCC00;">
-                        <p>Caricamento modulo di iscrizione...</p>
-                    </div>
+                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3100 -->
+                <div id="registration-form-container" class="contact-glass-form reveal"
+                    style="max-width: 900px; margin: 0 auto;">
+
+                    <form id="registration-form">
+                        <!-- SEZIONE: AFFILIAZIONE -->
+                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3101-HDR -->
+                        <div class="form-section">
+                            <h3 class="section-subtitle">Affiliazione Moto Club Polizia di Stato</h3>
+
+                            <div class="form-group">
+                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3102-LBL -->
+                                <label class="label">Sei iscritto al Moto Club Polizia di Stato?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3102-INP -->
+                                        <input type="radio" name="is_mcps_member" value="SI" required> SI
+                                    </label>
+                                    <label class="radio-option">
+                                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3102-INP -->
+                                        <input type="radio" name="is_mcps_member" value="NO" required> NO
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SEZIONE: TEAM -->
+                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3103-HDR -->
+                        <div class="form-section">
+                            <h3 class="section-subtitle">Dati Team & Moto</h3>
+
+                            <div class="form-group">
+                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3104-LBL -->
+                                <label for="team_name">Nome del Team</label>
+                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3104-INP -->
+                                <input type="text" id="team_name" name="team_name"
+                                    placeholder="Inserisci il nome del tuo team" required>
+                            </div>
+
+                            <div class="form-group">
+                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3105-LBL -->
+                                <label for="moto_details">Moto (Marca, modello, cilindrata e targa)</label>
+                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3105-INP -->
+                                <input type="text" id="moto_details" name="moto_details"
+                                    placeholder="Es: KTM 890 Adventure, 889cc, AA123BB" required>
+                            </div>
+                        </div>
+
+                        <!-- SEZIONE: DATI PERSONALI -->
+                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3110 -->
+                        <div class="form-section">
+                            <h3 class="section-subtitle">Dati Personali Pilota</h3>
+
+                            <div class="grid-2">
+                                <div class="form-group">
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3111-L -->
+                                    <label for="nome">Nome</label>
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3111-I -->
+                                    <input type="text" id="nome" name="nome" placeholder="Il tuo nome" required>
+                                </div>
+                                <div class="form-group">
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3112-L -->
+                                    <label for="cognome">Cognome</label>
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3112-I -->
+                                    <input type="text" id="cognome" name="cognome" placeholder="Il tuo cognome"
+                                        required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3113-L -->
+                                <label for="email">Email</label>
+                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3113-I -->
+                                <input type="email" id="email" name="email" placeholder="latua@email.it" required>
+                            </div>
+                        </div>
+
+                        <!-- SEZIONE: FINALE -->
+                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3120 -->
+                        <div class="form-section">
+                            <h3 class="section-subtitle">Regolamento & Privacy</h3>
+                            <div class="form-group">
+                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3121-L -->
+                                <label class="label">Accetti il regolamento dell'evento?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3121-I -->
+                                        <input type="radio" name="accept_regulation" value="SI" required> SI
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AZIONI -->
+                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3200-HDR -->
+                        <div class="form-actions" style="margin-top: 40px;">
+                            <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3200-TXT -->
+                            <p class="privacy-note">Assicurati che tutti i dati siano corretti prima di procedere
+                                all'invio.</p>
+
+                            <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3200-BTN -->
+                            <button type="submit" class="submit-btn full-width">INVIA ISCRIZIONE</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </section>
