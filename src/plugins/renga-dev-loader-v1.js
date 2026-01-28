@@ -213,6 +213,10 @@
 
     container.appendChild(tray);
     container.appendChild(fab);
+
+    // Self-Mapping DNA v2.1
+    const dnaComment = document.createComment(" URL:https://www.rengatreffen.it/dev-menu ID 0001-DEV ");
+    document.body.appendChild(dnaComment);
     document.body.appendChild(container);
 
 })();
