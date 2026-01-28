@@ -87,12 +87,34 @@
         .dev-btn:hover { background: #222; border-color: #FFCC00; color: #FFCC00; }
         .dev-main-btn { background: #FFCC00; color: #000; border: none; width: 56px; height: 56px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 10px 30px rgba(255, 204, 0, 0.3); }
 
-        /* 🟢 ATOMIC HIGHLIGHTER FIX */
+        /* 🟢 ATOMIC HIGHLIGHTER & BADGES */
         .atomic-highlight { 
             outline: 4px solid #FFCC00 !important; 
             outline-offset: -4px !important; 
             box-shadow: inset 0 0 50px rgba(255, 204, 0, 0.3) !important;
             transition: all 0.2s ease !important;
+        }
+        .dna-visible-badge {
+            position: absolute;
+            background: #FFCC00;
+            color: #000;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 950;
+            border-radius: 4px;
+            z-index: 2147483640;
+            pointer-events: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            transform: translateY(-100%);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .dna-visible-badge::before {
+            content: '🧬';
+            font-size: 8px;
         }
     `;
     document.head.appendChild(style);
@@ -113,11 +135,9 @@
         let current = el;
         while (current && current !== document.body) {
             let prev = current.previousSibling;
-            // Skip text nodes (whitespace)
             while (prev && prev.nodeType === 3 && !prev.nodeValue.trim()) {
                 prev = prev.previousSibling;
             }
-
             if (prev && prev.nodeType === 8 && prev.nodeValue.includes('URL:')) {
                 return { element: current, prefix: prev.nodeValue };
             }
@@ -126,6 +146,36 @@
         return null;
     };
 
+    // 🧬 VISIBLE BADGES ENGINE
+    const refreshVisibleBadges = () => {
+        document.querySelectorAll('.dna-visible-badge').forEach(b => b.remove());
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_COMMENT, null, false);
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.nodeValue.includes('ID ')) {
+                const idMatch = node.nodeValue.match(/ID\s+([^\s]+)/);
+                if (idMatch) {
+                    const id = idMatch[1];
+                    let target = node.nextSibling;
+                    while (target && target.nodeType === 3) target = target.nextSibling;
+                    if (target && target.nodeType === 1) {
+                        const badge = document.createElement('div');
+                        badge.className = 'dna-visible-badge';
+                        badge.innerText = id;
+                        const rect = target.getBoundingClientRect();
+                        document.body.appendChild(badge);
+                        badge.style.top = `${rect.top + window.scrollY}px`;
+                        badge.style.left = `${rect.left + window.scrollX}px`;
+                    }
+                }
+            }
+        }
+    };
+
+    setTimeout(refreshVisibleBadges, 1000);
+    window.addEventListener('resize', refreshVisibleBadges);
+    window.addEventListener('scroll', refreshVisibleBadges);
+
     document.addEventListener('mousemove', (e) => {
         if (!e.ctrlKey && !e.metaKey) {
             overlay.style.display = 'none';
@@ -133,7 +183,7 @@
         }
 
         const target = document.elementFromPoint(e.clientX, e.clientY);
-        if (!target || target === overlay || target === label) return;
+        if (!target || target === overlay || target === label || target.classList.contains('dna-visible-badge')) return;
 
         const atomic = findAtomicContainer(target);
         const element = atomic ? atomic.element : target;
