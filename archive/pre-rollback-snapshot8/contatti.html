@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contatti - Renga Treffen 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <nav id="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">RENGA TREFFEN</a>
+            <ul class="nav-links">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="contatti.html" class="active">Contatti</a></li>
+                <li><a href="iscrizioni.html">Iscrizioni</a></li>
+                <li><a href="regolamento.html">Regolamento</a></li>
+                <li><a href="team.html">Team 2026</a></li>
+                <li><a href="sponsor.html">Sponsor</a></li>
+                <li><a href="timetable.html" class="nav-btn yellow">Time Table</a></li>
+                <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- HERO CONTACT -->
+        <section class="hero contact-hero">
+            <div class="hero-bg"
+                style="background-image: url('contacts_hero_cinematic.png'); background-position: center;"></div>
+            <div class="hero-overlay-gradient"></div>
+
+            <div class="container contact-container reveal">
+                <div class="contact-header-content">
+                    <h1 class="main-title">Renga Treffen 2026</h1>
+                    <h2 class="sub-title">CONTATTI</h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- FORM SECTION -->
+        <section class="section dark-alt" style="padding-top: 0;">
+            <div class="container">
+                <div class="contact-glass-form reveal">
+                    <h3 class="form-title">Inviaci un messaggio</h3>
+                    <p class="form-desc">Hai dubbi o domande sull'evento? Compila il form qui sotto.</p>
+
+                    <form id="contact-form-page">
+                        <div class="form-group">
+                            <label for="contact-name">Nome e Cognome</label>
+                            <input type="text" id="contact-name" name="name" required placeholder="Il tuo nome">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact-email">Email</label>
+                            <input type="email" id="contact-email" name="email" required placeholder="La tua email">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact-message">Messaggio</label>
+                            <textarea id="contact-message" name="message" rows="5" required
+                                placeholder="Scrivi qui il tuo messaggio..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact-files">Allega Foto o Documenti (Opzionale)</label>
+                            <div class="file-upload-area" id="file-upload-area"
+                                onclick="document.getElementById('contact-files').click()">
+                                <div class="file-upload-icon">📎</div>
+                                <div class="file-upload-text">
+                                    <span class="file-upload-label">Clicca o trascina qui i tuoi file</span>
+                                    <span class="file-upload-hint">JPG, PNG, PDF (max 10MB)</span>
+                                </div>
+                                <div class="file-upload-list" id="file-list"></div>
+                            </div>
+                            <input type="file" id="contact-files" name="attachments" multiple
+                                accept="image/*,application/pdf" style="display: none;">
+                        </div>
+
+                        <style>
+                            .file-upload-area {
+                                background: rgba(255, 255, 255, 0.03);
+                                border: 2px dashed rgba(255, 204, 0, 0.3);
+                                border-radius: 16px;
+                                padding: 2rem;
+                                text-align: center;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                            }
+
+                            .file-upload-area:hover {
+                                border-color: #FFCC00;
+                                background: rgba(255, 204, 0, 0.05);
+                            }
+
+                            .file-upload-icon {
+                                font-size: 2.5rem;
+                                margin-bottom: 0.5rem;
+                            }
+
+                            .file-upload-label {
+                                display: block;
+                                font-weight: 700;
+                                color: #fff;
+                                margin-bottom: 0.3rem;
+                            }
+
+                            .file-upload-hint {
+                                display: block;
+                                font-size: 0.85rem;
+                                color: #888;
+                            }
+
+                            .file-upload-list {
+                                margin-top: 1rem;
+                                font-size: 0.9rem;
+                                color: #FFCC00;
+                            }
+                        </style>
+
+                        <script>
+                            document.getElementById('contact-files').addEventListener('change', function (e) {
+                                const list = document.getElementById('file-list');
+                                const files = e.target.files;
+                                if (files.length > 0) {
+                                    let names = [];
+                                    for (let f of files) names.push(f.name);
+                                    list.innerHTML = '✅ ' + names.join(', ');
+                                } else {
+                                    list.innerHTML = '';
+                                }
+                            });
+                        </script>
+
+                        <button type="submit" class="cta-button primary full-width">INVIA MESSAGGIO</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2026 Renga Treffen. Powered by Motoreporter. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/plugins/renga-dev-loader-v1.js"></script>
+</body>
+
+</html>

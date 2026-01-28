@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iscrizioni | Renga Treffen 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <nav id="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="logo">RENGA TREFFEN</a>
+            <ul class="nav-links">
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="contatti.html">Contatti</a></li>
+                <li><a href="iscrizioni.html" class="active">Iscrizioni</a></li>
+                <li><a href="regolamento.html">Regolamento</a></li>
+                <li><a href="team.html">Team 2026</a></li>
+                <li><a href="sponsor.html">Sponsor</a></li>
+                <li><a href="timetable.html" class="nav-btn yellow">Time Table</a></li>
+                <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
+            </ul>
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+        <!-- HERO ISCRIZIONI -->
+        <section class="hero contact-hero">
+            <div class="hero-bg"
+                style="background-image: url('iscrizioni_hero_riders.png'); background-position: center;"></div>
+            <div class="hero-overlay-gradient"></div>
+
+            <div class="container contact-container reveal">
+                <div class="contact-header-content">
+                    <h1 class="main-title">Renga Treffen 2026:</h1>
+                    <h2 class="sub-title">Un Evento per la Solidarietà</h2>
+                    <p class="hero-intro">Compila il modulo che segue in tutte le sue parti, leggilo attentamente e
+                        poi attendi l'email di conferma prima con tutti i riferimenti per procedere al pagamento.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- GOLD DIVIDER -->
+        <div class="gold-bar"></div>
+
+        <!-- FORM SECTION -->
+        <section class="section dark-alt" style="padding-top: 60px;">
+            <div class="container">
+                <div id="registration-form-outlet" class="reveal" style="max-width: 900px; margin: 0 auto;">
+                    <!-- Form dynamically rendered by plugin-registration-engine-v1.js -->
+                    <div style="text-align: center; padding: 4rem; color: #FFCC00;">
+                        <p>Caricamento modulo di iscrizione...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2026 Renga Treffen. Powered by Motoreporter. Tutti i diritti riservati.</p>
+        </div>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/plugins/renga-dev-loader-v1.js"></script>
+</body>
+
+</html>

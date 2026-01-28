@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Renga Treffen 2026 - Memorial Antonio Armellin</title>
+  <meta name="description"
+    content="Sito ufficiale del Renga Treffen 2026. Un evento motociclistico ludico-benefico a coppie. 110km di navigazione naturale in Friuli.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@700;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/src/style.css">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <!-- Header / Navigation -->
+  <nav id="main-nav">
+    <div class="nav-container">
+      <a href="#home" class="logo">RENGA TREFFEN</a>
+      <ul class="nav-links">
+        <li><a href="index.html#home">Home</a></li>
+        <li><a href="contatti.html">Contatti</a></li>
+        <li><a href="iscrizioni.html">Iscrizioni</a></li>
+        <li><a href="regolamento.html">Regolamento</a></li>
+        <li><a href="team.html">Team 2026</a></li>
+        <li><a href="sponsor.html">Sponsor</a></li>
+        <li><a href="timetable.html" class="nav-btn yellow">Time Table</a></li>
+        <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
+      </ul>
+      <button class="mobile-menu-btn" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- 1. HOME / BENVENUTI -->
+    <section id="home" class="hero" style="flex-direction: column; justify-content: center; text-align: center;">
+      <div class="hero-bg" style="background-image: url('/hero.png'); opacity: 0.9; transform: scale(1);"></div>
+      <div class="hero-overlay"
+        style="background: radial-gradient(circle at center, transparent 0%, rgba(255,255,255,0.4) 60%, rgba(255,255,255,0.8) 100%);">
+      </div>
+
+      <div class="container" style="z-index: 10; width: 100%; max-width: 1200px;">
+
+        <!-- TITOLO CENTRATO -->
+        <div class="hero-top-content" style="margin-bottom: 20px;">
+          <h1 class="reveal"
+            style="color: #000; font-size: clamp(3rem, 10vw, 6.5rem); line-height: 0.8; margin-bottom: 10px; text-transform: uppercase; font-weight: 950; text-align: center;">
+            <span style="color: rgba(0,0,0,0.1); -webkit-text-stroke: 1px rgba(0,0,0,0.2);">RENGA</span><br>
+            <span
+              style="color: #FFCC00; -webkit-text-stroke: 2px #000; -webkit-text-fill-color: #FFCC00;">TREFFEN</span>
+          </h1>
+          <p class="subtitle reveal"
+            style="color: #E6007E; font-size: clamp(1rem, 4vw, 1.8rem); font-weight: 900; letter-spacing: 2px; text-transform: uppercase;">
+            2° Memorial Antonio Armellin
+          </p>
+        </div>
+
+        <!-- TESTO DESCRITTIVO SPOSTATO A DESTRA -->
+        <div style="display: flex; justify-content: flex-end; width: 100%; margin-bottom: 40px;">
+          <div class="hero-text reveal"
+            style="border-left: 6px solid #FFCC00; padding-left: 20px; text-align: left; max-width: 450px;">
+            <p
+              style="color: #fff; font-weight: 700; font-size: 1.35rem; line-height: 1.3; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+              Una caccia al tesoro motociclistica a coppie dedicata alla solidarietà e alla memoria.
+            </p>
+          </div>
+        </div>
+
+        <!-- PULSANTI CENTRATI -->
+        <div class="hero-actions reveal" style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+          <!-- Pulsanti rimossi su richiesta -->
+        </div>
+
+      </div>
+
+      <!-- FLOATING INFO STRIP "AD EFFETTO" -->
+      <div class="hero-info-strip reveal"
+        style="position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: center; gap: 20px; padding: 0 20px; z-index: 20;">
+
+        <!-- CARD 1: DATA -->
+        <div class="floating-info-card"
+          style="background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 20px 35px; display: flex; align-items: center; gap: 15px; backdrop-filter: blur(10px); color: #fff; min-width: 280px; transition: 0.3s; transform: translateY(0);">
+          <div style="font-size: 2.5rem;">📅</div>
+          <div style="text-align: left;">
+            <div
+              style="color: #FFCC00; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+              Quando</div>
+            <div style="font-weight: 700; font-size: 1.4rem;">22 Febbraio 2026</div>
+          </div>
+        </div>
+
+        <!-- CARD 2: LUOGO -->
+        <div class="floating-info-card"
+          style="background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 20px 35px; display: flex; align-items: center; gap: 15px; backdrop-filter: blur(10px); color: #fff; min-width: 280px; transition: 0.3s; transform: translateY(0);">
+          <div style="font-size: 2.5rem;">📍</div>
+          <div style="text-align: left;">
+            <div
+              style="color: #FFCC00; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+              Dove</div>
+            <div style="font-weight: 700; font-size: 1.4rem;">Talmassons (UD)</div>
+          </div>
+        </div>
+
+        <!-- CARD 3: SCOPO -->
+        <div class="floating-info-card"
+          style="background: rgba(0,0,0,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 20px 35px; display: flex; align-items: center; gap: 15px; backdrop-filter: blur(10px); color: #fff; min-width: 280px; transition: 0.3s; transform: translateY(0);">
+          <div style="font-size: 2.5rem;">🤝</div>
+          <div style="text-align: left;">
+            <div
+              style="color: #FFCC00; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">
+              Scopo</div>
+            <div style="font-weight: 700; font-size: 1.4rem;">100% Beneficenza</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. SOLIDARIETÀ (GOLD SECTION) -->
+    <section class="section bg-golden-glow">
+      <div class="container">
+        <!-- URL:https://www.rengatreffen.it/index ID 3001 -->
+        <h2 class="section-title reveal dark-title">Un Evento per la Solidarietà</h2>
+        <div class="info-split grid-2">
+          <div class="info-content reveal clean-card">
+            <h3>Obiettivo</h3>
+            <p>Renga treffen 2026 si configura come un evento non competitivo finalizzato ad incentivare le relazioni
+              tra i partecipanti e le associazioni, promuovendo la condivisione della passione per il motociclismo</p>
+          </div>
+          <div class="info-content reveal clean-card">
+            <h3>Beneficiari</h3>
+            <p>Il 100% dei fondi raccolti durante gli eventi dell'anno, al netto delle spese, saranno devoluti a
+              progetti che riguardano la costruzione di scuole in Africa, gli stessi progetti dei quali si occupava
+              Antonio Armellin.<br><br>
+              Il ricavato di questa edizione andrà a <a href="https://musicforlove.org/" target="_blank"
+                style="color: #E6007E; font-weight: 900; text-decoration: underline;">MUSIC FOR LOVE</a>
+              sull'operato della quale siamo certi.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. PROGRAMMA 2026 (DARK BLUE) -->
+    <section id="programma" class="section bg-midnight">
+      <div class="container">
+        <!-- URL:https://www.rengatreffen.it/index ID 3002 -->
+        <h2 class="section-title reveal light-title">Programma 2026</h2>
+
+        <div class="timeline-v reveal">
+          <!-- Step 1 -->
+          <div class="timeline-v-item">
+            <div class="t-num">1</div>
+            <div class="t-content">
+              <h3>Renga Treffen 22.02.2026</h3>
+              <p>ore 07:30 del 22.02.26 apertura operazioni preliminari.<br>Luogo di Partenza e Arrivo sarà comunicato
+                a
+                breve ma sarà nella zona di Talmassons (Udine)</p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="timeline-v-item">
+            <div class="t-num">2</div>
+            <div class="t-content">
+              <h3>Partenza</h3>
+              <p>Il primo Team partirà alle 08:30.</p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="timeline-v-item">
+            <div class="t-num">3</div>
+            <div class="t-content">
+              <h3>Svolgimento</h3>
+              <p>I Team durante il percorso dovranno individuare le immagini ricevute unitamente al roadbook 20 minuti
+                prima della partenza. Dovranno fotografarle e inviarle alla Direzione Evento per la validazione con le
+                modalità previste dal regolamento.</p>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="timeline-v-item">
+            <div class="t-num">4</div>
+            <div class="t-content">
+              <h3>Termine</h3>
+              <p>Verso le ore 14:00 dopo l'arrivo dell'ultimo Team verrà servito il pranzo.</p>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="timeline-v-item">
+            <div class="t-num">5</div>
+            <div class="t-content">
+              <h3>Premiazioni</h3>
+              <p>Al termine del pranzo verranno effettuate le premiazioni (orientativamente verso le 15:00)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. DETTAGLI EVENTO (GOLD SECTION) -->
+    <section class="section bg-golden-glow">
+      <div class="container">
+        <!-- URL:https://www.rengatreffen.it/index ID 3003 -->
+        <h2 class="section-title reveal dark-title">Renga Treffen: Dettagli dell'Evento</h2>
+        <div class="info-split"
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; justify-content: center;">
+          <!-- Col 1 -->
+          <div class="reveal clean-card"
+            style="background: rgba(255,255,255,0.7); border: 2px solid #000; border-radius: 24px; padding: 40px;">
+            <h3
+              style="color: #000; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; font-size: 1.6rem;">
+              Organizzazione</h3>
+            <p style="color: #111; font-weight: 500; line-height: 1.6;">L'evento è organizzato da <a
+                href="https://www.fangotours.it/" target="_blank"
+                style="color: #000; font-weight: 800; text-decoration: underline;">Fango Tours ASD</a>,
+              con la collaborazione di motoreporter.it e la partecipazione di
+              molti appartenenti al Moto Club della Polizia di Stato.</p>
+          </div>
+          <!-- Col 2 -->
+          <div class="reveal clean-card"
+            style="background: rgba(255,255,255,0.7); border: 2px solid #000; border-radius: 24px; padding: 40px;">
+            <h3
+              style="color: #000; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; font-size: 1.6rem;">
+              Percorso</h3>
+            <p style="color: #111; font-weight: 500; line-height: 1.6;">Il Renga Treffen prevede un percorso ad anello
+              di 140 km di strade a fondo Naturale con partenza e arrivo
+              nel comune di Talmassons (UD).</p>
+          </div>
+          <!-- Col 3 -->
+          <div class="reveal clean-card"
+            style="background: rgba(255,255,255,0.7); border: 2px solid #000; border-radius: 24px; padding: 40px;">
+            <h3
+              style="color: #000; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; font-size: 1.6rem;">
+              Difficoltà</h3>
+            <p style="color: #111; font-weight: 500; line-height: 1.6;">Il livello di difficoltà è medio, ma sono
+              obbligatorie alcune dotazioni di sicurezza, ruote tassellate,
+              lettore di RoadBook, attrezzi in caso di foratura e cellulare.</p>
+          </div>
+          <!-- Col 4 -->
+          <div class="reveal clean-card"
+            style="background: rgba(255,255,255,0.7); border: 2px solid #000; border-radius: 24px; padding: 40px;">
+            <h3
+              style="color: #000; font-weight: 900; text-transform: uppercase; margin-bottom: 20px; font-size: 1.6rem;">
+              Veicoli Ammessi</h3>
+            <p style="color: #111; font-weight: 500; line-height: 1.6;">Sono ammessi tutti i veicoli in regola con il
+              Codice della Strada: Rally, monocilindrici e bicilindrici.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. SFIDA DI PRECISIONE (DARK BLUE) -->
+    <section class="section bg-midnight">
+      <div class="container">
+        <div class="sfida-layout">
+          <!-- Img Left -->
+          <div class="reveal img-wrapper">
+            <img src="/hero.png" alt="Biker Dirt" class="sfida-img">
+          </div>
+          <!-- Content Right -->
+          <div class="reveal content-wrapper">
+            <h2 class="light-title">Una Sfida di Precisione</h2>
+
+            <!-- Box 1 Yellow -->
+            <div class="sfida-box border-yellow">
+              <h3>Caccia al Tesoro</h3>
+              <p>Il Renga Treffen è una caccia al tesoro a coppie. I partecipanti dovranno individuare e fotografare
+                quanto rappresentato nelle schede di caccia lungo il percorso e orientarsi con Roadbook Digitale.</p>
+            </div>
+
+            <!-- Box 2 Pink -->
+            <div class="sfida-box border-pink">
+              <h3>Regolamento</h3>
+              <p>Non si tratta di una gara di velocità, ma di una sfida di precisione e regolarità. I partecipanti
+                dovranno rispettare tabelle di marcia per ridurre la media oraria. La precisione dello scatto farà la
+                differenza</p>
+            </div>
+
+            <!-- Box 3 Orange -->
+            <div class="sfida-box border-orange">
+              <h3>Codice della Strada</h3>
+              <p>Tutti i partecipanti dovranno rispettare il codice della strada e avere le moto in regola per la
+                circolazione stradale. La sicurezza è la priorità assoluta.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2026 Renga Treffen. Powered by Motoreporter. Tutti i diritti riservati.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/plugins/renga-dev-loader-v1.js"></script>
+</body>
+
+</html>
