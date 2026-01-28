@@ -86,6 +86,14 @@
         .dev-btn { background: #161616; color: #eee; border: 1px solid #222; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 12px; font-weight: 700; width: 100%; text-align: left; }
         .dev-btn:hover { background: #222; border-color: #FFCC00; color: #FFCC00; }
         .dev-main-btn { background: #FFCC00; color: #000; border: none; width: 56px; height: 56px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 10px 30px rgba(255, 204, 0, 0.3); }
+
+        /* 🟢 ATOMIC HIGHLIGHTER FIX */
+        .atomic-highlight { 
+            outline: 4px solid #FFCC00 !important; 
+            outline-offset: -4px !important; 
+            box-shadow: inset 0 0 50px rgba(255, 204, 0, 0.3) !important;
+            transition: all 0.2s ease !important;
+        }
     `;
     document.head.appendChild(style);
 
@@ -156,8 +164,12 @@
     // 4. DNA CLICK
     document.addEventListener('click', (e) => {
         if (e.ctrlKey || e.metaKey) {
+            // 🛑 CLEANUP & PREVENTION
             e.preventDefault();
             e.stopPropagation();
+
+            // Rimuove l'highlight da qualsiasi altro elemento precedentemente selezionato
+            document.querySelectorAll('.atomic-highlight').forEach(el => el.classList.remove('atomic-highlight'));
 
             if (!lastAtomicElement) return;
 
@@ -173,12 +185,17 @@
                 document.body.appendChild(t);
                 setTimeout(() => t.remove(), 2000);
 
-                lastAtomicElement.style.outline = "4px solid #FFCC00";
-                lastAtomicElement.style.outlineOffset = "-4px";
-                setTimeout(() => lastAtomicElement.style.outline = "", 600);
+                // Applica il nuovo highlight unico
+                lastAtomicElement.classList.add('atomic-highlight');
+
+                // Opzionale: Rimuove dopo 2 secondi per pulizia, ma assicura l'unicità
+                setTimeout(() => {
+                    if (lastAtomicElement) lastAtomicElement.classList.remove('atomic-highlight');
+                }, 2000);
             });
         }
     }, true);
+
 
     // 5. TRAY UI
     const container = document.createElement('div');
