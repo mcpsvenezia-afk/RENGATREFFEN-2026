@@ -2017,9 +2017,8 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 14px;
   overflow: hidden;
-  background: #f8f9fa;
+  background: transparent;
 }
 
 .app-icon img {
@@ -2045,6 +2044,15 @@ textarea:focus {
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.store-logo {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
 }
 
 .app-info strong {
