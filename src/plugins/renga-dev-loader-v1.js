@@ -23,7 +23,7 @@
         return;
     }
 
-    const version = "1.5.0-ATOMIC";
+    const version = "1.5.1-SHELL";
     console.log(`[DEV] Renga Atomic Inspector v${version} ACTIVE`);
 
     // 1. SURGICAL STYLES
