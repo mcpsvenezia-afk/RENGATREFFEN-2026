@@ -1,5 +1,5 @@
-# 🧬 SKILL: UNIVERSAL_DEV_MODE_v1
-**Status:** MANDATORY | **Feature:** UI Debugging
+# 🧬 SKILL: UNIVERSAL_DEV_MODE_v1 [LEGACY / DEPRECATED]
+**Status:** INACTIVE (Replaced by v2) | **Feature:** UI Debugging
 
 ## 🖱️ LOGICA CTRL + CLIC (Quick Inspector)
 1. **Trigger:** Ogni elemento UI (Card, Button, Row) deve ascoltare l'evento `onClick` con tasto `Ctrl` (o `Cmd`) premuto.

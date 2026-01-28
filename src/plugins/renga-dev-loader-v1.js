@@ -97,8 +97,26 @@
     overlay.appendChild(label);
     document.body.appendChild(overlay);
 
-    // 3. ATOMIC SELECTOR
+    // 3. ATOMIC SELECTOR (DNA v2 - Shell Logic)
     let lastAtomicElement = null;
+    let currentDnaPrefix = "";
+
+    const findAtomicContainer = (el) => {
+        let current = el;
+        while (current && current !== document.body) {
+            let prev = current.previousSibling;
+            // Skip text nodes (whitespace)
+            while (prev && prev.nodeType === 3 && !prev.nodeValue.trim()) {
+                prev = prev.previousSibling;
+            }
+
+            if (prev && prev.nodeType === 8 && prev.nodeValue.includes('URL:')) {
+                return { element: current, prefix: prev.nodeValue };
+            }
+            current = current.parentElement;
+        }
+        return null;
+    };
 
     document.addEventListener('mousemove', (e) => {
         if (!e.ctrlKey && !e.metaKey) {
@@ -109,8 +127,9 @@
         const target = document.elementFromPoint(e.clientX, e.clientY);
         if (!target || target === overlay || target === label) return;
 
-        const isHuge = target.tagName === 'SECTION' || target.tagName === 'BODY' || target.tagName === 'MAIN';
-        const element = target; // Always target what is under mouth for surgical precision
+        const atomic = findAtomicContainer(target);
+        const element = atomic ? atomic.element : target;
+        currentDnaPrefix = atomic ? atomic.prefix : "";
 
         const componentParent = element.closest('[data-component]');
         const componentName = componentParent ? componentParent.getAttribute('data-component') : "HTML";
@@ -127,7 +146,9 @@
         const firstClass = element.className && typeof element.className === 'string' ? '.' + element.className.split(' ')[0] : '';
         const id = element.id ? `#${element.id}` : '';
 
-        label.innerHTML = `<span>${tagName}${id}${firstClass}</span> <span class="comp-tag">${componentName}</span> <span class="version-tag">${componentVer}</span>`;
+        const dnaBadge = currentDnaPrefix ? `<span style="background:#000;color:#FFCC00;padding:2px 5px;border-radius:4px;margin-right:5px;font-size:9px;">DNA ACTIVE</span>` : "";
+
+        label.innerHTML = `${dnaBadge}<span>${tagName}${id}${firstClass}</span> <span class="comp-tag">${componentName}</span> <span class="version-tag">${componentVer}</span>`;
 
         lastAtomicElement = element;
     });
@@ -140,17 +161,21 @@
 
             if (!lastAtomicElement) return;
 
-            const html = lastAtomicElement.outerHTML;
+            let html = lastAtomicElement.outerHTML;
+            if (currentDnaPrefix) {
+                html = `<!--${currentDnaPrefix}-->\n` + html;
+            }
+
             navigator.clipboard.writeText(html).then(() => {
                 const t = document.createElement('div');
                 t.className = 'renga-supra-toast';
-                t.innerHTML = `🧬 DNA COPIATO: ${lastAtomicElement.tagName}${lastAtomicElement.id ? '#' + lastAtomicElement.id : ''}`;
+                t.innerHTML = `🧬 MISSION ACCOMPLISHED (ID COPIED)`;
                 document.body.appendChild(t);
                 setTimeout(() => t.remove(), 2000);
 
-                lastAtomicElement.style.outline = "2px solid #FFCC00";
-                lastAtomicElement.style.outlineOffset = "-2px";
-                setTimeout(() => lastAtomicElement.style.outline = "", 400);
+                lastAtomicElement.style.outline = "4px solid #FFCC00";
+                lastAtomicElement.style.outlineOffset = "-4px";
+                setTimeout(() => lastAtomicElement.style.outline = "", 600);
             });
         }
     }, true);
