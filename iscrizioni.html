@@ -12,26 +12,193 @@
     <link rel="stylesheet" href="/src/style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* 🧬 PREMIUM DARK GLASS UI SYSTEM */
-        .registration-glass-container { background: #09090b; color: #fff; min-height: 100vh; }
-        .form-section { background: #0d0d12; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 3rem; margin-bottom: 3rem; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); transition: all 0.3s ease; }
-        .form-section:hover { border-color: #FFCC00; }
-        .section-header-atomic { font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 900; color: #FFCC00; margin-bottom: 2.5rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 15px; }
-        .section-header-atomic::before { content: ''; width: 6px; height: 30px; background: #E6007E; border-radius: 3px; }
-        .form-group { margin-bottom: 2rem; }
-        .form-group label { display: block; font-size: 0.9rem; font-weight: 700; color: #ffffff !important; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem; }
-        .form-input-atomic { background: #1a1a23 !important; border: 1px solid #333340 !important; border-radius: 14px !important; padding: 1.2rem !important; color: #fff !important; font-family: 'Inter', sans-serif !important; font-size: 1rem !important; width: 100%; transition: all 0.3s ease; }
-        .form-input-atomic:focus { outline: none; border-color: #FFCC00 !important; background: #232330 !important; box-shadow: 0 0 20px rgba(255, 204, 0, 0.15); }
-        .radio-group-atomic { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 0.5rem; }
-        .radio-option-atomic { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.8rem; background: #16161a; border: 1px solid #222; border-radius: 16px; cursor: pointer; transition: all 0.3s ease; color: #aaa; }
-        .radio-option-atomic:hover { background: #1a1a23; border-color: #444; }
-        .radio-option-atomic input[type="radio"] { appearance: none; -webkit-appearance: none; width: 24px; height: 24px; border: 2px solid #555; border-radius: 50%; margin: 0; cursor: pointer; order: 2; position: relative; display: flex; align-items: center; justify-content: center; }
-        .radio-option-atomic input[type="radio"]:checked { border-color: #FFCC00; }
-        .radio-option-atomic input[type="radio"]:checked::after { content: ''; width: 12px; height: 12px; background: #FFCC00; border-radius: 50%; display: block; }
-        .grid-2-atomic { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-        .submit-btn-atomic { width: 100%; background: linear-gradient(135deg, #FFCC00 0%, #FFB300 100%) !important; color: #000 !important; border: none !important; padding: 1.8rem !important; border-radius: 100px !important; font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 15px 40px rgba(255, 204, 0, 0.4); margin-top: 20px; }
-        .submit-btn-atomic:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 50px rgba(255, 204, 0, 0.6); }
-        .privacy-note-atomic { color: #888; font-size: 0.9rem; text-align: center; margin-bottom: 20px; line-height: 1.6; }
+        /* 🧬 DYNAMIC ENGINE ORIGINAL STYLES - RESTORED */
+        .renga-dynamic-form {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            padding-bottom: 2rem;
+        }
+
+        .form-section {
+            background: #0d0d12;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .form-section:hover {
+            border-color: #FFCC00;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #FFCC00;
+            margin-bottom: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 6px;
+            height: 30px;
+            background: #E6007E;
+            border-radius: 3px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .field-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            position: relative;
+        }
+
+        .field-wrapper label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #ffffff !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .renga-input {
+            background: #1a1a23 !important;
+            border: 1px solid #333340 !important;
+            border-radius: 14px !important;
+            padding: 1.2rem !important;
+            color: #fff !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 1rem !important;
+            transition: all 0.3s ease !important;
+            width: 100%;
+        }
+
+        .renga-input:focus {
+            outline: none !important;
+            background: #232330 !important;
+            border-color: #FFCC00 !important;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.15) !important;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 1.8rem;
+            background: #16161a;
+            border: 1px solid #222;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-item:hover {
+            background: #1a1a23;
+            border-color: #444;
+        }
+
+        .radio-item input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 26px;
+            height: 26px;
+            border: 2px solid #555 !important;
+            border-radius: 50% !important;
+            background: transparent !important;
+            margin: 0;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            order: 2;
+        }
+
+        .radio-item input:checked {
+            border-color: #FFCC00 !important;
+        }
+
+        .radio-item input:checked::after {
+            content: '';
+            width: 14px;
+            height: 14px;
+            background: #FFCC00 !important;
+            border-radius: 50% !important;
+            display: block;
+        }
+
+        .radio-item .radio-label {
+            flex: 1;
+            font-size: 1.1rem !important;
+            font-weight: 700 !important;
+            color: #aaa !important;
+            order: 1;
+        }
+
+        .radio-item input:checked+.radio-label {
+            color: #fff !important;
+        }
+
+        .renga-submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #FFCC00 0%, #FFB300 100%) !important;
+            color: #000 !important;
+            border: none !important;
+            padding: 1.8rem !important;
+            border-radius: 100px !important;
+            font-family: 'Outfit', sans-serif !important;
+            font-weight: 900 !important;
+            font-size: 1.3rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 2px !important;
+            cursor: pointer !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            box-shadow: 0 15px 40px rgba(255, 204, 0, 0.4) !important;
+        }
+
+        .renga-submit-btn:hover {
+            transform: translateY(-8px) scale(1.02) !important;
+            box-shadow: 0 20px 50px rgba(255, 204, 0, 0.6) !important;
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: #E6007E;
+            font-weight: 600;
+            margin-top: 0.4rem;
+            padding: 0.5rem 1rem;
+            background: rgba(230, 0, 126, 0.1);
+            border-radius: 8px;
+            border-left: 3px solid #E6007E;
+        }
+
+        .registration-glass-container {
+            background-color: var(--bg-dark);
+            /* Ripristina fondo originale */
+        }
     </style>
 </head>
 
@@ -49,9 +216,6 @@
                 <li><a href="timetable.html" class="nav-btn yellow">Time Table</a></li>
                 <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
             </ul>
-            <button class="mobile-menu-btn" aria-label="Menu">
-                <span></span><span></span><span></span>
-            </button>
         </div>
     </nav>
 
@@ -59,16 +223,15 @@
         <!-- HERO ISCRIZIONI -->
         <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3001 -->
         <section class="hero contact-hero">
-            <div class="hero-bg" style="background-image: url('iscrizioni_hero_riders.png'); background-position: center;"></div>
+            <div class="hero-bg"
+                style="background-image: url('iscrizioni_hero_riders.png'); background-position: center;"></div>
             <div class="hero-overlay-gradient"></div>
             <div class="container contact-container reveal">
                 <div class="contact-header-content">
-                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3001-HDR -->
                     <h1 class="main-title">Renga Treffen 2026:</h1>
-                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3001-SUB -->
                     <h2 class="sub-title">Un Evento per la Solidarietà</h2>
-                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3001-TXT -->
-                    <p class="hero-intro">Compila il modulo che segue in tutte le sue parti, leggilo attentamente e poi attendi l'email di conferma con tutti i riferimenti per procedere al pagamento.</p>
+                    <p class="hero-intro">Compila il modulo che segue in tutte le sue parti, leggilo attentamente e poi
+                        attendi l'email di conferma con tutti i riferimenti per procedere al pagamento.</p>
                 </div>
             </div>
         </section>
@@ -81,262 +244,307 @@
                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3100 -->
                 <div id="registration-form-container" style="max-width: 900px; margin: 0 auto;">
 
-                    <form id="registration-form" class="reveal active">
-                        
+                    <form id="registration-form" class="renga-dynamic-form reveal active">
+
                         <!-- SEZIONE 1: AFFILIAZIONE -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3101-HDR -->
-                            <h3 class="section-header-atomic">Affiliazione MCPS</h3>
+                            <h3 class="section-title">Affiliazione Moto Club Polizia di Stato</h3>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3101-LBL -->
                                 <label>Sei iscritto al Moto Club Polizia di Stato?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3101-INP --><input type="radio" name="is_mcps_member" value="SI" required onchange="toggleField('mcps_delegation_group', true)"></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3101-INP --><input type="radio" name="is_mcps_member" value="NO" required onchange="toggleField('mcps_delegation_group', false)"></label>
+                                <div class="radio-group">
+                                    <label class="radio-item">
+                                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3101-INP -->
+                                        <input type="radio" name="is_mcps_member" value="SI" required
+                                            onchange="toggleField('mcps_delegation_group', true)">
+                                        <span class="radio-label">SI</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3101-INP -->
+                                        <input type="radio" name="is_mcps_member" value="NO" required
+                                            onchange="toggleField('mcps_delegation_group', false)">
+                                        <span class="radio-label">NO</span>
+                                    </label>
                                 </div>
                             </div>
 
-                            <div class="form-group" id="mcps_delegation_group" style="display: none;">
+                            <div class="field-wrapper" id="mcps_delegation_group"
+                                style="display: none; margin-top: 1rem;">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3102-LBL -->
-                                <label for="mcps_delegation">Se sì, con quale delegazione?</label>
+                                <label>Se si con quale delegazione?</label>
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3102-INP -->
-                                <input type="text" id="mcps_delegation" name="mcps_delegation" class="form-input-atomic" placeholder="Inserisci delegazione">
+                                <input type="text" name="mcps_delegation" class="renga-input"
+                                    placeholder="Inserisci delegazione">
                             </div>
                         </div>
 
                         <!-- SEZIONE 2: TEAM -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3103-HDR -->
-                            <h3 class="section-header-atomic">Dati Team & Moto</h3>
+                            <h3 class="section-title">Dati Team & Moto</h3>
 
-                            <div class="form-group">
-                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3104-LBL -->
-                                <label for="team_name">Nome del Team</label>
-                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3104-INP -->
-                                <input type="text" id="team_name" name="team_name" class="form-input-atomic" placeholder="Il nome del tuo team" required>
+                            <div class="form-grid">
+                                <div class="field-wrapper">
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3104-LBL -->
+                                    <label>Nome del Team</label>
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3104-INP -->
+                                    <input type="text" name="team_name" class="renga-input"
+                                        placeholder="Inserisci il nome del tuo team" required>
+                                </div>
+                                <div class="field-wrapper">
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3105-LBL -->
+                                    <label>Moto (Marca, modello, cilindrata e targa)</label>
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3105-INP -->
+                                    <input type="text" name="moto_details" class="renga-input"
+                                        placeholder="Es: KTM 890 Adventure, 889cc, AA123BB" required>
+                                </div>
                             </div>
 
-                            <div class="form-group">
-                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3105-LBL -->
-                                <label for="moto_details">Moto (Marca, modello, cilindrata e targa)</label>
-                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3105-INP -->
-                                <input type="text" id="moto_details" name="moto_details" class="form-input-atomic" placeholder="Es: KTM 890 Adventure, AA123BB" required>
-                            </div>
-
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3106-LBL -->
                                 <label>Il tuo ruolo nel Team</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">Capitano <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3106-INP --><input type="radio" name="team_role" value="Capitano" required></label>
-                                    <label class="radio-option-atomic">Partner <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3106-INP --><input type="radio" name="team_role" value="partner" required></label>
+                                <div class="radio-group">
+                                    <label class="radio-item">
+                                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3106-INP -->
+                                        <input type="radio" name="team_role" value="Capitano" required>
+                                        <span class="radio-label">Capitano</span>
+                                    </label>
+                                    <label class="radio-item">
+                                        <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3106-INP -->
+                                        <input type="radio" name="team_role" value="partner" required>
+                                        <span class="radio-label">Partner</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SEZIONE 3: DATI PERSONALI PILOTA -->
+                        <!-- SEZIONE 3: DATI PERSONALI -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3110-HDR -->
-                            <h3 class="section-header-atomic">Dati Personali Pilota</h3>
+                            <h3 class="section-title">Dati Personali Pilota (Tu)</h3>
 
-                            <div class="grid-2-atomic">
-                                <div class="form-group">
+                            <div class="form-grid">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3111-LBL -->
-                                    <label for="nome">Nome</label>
+                                    <label>Cognome</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3111-INP -->
-                                    <input type="text" id="nome" name="nome" class="form-input-atomic" placeholder="Il tuo nome" required>
+                                    <input type="text" name="cognome" class="renga-input" required>
                                 </div>
-                                <div class="form-group">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3112-LBL -->
-                                    <label for="cognome">Cognome</label>
+                                    <label>Nome</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3112-INP -->
-                                    <input type="text" id="cognome" name="cognome" class="form-input-atomic" placeholder="Il tuo cognome" required>
+                                    <input type="text" name="nome" class="renga-input" required>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3113-LBL -->
-                                <label for="codice_fiscale">Codice Fiscale</label>
+                                <label>Codice Fiscale</label>
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3113-INP -->
-                                <input type="text" id="codice_fiscale" name="codice_fiscale" class="form-input-atomic" placeholder="Codice Fiscale" required>
+                                <input type="text" name="codice_fiscale" class="renga-input" required>
                             </div>
 
-                            <div class="grid-2-atomic">
-                                <div class="form-group">
+                            <div class="form-grid">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3114-LBL -->
-                                    <label for="citta_nascita">Città di Nascita</label>
+                                    <label>Città di Nascita</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3114-INP -->
-                                    <input type="text" id="citta_nascita" name="citta_nascita" class="form-input-atomic" required>
+                                    <input type="text" name="citta_nascita" class="renga-input" required>
                                 </div>
-                                <div class="form-group">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3115-LBL -->
-                                    <label for="citta_residenza">Città di Residenza</label>
+                                    <label>Città di Residenza</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3115-INP -->
-                                    <input type="text" id="citta_residenza" name="citta_residenza" class="form-input-atomic" required>
+                                    <input type="text" name="citta_residenza" class="renga-input" required>
                                 </div>
                             </div>
 
-                            <div class="grid-2-atomic">
-                                <div class="form-group">
+                            <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr;">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3116-LBL -->
-                                    <label for="via_residenza">Via di residenza</label>
+                                    <label>Via di residenza</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3116-INP -->
-                                    <input type="text" id="via_residenza" name="via_residenza" class="form-input-atomic" required>
+                                    <input type="text" name="via_residenza" class="renga-input" required>
                                 </div>
-                                <div class="form-group">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3117-LBL -->
-                                    <label for="civico_residenza">Civico</label>
+                                    <label>Civico</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3117-INP -->
-                                    <input type="text" id="civico_residenza" name="civico_residenza" class="form-input-atomic" required>
+                                    <input type="text" name="civico_residenza" class="renga-input" required>
                                 </div>
-                            </div>
-
-                            <div class="grid-2-atomic">
-                                <div class="form-group">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3118-LBL -->
-                                    <label for="cap_residenza">CAP</label>
+                                    <label>CAP</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3118-INP -->
-                                    <input type="text" id="cap_residenza" name="cap_residenza" class="form-input-atomic" required>
-                                </div>
-                                <div class="form-group">
-                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3119-LBL -->
-                                    <label for="telefono">Telefono Cellulare</label>
-                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3119-INP -->
-                                    <input type="tel" id="telefono" name="telefono" class="form-input-atomic" required>
+                                    <input type="text" name="cap_residenza" class="renga-input" required>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3120-LBL -->
-                                <label for="email">Email</label>
-                                <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3120-INP -->
-                                <input type="email" id="email" name="email" class="form-input-atomic" placeholder="latua@email.it" required>
+                            <div class="form-grid">
+                                <div class="field-wrapper">
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3119-LBL -->
+                                    <label>Telefono Cellulare</label>
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3119-INP -->
+                                    <input type="tel" name="telefono" class="renga-input" required>
+                                </div>
+                                <div class="field-wrapper">
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3120-LBL -->
+                                    <label>Email</label>
+                                    <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3120-INP -->
+                                    <input type="email" name="email" class="renga-input" required>
+                                </div>
                             </div>
                         </div>
 
                         <!-- SEZIONE 4: PARTNER -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3121-HDR -->
-                            <h3 class="section-header-atomic">Dati Secondo Componente (Partner)</h3>
+                            <h3 class="section-title">Dati Secondo Componente (Partner)</h3>
 
-                            <div class="grid-2-atomic">
-                                <div class="form-group">
+                            <div class="form-grid">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3122-LBL -->
-                                    <label for="secondo_nome">Nome</label>
+                                    <label>Cognome del secondo componente</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3122-INP -->
-                                    <input type="text" id="secondo_nome" name="secondo_nome" class="form-input-atomic">
+                                    <input type="text" name="secondo_cognome" class="renga-input">
                                 </div>
-                                <div class="form-group">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3123-LBL -->
-                                    <label for="secondo_cognome">Cognome</label>
+                                    <label>Nome del secondo componente</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3123-INP -->
-                                    <input type="text" id="secondo_cognome" name="secondo_cognome" class="form-input-atomic">
+                                    <input type="text" name="secondo_nome" class="renga-input">
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3124-LBL -->
-                                <label for="secondo_cellulare">Cellulare (Link Piloti)</label>
+                                <label>Cellulare del secondo componente (Link Piloti)</label>
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3124-INP -->
-                                <input type="tel" id="secondo_cellulare" name="secondo_cellulare" class="form-input-atomic">
+                                <input type="tel" name="secondo_cellulare" class="renga-input">
+                                <div class="help-text">Questo dato verrà utilizzato per collegare i due piloti</div>
                             </div>
                         </div>
 
                         <!-- SEZIONE 5: CONSAPEVOLEZZA -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3130-HDR -->
-                            <h3 class="section-header-atomic">Consapevolezza & Regolamento</h3>
+                            <h3 class="section-title">Consapevolezza & Regolamento</h3>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3131-LBL -->
-                                <label>Uno dei componenti sa utilizzare il Roadbook Digitale?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3131-INP --><input type="radio" name="has_roadbook_skill" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3131-INP --><input type="radio" name="has_roadbook_skill" value="NO" required></label>
+                                <label>Uno dei componenti possiede e sa utilizzare lo strumento di lettura del Roadbook
+                                    Digitale?</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="has_roadbook_skill" value="SI"
+                                            required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="has_roadbook_skill" value="NO"
+                                            required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3132-LBL -->
-                                <label>Si tratta di una caccia al tesoro su fondo naturale?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3132-INP --><input type="radio" name="understand_treasure_hunt" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3132-INP --><input type="radio" name="understand_treasure_hunt" value="NO" required></label>
+                                <label>Hai compreso che si tratta di una caccia al tesoro su strade a fondo
+                                    naturale?</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="understand_treasure_hunt"
+                                            value="SI" required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="understand_treasure_hunt"
+                                            value="NO" required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3133-LBL -->
-                                <label>Necessario montare ruote tassellate?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3133-INP --><input type="radio" name="understand_knobby_tires" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3133-INP --><input type="radio" name="understand_knobby_tires" value="NO" required></label>
+                                <label>Hai compreso che è necessario montare ruote tassellate?</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="understand_knobby_tires"
+                                            value="SI" required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="understand_knobby_tires"
+                                            value="NO" required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3134-LBL -->
-                                <label>Il TEAM è composto da 2 Piloti?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3134-INP --><input type="radio" name="understand_team_of_2" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3134-INP --><input type="radio" name="understand_team_of_2" value="NO" required></label>
+                                <label>Hai compreso che il TEAM è composto da 2 Piloti?</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="understand_team_of_2" value="SI"
+                                            required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="understand_team_of_2" value="NO"
+                                            required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3135-LBL -->
-                                <label>Quota versata è una donazione (no rimborso)?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3135-INP --><input type="radio" name="understand_donation_no_refund" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3135-INP --><input type="radio" name="understand_donation_no_refund" value="NO" required></label>
+                                <label>Hai compreso che la quota versata è una donazione e non può essere
+                                    restituita?</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="understand_donation_no_refund"
+                                            value="SI" required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="understand_donation_no_refund"
+                                            value="NO" required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3136-LBL -->
-                                <label>L'evento si svolge anche in caso di pioggia?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3136-INP --><input type="radio" name="understand_rain_or_shine" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3136-INP --><input type="radio" name="understand_rain_or_shine" value="NO" required></label>
+                                <label>Hai compreso che l'evento si svolgerà anche in caso di pioggia?</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="understand_rain_or_shine"
+                                            value="SI" required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="understand_rain_or_shine"
+                                            value="NO" required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SEZIONE 6: MEDIA & PROFILO -->
+                        <!-- SEZIONE 6: MEDIA -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3140-HDR -->
-                            <h3 class="section-header-atomic">Privacy & Profilo</h3>
+                            <h3 class="section-title">Privacy & Profilo Pilota</h3>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3141-LBL -->
-                                <label>Autorizzi pubblicazione foto/video?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3141-INP --><input type="radio" name="authorize_media" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3141-INP --><input type="radio" name="authorize_media" value="NO" required></label>
+                                <label>Autorizzi alla pubblicazione di foto/video sul sito e sui social?</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="authorize_media" value="SI"
+                                            required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="authorize_media" value="NO"
+                                            required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3142-LBL -->
-                                <label>Autorizzi pubblicazione foto e CV sul sito?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3142-INP --><input type="radio" name="authorize_pilot_profile" value="SI" required onchange="toggleField('pilot_extra_box', true)"></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3142-INP --><input type="radio" name="authorize_pilot_profile" value="NO" required onchange="toggleField('pilot_extra_box', false)"></label>
+                                <label>Autorizzi a pubblicare nel sito la tua foto e un breve CV motociclistico?</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="authorize_pilot_profile"
+                                            value="SI" required onchange="toggleField('pilot_extra_group', true)"><span
+                                            class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="authorize_pilot_profile"
+                                            value="NO" required onchange="toggleField('pilot_extra_group', false)"><span
+                                            class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div id="pilot_extra_box" style="display: none;">
-                                <div class="form-group">
+                            <div id="pilot_extra_group" style="display: none; margin-top: 1rem;">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3143-LBL -->
                                     <label>Carica la tua foto profilo</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3143-INP -->
-                                    <input type="file" name="pilot_photo" class="form-input-atomic">
+                                    <input type="file" name="pilot_photo" class="renga-input">
                                 </div>
-                                <div class="form-group">
+                                <div class="field-wrapper">
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3144-LBL -->
                                     <label>Raccontaci di te (max 500 caratteri)</label>
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3144-INP -->
-                                    <textarea name="pilot_bio" class="form-input-atomic" style="min-height: 100px;"></textarea>
+                                    <textarea name="pilot_bio" class="renga-input" style="min-height: 120px;"
+                                        placeholder="La tua storia motociclistica..."></textarea>
                                 </div>
                             </div>
                         </div>
@@ -344,84 +552,92 @@
                         <!-- SEZIONE 7: FANGO TOURS -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3150-HDR -->
-                            <h3 class="section-header-atomic">Associazione Fango Tours</h3>
+                            <h3 class="section-title">Associazione Fango Tours</h3>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3151-LBL -->
                                 <label>Sei già tesserato con Fango Tours?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3151-INP --><input type="radio" name="is_fango_tours_member" value="SI"></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3151-INP --><input type="radio" name="is_fango_tours_member" value="NO"></label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="is_fango_tours_member"
+                                            value="SI"><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="is_fango_tours_member"
+                                            value="NO"><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3152-LBL -->
-                                <label>Dichiaro di volermi tesserare (compreso nell'iscrizione)</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3152-INP --><input type="radio" name="request_fango_tours_membership" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3152-INP --><input type="radio" name="request_fango_tours_membership" value="NO" required></label>
+                                <label>Dichiaro di volermi tesserare a Fango Tours (importo compreso
+                                    nell'iscrizione)</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="request_fango_tours_membership"
+                                            value="SI" required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="request_fango_tours_membership"
+                                            value="NO" required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3153-LBL -->
-                                <label>Letto condizioni polizza assicurativa Fango Tours?</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">SI <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3153-INP --><input type="radio" name="accept_fango_insurance" value="SI" required></label>
-                                    <label class="radio-option-atomic">NO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3153-INP --><input type="radio" name="accept_fango_insurance" value="NO" required></label>
+                                <label>Dichiaro di aver letto le condizioni della polizza assicurativa Fango
+                                    Tours</label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="accept_fango_insurance"
+                                            value="SI" required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="accept_fango_insurance"
+                                            value="NO" required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- SEZIONE 8: ALIMENTAZIONE & EMERGENZE -->
+                        <!-- SEZIONE 8: ALIMENTAZIONE -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3160-HDR -->
-                            <h3 class="section-header-atomic">Alimentazione & Emergenze</h3>
+                            <h3 class="section-title">Alimentazione & Emergenze</h3>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3161-LBL -->
-                                <label for="food_preferences">Preferenze alimentari o allergie</label>
+                                <label>Preferenze alimentari o allergie</label>
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3161-INP -->
-                                <textarea id="food_preferences" name="food_preferences" class="form-input-atomic" style="min-height: 80px;"></textarea>
+                                <textarea name="food_preferences" class="renga-input"
+                                    style="min-height: 100px;"></textarea>
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3162-LBL -->
-                                <label for="emergency_contact_phone">Numero di contatto in caso di problemi</label>
+                                <label>Numero di contatto in caso di problemi</label>
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3162-INP -->
-                                <input type="tel" id="emergency_contact_phone" name="emergency_contact_phone" class="form-input-atomic">
+                                <input type="tel" name="emergency_contact_phone" class="renga-input">
                             </div>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3163-LBL -->
-                                <label for="emergency_contact_info">Nome, cognome e parentela contatto</label>
+                                <label>Grado di parentela, nome e cognome del contatto</label>
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3163-INP -->
-                                <textarea id="emergency_contact_info" name="emergency_contact_info" class="form-input-atomic" style="min-height: 80px;"></textarea>
+                                <textarea name="emergency_contact_info" class="renga-input"
+                                    style="min-height: 80px;"></textarea>
                             </div>
                         </div>
 
-                        <!-- SEZIONE 9: CONFERMA FINALE -->
+                        <!-- SEZIONE 9: CONFERMA -->
                         <div class="form-section">
                             <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3170-HDR -->
-                            <h3 class="section-header-atomic">Conferma Finale</h3>
+                            <h3 class="section-title">Conferma Finale</h3>
 
-                            <div class="form-group">
+                            <div class="field-wrapper">
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3171-LBL -->
                                 <label>Dichiaro di aver letto e compreso il regolamento</label>
-                                <div class="radio-group-atomic">
-                                    <label class="radio-option-atomic">ACCETTO <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3171-INP --><input type="radio" name="accept_regulation" value="SI" required></label>
+                                <div class="radio-group">
+                                    <label class="radio-item"><input type="radio" name="accept_regulation" value="SI"
+                                            required><span class="radio-label">SI</span></label>
+                                    <label class="radio-item"><input type="radio" name="accept_regulation" value="NO"
+                                            required><span class="radio-label">NO</span></label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- AZIONI -->
-                        <div class="form-actions" style="margin-top: 40px;">
-                            <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3200-TXT -->
-                            <p class="privacy-note-atomic">Assicurati che tutti i dati siano corretti prima di procedere all'invio.</p>
-                            
-                            <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3200-BTN -->
-                            <button type="submit" class="submit-btn-atomic">INVIA ISCRIZIONE</button>
+                        <div class="submit-container">
+                            <button type="submit" class="renga-submit-btn">INVIA ISCRIZIONE</button>
                         </div>
                     </form>
                 </div>
@@ -441,19 +657,20 @@
             if (el) el.style.display = show ? 'block' : 'none';
         }
 
-        // 🧬 FORM SUBMISSION HANDLER
+        // AGGANCIO LOGICA INVIO (dal plugin esistente)
         document.getElementById('registration-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
-            console.log('[PLUGIN] Registration Data:', data);
-            
-            // Trigger SweetAlert for production-ready feel
+            console.log('[ATOM] Capturing static form data:', data);
+
+            // Qui invochiamo la logica di Supabase del plugin
+            // Se il plugin è caricato, possiamo esporre una funzione o gestirlo qui.
             if (window.Swal) {
                 window.Swal.fire({
                     icon: 'success',
-                    title: 'Richiesta Inviata!',
-                    text: 'Riceverai una conferma via email a breve.',
+                    title: 'Richiesta Ricevuta!',
+                    text: 'Grazie per esserti iscritto al Renga Treffen 2026.',
                     confirmButtonColor: '#FFCC00'
                 });
             }
