@@ -96,25 +96,21 @@
         }
         .dna-visible-badge {
             position: absolute;
-            background: #FFCC00;
-            color: #000;
+            top: 0;
+            left: 0;
+            background: #000 !important;
+            color: #FFFF00 !important;
             padding: 2px 6px;
-            font-size: 10px;
-            font-weight: 950;
+            font-size: 10px !important;
+            font-weight: 900;
             border-radius: 4px;
-            z-index: 2147483640;
+            z-index: 2000;
             pointer-events: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.8);
             font-family: 'Inter', sans-serif;
             text-transform: uppercase;
             transform: translateY(-100%);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .dna-visible-badge::before {
-            content: '🧬';
-            font-size: 8px;
+            white-space: nowrap;
         }
     `;
     document.head.appendChild(style);
@@ -155,17 +151,19 @@
             if (node.nodeValue.includes('ID ')) {
                 const idMatch = node.nodeValue.match(/ID\s+([^\s]+)/);
                 if (idMatch) {
-                    const id = idMatch[1];
+                    const id = idMatch[1].trim();
                     let target = node.nextSibling;
                     while (target && target.nodeType === 3) target = target.nextSibling;
                     if (target && target.nodeType === 1) {
+                        // Ensure relative positioning
+                        const style = window.getComputedStyle(target);
+                        if (style.position === 'static') {
+                            target.style.position = 'relative';
+                        }
                         const badge = document.createElement('div');
                         badge.className = 'dna-visible-badge';
                         badge.innerText = id;
-                        const rect = target.getBoundingClientRect();
-                        document.body.appendChild(badge);
-                        badge.style.top = `${rect.top + window.scrollY}px`;
-                        badge.style.left = `${rect.left + window.scrollX}px`;
+                        target.appendChild(badge);
                     }
                 }
             }
@@ -219,7 +217,10 @@
             e.stopPropagation();
 
             // Rimuove l'highlight da qualsiasi altro elemento precedentemente selezionato
-            document.querySelectorAll('.atomic-highlight').forEach(el => el.classList.remove('atomic-highlight'));
+            document.querySelectorAll('.atomic-highlight, .is-highlighted').forEach(el => {
+                el.classList.remove('atomic-highlight');
+                el.classList.remove('is-highlighted');
+            });
 
             if (!lastAtomicElement) return;
 
@@ -235,13 +236,8 @@
                 document.body.appendChild(t);
                 setTimeout(() => t.remove(), 2000);
 
-                // Applica il nuovo highlight unico
+                // Applica il nuovo highlight unico (Persistente fino al prossimo click)
                 lastAtomicElement.classList.add('atomic-highlight');
-
-                // Opzionale: Rimuove dopo 2 secondi per pulizia, ma assicura l'unicità
-                setTimeout(() => {
-                    if (lastAtomicElement) lastAtomicElement.classList.remove('atomic-highlight');
-                }, 2000);
             });
         }
     }, true);
