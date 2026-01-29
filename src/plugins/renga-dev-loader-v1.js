@@ -179,31 +179,50 @@
             white-space: nowrap;
         }
 
-        /* 📑 NATIVE PRINT ENGINE OPTIMIZATION */
+        /* 📑 CSS PRINT OVERHAUL v8.0 - NO CONTENT LEFT BEHIND */
         @media print {
-            @page { margin: 1cm; size: auto; }
-            body { background: #fff !important; color: #000 !important; }
+            @page { size: A4 portrait; margin: 15mm; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            
+            body { background: #fff !important; color: #000 !important; width: 100% !important; overflow: visible !important; }
+            main, .container, .tutorial-content, .info-section { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; overflow: visible !important; }
+            
             nav, .gold-bar, #renga-dev-menu, #renga-inspector-overlay { display: none !important; }
-            header, footer { display: block !important; opacity: 1 !important; visibility: visible !important; }
+            header, footer { display: block !important; opacity: 1 !important; visibility: visible !important; page-break-inside: avoid !important; break-inside: avoid !important; }
             
             .tutorial-card, .info-card, .registration-section { 
                 page-break-inside: avoid !important; 
                 break-inside: avoid !important; 
-                margin-bottom: 20px !important;
+                margin-bottom: 25px !important;
                 border: 1px solid #eee !important;
                 box-shadow: none !important;
                 background: #fff !important;
                 color: #000 !important;
+                padding: 20px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .tutorial-card h2, .info-card h2 { 
+                display: flex !important; 
+                align-items: center !important; 
+                gap: 15px !important; 
+                margin-top: 0 !important;
             }
             
             .dna-visible-badge { 
-                display: block !important; 
+                position: static !important; 
+                display: inline-block !important; 
                 opacity: 1 !important; 
                 visibility: visible !important; 
                 background: #000 !important; 
                 color: #FFFF00 !important; 
+                padding: 3px 8px !important;
+                font-size: 8pt !important;
+                font-weight: 900 !important;
+                border-radius: 4px !important;
+                transform: none !important;
                 z-index: 9999 !important;
-                -webkit-print-color-adjust: exact;
             }
         }
     `;
@@ -393,16 +412,16 @@
     `;
     tray.appendChild(selectorContainer);
 
-    // 🚀 GENERATE BUTTON (NATIVE PRINT)
+    // 🚀 GENERATE BUTTON (NATIVE PRINT v8.0)
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
     exportBtn.style.textAlign = 'center';
-    exportBtn.innerText = '🚀 GENERA REPORT (STAMPA NATIVA)';
+    exportBtn.innerText = '🚀 GENERA REPORT DNA v8.0';
     exportBtn.onclick = () => {
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🧬 OPENING SYSTEM PRINT DIALOG...`;
+        t.innerHTML = `🧬 OPENING SYSTEM PRINT DIALOG v8.0...`;
         document.body.appendChild(t);
 
         setTimeout(() => {
