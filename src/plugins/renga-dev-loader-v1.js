@@ -121,27 +121,57 @@
         .pdf-mobile { max-width: 375px !important; margin: 0 auto !important; border: 1px solid #ccc !important; }
         .pdf-mobile .tutorial-card, .pdf-mobile .info-card { padding: 15px !important; margin-bottom: 20px !important; }
 
-        .pdf-mode h1, .pdf-mode h2, .pdf-mode h3 { color: #000 !important; font-size: 16pt !important; margin-top: 0 !important; margin-left: 0 !important; padding-left: 0 !important; }
-        .pdf-mode p, .pdf-mode span, .pdf-mode strong { color: #000 !important; font-size: 11pt !important; line-height: 1.5 !important; }
-        
-        /* DNA SIDEBAR / POSITIONING (v3.1) */
-        .pdf-mode .dna-visible-badge { 
-            position: absolute !important; 
-            top: 10px !important; 
-            right: 15px !important;
-            left: auto !important;
-            transform: none !important;
-            background: #FFCC00 !important;
-            color: #000 !important;
-            font-size: 8px !important;
-            font-weight: 900 !important;
-            padding: 3px 6px !important;
-            border-radius: 3px !important;
-            border: 1px solid #000 !important;
-            z-index: 9999 !important;
-            display: block !important;
-            box-shadow: none !important;
+        /* 📑 PDF ENGINE v4.0 - CLEAN CLONE STRATEGY */
+        #renga-print-canvas { 
+            position: absolute; 
+            left: -9999px; 
+            top: 0; 
+            width: 800px; 
+            background: #fff; 
+            color: #000;
+            padding: 40px;
         }
+        .pdf-canvas-item { 
+            margin-bottom: 40px; 
+            padding: 30px; 
+            border: 1px solid #eee; 
+            border-radius: 12px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            background: #fff !important;
+        }
+        .pdf-canvas-item h2 { 
+            margin: 0 0 15px 0 !important; 
+            padding: 0 !important; 
+            color: #222 !important; 
+            font-size: 22px !important;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .pdf-canvas-item p { margin: 10px 0 !important; line-height: 1.6 !important; font-size: 14px !important; color: #333 !important; }
+        .pdf-dna-pill { 
+            background: #FFCC00; 
+            color: #000; 
+            font-size: 10px; 
+            font-weight: 900; 
+            padding: 2px 8px; 
+            border-radius: 4px; 
+            border: 1px solid #000;
+            display: inline-block;
+        }
+        .pdf-canvas-btn {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #fafafa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .pdf-canvas-btn img { width: 60px; height: 60px; border-radius: 8px; }
+        .pdf-canvas-btn strong { font-size: 14px; color: #000; }
 
         /* ASSET OPTIMIZATION */
         .pdf-mode .app-download-btn { 
@@ -373,53 +403,84 @@
     `;
     tray.appendChild(selectorContainer);
 
-    // 🚀 GENERATE BUTTON
+    // 🚀 GENERATE BUTTON (v4.0 CLEAN CLONE)
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
     exportBtn.style.textAlign = 'center';
-    exportBtn.innerText = '🚀 GENERA REPORT DNA';
+    exportBtn.innerText = '🚀 GENERA MASTER REPORT v4.0';
     exportBtn.onclick = () => {
         const format = document.querySelector('input[name="pdf-format"]:checked').value;
         const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
-        const element = document.body;
         const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
 
-        // Enter PDF Mode
-        const originalPadding = element.style.paddingLeft;
-        element.classList.add('pdf-mode');
-        if (format === 'mobile') {
-            element.classList.add('pdf-mobile');
-        } else {
-            element.style.paddingLeft = "50px"; // v3.1 Left Margin Fix
-        }
+        // 1. Create Temporary Clean Canvas
+        const canvas = document.createElement('div');
+        canvas.id = 'renga-print-canvas';
+        if (format === 'mobile') canvas.style.width = '375px';
+        document.body.appendChild(canvas);
+
+        // 2. Clone Content (Filter by key components)
+        const items = document.querySelectorAll('.tutorial-card, .info-card');
+        items.forEach(item => {
+            const clone = item.cloneNode(true);
+            const container = document.createElement('div');
+            container.className = 'pdf-canvas-item';
+
+            // Find DNA Badge in the original (or clone if it was injected)
+            let dnaId = "";
+            const badge = item.querySelector('.dna-visible-badge');
+            if (badge) {
+                dnaId = badge.innerText;
+                const b = clone.querySelector('.dna-visible-badge');
+                if (b) b.remove(); // Remove old badge style
+            }
+
+            // Refactor Heading with DNA Pill
+            const h2 = clone.querySelector('h2');
+            if (h2) {
+                if (dnaId) {
+                    const pill = document.createElement('span');
+                    pill.className = 'pdf-dna-pill';
+                    pill.innerText = dnaId;
+                    h2.prepend(pill);
+                }
+            }
+
+            // Cleanup buttons style in canvas
+            const btn = clone.querySelector('.app-download-btn');
+            if (btn) {
+                btn.className = 'pdf-canvas-btn';
+                const sName = btn.querySelector('.store-name');
+                if (sName) sName.style.display = 'block';
+            }
+
+            container.appendChild(clone);
+            canvas.appendChild(container);
+        });
 
         const opt = {
-            margin: [0.5, 0.5, 0.5, 0.5],
-            filename: `RENGA-MASTER-REPORT-${format.toUpperCase()}-${pageName.toUpperCase()}.pdf`,
+            margin: 0.3,
+            filename: `RENGA-v4-REPORT-${format.toUpperCase()}-${pageName.toUpperCase()}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
                 scale: 2,
                 useCORS: true,
                 letterRendering: true,
                 logging: false,
-                width: format === 'mobile' ? 375 : 1400, // v3.1 Viewport fix
-                windowWidth: format === 'mobile' ? 375 : 1400
+                width: format === 'mobile' ? 375 : 800
             },
-            jsPDF: { unit: 'in', format: 'a4', orientation: orientation },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            jsPDF: { unit: 'in', format: 'a4', orientation: orientation }
         };
 
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🚀 GENERATING ${format.toUpperCase()} ${orientation.toUpperCase()} REPORT v3.1...`;
+        t.innerHTML = `🧬 CLONING & GENERATING v4.0...`;
         document.body.appendChild(t);
 
-        html2pdf().set(opt).from(element).save().then(() => {
-            element.classList.remove('pdf-mode');
-            element.classList.remove('pdf-mobile');
-            element.style.paddingLeft = originalPadding;
-            t.innerHTML = `✅ MASTER REPORT READY`;
+        html2pdf().set(opt).from(canvas).save().then(() => {
+            canvas.remove();
+            t.innerHTML = `✅ MASTER v4.0 READY`;
             setTimeout(() => t.remove(), 2000);
         });
     };
