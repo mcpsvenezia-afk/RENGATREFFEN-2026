@@ -26,6 +26,11 @@
     const version = "1.5.1-SHELL";
     console.log(`[DEV] Renga Atomic Inspector v${version} ACTIVE`);
 
+    // 0.1 LOAD PDF ENGINE
+    const pdfScript = document.createElement('script');
+    pdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    document.head.appendChild(pdfScript);
+
     // 1. SURGICAL STYLES
     const style = document.createElement('style');
     style.innerHTML = `
@@ -254,6 +259,31 @@
         { t: 'HOME PAGE', act: () => location.href = '/' },
         { t: 'TEAM LIST', act: () => location.href = '/team.html' },
         { t: 'REGOLAMENTO', act: () => location.href = '/regolamento.html' },
+        {
+            t: '📄 EXPORT DNA PDF',
+            act: () => {
+                const element = document.body;
+                const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+                const opt = {
+                    margin: 0.2,
+                    filename: `RENGA-DNA-REVIEW-${pageName.toUpperCase()}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+
+                // Show a toast while generating
+                const t = document.createElement('div');
+                t.className = 'renga-supra-toast';
+                t.innerHTML = `🧬 GENERATING DNA REVIEW PDF...`;
+                document.body.appendChild(t);
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    t.innerHTML = `✅ PDF EXPORTED SUCCESSFULLY`;
+                    setTimeout(() => t.remove(), 2000);
+                });
+            }
+        },
         { t: '🔴 EXIT DEV', act: () => { localStorage.removeItem('RENGATREFFEN_DEV_MODE'); location.reload(); } }
     ];
 
@@ -279,7 +309,9 @@
 
     // Self-Mapping DNA v2.1
     const dnaComment = document.createComment(" URL:https://www.rengatreffen.it/dev-menu ID 0001-DEV ");
+    const pdfComment = document.createComment(" URL:https://www.rengatreffen.it/dev-menu/export ID 0001-EXPORT-DNA-PDF ");
     document.body.appendChild(dnaComment);
+    document.body.appendChild(pdfComment);
     document.body.appendChild(container);
 
 })();
