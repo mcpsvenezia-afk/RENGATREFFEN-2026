@@ -100,93 +100,59 @@
         .selector-item input { margin: 0; cursor: pointer; accent-color: #FFCC00; }
         .selector-item span { font-size: 10px; font-weight: 600; }
 
-        /* 📑 PDF ENGINE v3.0 - THE MASTER REPORT */
-        .pdf-mode { background: #fff !important; color: #000 !important; }
-        .pdf-mode section { background: #fff !important; padding: 20px 0 !important; border-bottom: 1px solid #eee !important; }
-        .pdf-mode .hero, .pdf-mode nav, .pdf-mode .gold-bar, .pdf-mode footer, .pdf-mode #renga-dev-menu, .pdf-mode #renga-inspector-overlay { display: none !important; }
-        
-        .pdf-mode .tutorial-card, .pdf-mode .info-card, .pdf-mode .registration-section { 
-            background: #fff !important; 
-            border: 1px solid #eee !important; 
-            box-shadow: none !important; 
-            page-break-inside: avoid !important; 
-            break-inside: avoid !important;
-            margin-bottom: 30px !important;
-            padding: 30px !important;
+        /* 📑 PDF ENGINE v6.0 - HIGH-FIDELITY HYBRID */
+        .pdf-hybrid-container { 
+            background: #f4f4f4 !important; 
+            color: #000 !important; 
+            padding: 40px 20px !important;
+            font-family: 'Inter', Arial, sans-serif !important;
+        }
+        .pdf-hybrid-card { 
+            background: #ffffff !important; 
+            width: 95% !important; 
+            margin: 20px auto !important; 
+            padding: 25px !important; 
+            border: 1px solid #ddd !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
             position: relative !important;
-            color: #000 !important;
-        }
-
-        /* Mobile Simulation Overrides */
-        .pdf-mobile { max-width: 375px !important; margin: 0 auto !important; border: 1px solid #ccc !important; }
-        .pdf-mobile .tutorial-card, .pdf-mobile .info-card { padding: 15px !important; margin-bottom: 20px !important; }
-
-        /* 📑 PDF ENGINE v4.0 - CLEAN CLONE STRATEGY */
-        #renga-print-canvas { 
-            position: absolute; 
-            left: -9999px; 
-            top: 0; 
-            width: 800px; 
-            background: #fff; 
-            color: #000;
-            padding: 40px;
-        }
-        .pdf-canvas-item { 
-            margin-bottom: 40px; 
-            padding: 30px; 
-            border: 1px solid #eee; 
-            border-radius: 12px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-            background: #fff !important;
-        }
-        .pdf-canvas-item h2 { 
-            margin: 0 0 15px 0 !important; 
-            padding: 0 !important; 
-            color: #222 !important; 
-            font-size: 22px !important;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .pdf-canvas-item p { margin: 10px 0 !important; line-height: 1.6 !important; font-size: 14px !important; color: #333 !important; }
-        .pdf-dna-pill { 
-            background: #FFCC00; 
-            color: #000; 
-            font-size: 10px; 
-            font-weight: 900; 
-            padding: 2px 8px; 
-            border-radius: 4px; 
-            border: 1px solid #000;
-            display: inline-block;
-        }
-        .pdf-canvas-btn {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: #fafafa;
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        .pdf-canvas-btn img { width: 60px; height: 60px; border-radius: 8px; }
-        .pdf-canvas-btn strong { font-size: 14px; color: #000; }
-
-        /* ASSET OPTIMIZATION */
-        .pdf-mode .app-download-btn { 
-            display: flex !important; 
-            align-items: center !important;
-            gap: 20px !important;
-            border: 1px solid #eee !important;
-            padding: 15px !important;
-            background: #fafafa !important;
-            width: 100% !important;
             page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            overflow: hidden !important;
         }
-        .pdf-mode .app-download-btn .app-icon { flex: 0 0 80px !important; width: 80px !important; height: 80px !important; }
-        .pdf-mode .app-download-btn .app-icon img { transform: none !important; }
-        .pdf-mode .store-logo { display: none !important; }
+        .pdf-hybrid-badge { 
+            position: absolute !important;
+            top: 0 !important;
+            right: 0 !important;
+            background: #FFCC00 !important;
+            color: #000 !important;
+            padding: 5px 12px !important;
+            font-size: 10px !important;
+            font-weight: 900 !important;
+            border-bottom-left-radius: 8px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            border: 1px solid #e0b400 !important;
+            border-top: none !important;
+            border-right: none !important;
+        }
+        .pdf-hybrid-card h2 { color: #000 !important; font-size: 18pt !important; margin-top: 5px !important; border-bottom: 2px solid #FFCC00 !important; padding-bottom: 10px !important; margin-bottom: 15px !important; width: fit-content !important; }
+        .pdf-hybrid-card p { color: #333 !important; font-size: 11pt !important; line-height: 1.6 !important; margin-top: 10px !important; }
+        .pdf-hybrid-asset { width: 100% !important; height: auto !important; max-height: 300px !important; object-fit: contain !important; border-radius: 10px !important; margin: 15px 0 !important; background: #fafafa !important; border: 1px solid #eee !important; display: block !important; }
+        
+        .pdf-hybrid-btn {
+            display: flex !important;
+            align-items: center !important;
+            gap: 15px !important;
+            background: #000 !important;
+            color: #fff !important;
+            padding: 15px 25px !important;
+            border-radius: 10px !important;
+            margin-top: 15px !important;
+            text-decoration: none !important;
+            font-weight: bold !important;
+        }
+        .pdf-hybrid-btn-icon { width: 40px !important; height: 40px !important; object-fit: contain !important; }
 
         .dev-selector .selector-section { margin-bottom: 10px; }
         .dev-selector .section-title { font-size: 9px; color: #666; font-weight: 900; margin-bottom: 5px; display: block; }
@@ -403,83 +369,97 @@
     `;
     tray.appendChild(selectorContainer);
 
-    // 🚀 GENERATE BUTTON (v5.0 TABULAR EXTRACTOR)
+    // 🚀 GENERATE BUTTON (v6.0 HIGH-FIDELITY HYBRID)
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
     exportBtn.style.textAlign = 'center';
-    exportBtn.innerText = '🚀 GENERA MASTER REPORT v5.0';
+    exportBtn.innerText = '🚀 GENERA HANDBOOK v6.0';
     exportBtn.onclick = () => {
         const format = document.querySelector('input[name="pdf-format"]:checked').value;
         const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
         const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
 
-        // 1. Scraping & Table Construction
-        const reportContainer = document.createElement('div');
-        reportContainer.style.background = '#fff';
-        reportContainer.style.color = '#000';
-        reportContainer.style.padding = '40px';
-        reportContainer.style.fontFamily = 'Arial, sans-serif';
-        reportContainer.style.fontSize = '11pt';
-        reportContainer.innerHTML = `
-            <div style="border: 2px solid #FFCC00; padding: 20px; margin-bottom: 30px; text-align: center;">
-                <h1 style="margin: 0; color: #000; font-size: 24pt;">RENGATREFFEN DNA AUDIT</h1>
-                <p style="margin: 5px 0; font-weight: bold; color: #666;">MASTER REPORT v5.0 - ESTRATTORE TABELLARE</p>
-                <p style="margin: 10px 0; font-size: 10pt;">Pagina: ${pageName.toUpperCase()} | Data: ${new Date().toLocaleString()}</p>
+        // 1. Construct Hybrid Report
+        const report = document.createElement('div');
+        report.className = 'pdf-hybrid-container';
+        if (format === 'mobile') report.style.maxWidth = '400px';
+
+        report.innerHTML = `
+            <div style="background: #000; color: #FFCC00; padding: 40px; text-align: center; border-radius: 12px; margin-bottom: 40px; border: 2px solid #FFCC00;">
+                <h1 style="margin: 0; font-size: 28pt; letter-spacing: 2px;">RENGATREFFEN 2026</h1>
+                <p style="margin: 10px 0; font-size: 12pt; font-weight: bold; opacity: 0.8;">HIGH-FIDELITY HANDBOOK v6.0</p>
+                <p style="margin: 20px 0 0 0; font-size: 9pt; opacity: 0.6; font-family: monospace;">AUDIT: ${pageName.toUpperCase()} | ${new Date().toLocaleString()}</p>
             </div>
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #000; color: #FFCC00;">
-                        <th style="border: 1px solid #333; padding: 12px; text-align: left; width: 120px;">DNA ID</th>
-                        <th style="border: 1px solid #333; padding: 12px; text-align: center; width: 100px;">ASSET</th>
-                        <th style="border: 1px solid #333; padding: 12px; text-align: left;">CONTENUTO TESTUALE</th>
-                    </tr>
-                </thead>
-                <tbody id="report-body"></tbody>
-            </table>
         `;
 
-        const tbody = reportContainer.querySelector('#report-body');
+        // Extraction Logic
+        const sourceCards = document.querySelectorAll('.tutorial-card, .info-card');
+        sourceCards.forEach(card => {
+            const frame = document.createElement('div');
+            frame.className = 'pdf-hybrid-card';
 
-        // Find all elements with DNA IDs via the injected badges
-        const badges = document.querySelectorAll('.dna-visible-badge');
-
-        if (badges.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center;">Nessun elemento DNA rilevato nella pagina.</td></tr>';
-        }
-
-        badges.forEach(badge => {
-            const dnaId = badge.innerText;
-            const parent = badge.parentElement;
-
-            // Extract clean text (remove badge text and trim)
-            let content = parent.innerText.replace(dnaId, '').trim();
-            if (!content && parent.title) content = `[Title]: ${parent.title}`;
-            if (!content) content = "(Nessun testo rilevato)";
-
-            // Extract asset (icon/img)
-            let assetHtml = '<span style="color: #ccc; font-size: 8pt;">N/A</span>';
-            const img = parent.querySelector('img');
-            if (img) {
-                assetHtml = `<img src="${img.src}" style="width: 50px; height: 50px; object-fit: contain; border: 1px solid #eee; border-radius: 5px; padding: 2px; background: #fafafa;">`;
+            // DNA Label
+            const badge = card.querySelector('.dna-visible-badge');
+            if (badge) {
+                const label = document.createElement('div');
+                label.className = 'pdf-hybrid-badge';
+                label.innerText = badge.innerText;
+                frame.appendChild(label);
             }
 
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td style="border: 1px solid #eee; padding: 12px; vertical-align: top;">
-                    <span style="background: #000; color: #FFCC00; padding: 4px 8px; border-radius: 4px; font-weight: 900; font-size: 9pt; font-family: 'Courier New', monospace; display: inline-block;">${dnaId}</span>
-                </td>
-                <td style="border: 1px solid #eee; padding: 12px; vertical-align: middle; text-align: center;">${assetHtml}</td>
-                <td style="border: 1px solid #eee; padding: 12px; vertical-align: top; line-height: 1.5; font-size: 12px; color: #111;">
-                    ${content}
-                </td>
-            `;
-            tbody.appendChild(row);
+            // Title
+            const title = card.querySelector('h2');
+            if (title) {
+                const h2 = document.createElement('h2');
+                h2.innerText = title.innerText;
+                frame.appendChild(h2);
+            }
+
+            // Asset
+            const img = card.querySelector('img:not(.store-logo)');
+            if (img) {
+                const asset = document.createElement('img');
+                asset.className = 'pdf-hybrid-asset';
+                asset.src = img.src;
+                frame.appendChild(asset);
+            }
+
+            // Text content
+            const pTags = card.querySelectorAll('p');
+            pTags.forEach(p => {
+                const text = document.createElement('p');
+                text.innerText = p.innerText;
+                frame.appendChild(text);
+            });
+
+            // Button recovery
+            const sourceBtn = card.querySelector('.app-download-btn');
+            if (sourceBtn) {
+                const hybridBtn = document.createElement('div');
+                hybridBtn.className = 'pdf-hybrid-btn';
+
+                const icon = sourceBtn.querySelector('.app-icon img');
+                if (icon) {
+                    const bIcon = document.createElement('img');
+                    bIcon.className = 'pdf-hybrid-btn-icon';
+                    bIcon.src = icon.src;
+                    hybridBtn.appendChild(bIcon);
+                }
+
+                const label = document.createElement('span');
+                label.innerText = sourceBtn.innerText.replace(/\n/g, ' ').trim();
+                hybridBtn.appendChild(label);
+
+                frame.appendChild(hybridBtn);
+            }
+
+            report.appendChild(frame);
         });
 
         const opt = {
-            margin: 0.5,
-            filename: `RENGA-DNA-v5-TABLE-${pageName.toUpperCase()}.pdf`,
+            margin: 0.2,
+            filename: `RENGA-HANDBOOK-v6-${pageName.toUpperCase()}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
             jsPDF: { unit: 'in', format: 'a4', orientation: orientation }
@@ -487,11 +467,11 @@
 
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🧬 EXTRACTING DNA TABLE v5.0...`;
+        t.innerHTML = `🧬 GENERATING HYBRID HANDBOOK v6.0...`;
         document.body.appendChild(t);
 
-        html2pdf().set(opt).from(reportContainer).save().then(() => {
-            t.innerHTML = `✅ MASTER v5.0 READY`;
+        html2pdf().set(opt).from(report).save().then(() => {
+            t.innerHTML = `✅ HANDBOOK v6.0 READY`;
             setTimeout(() => t.remove(), 2000);
         });
     };
