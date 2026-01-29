@@ -26,6 +26,14 @@
     const version = "1.5.1-SHELL";
     console.log(`[DEV] Renga Atomic Inspector v${version} ACTIVE`);
 
+    // 0.1 LOAD PDF ENGINES (v9.0 Visual Assembly)
+    const jspdfScript = document.createElement('script');
+    jspdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    document.head.appendChild(jspdfScript);
+
+    const h2cScript = document.createElement('script');
+    h2cScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    document.head.appendChild(h2cScript);
 
     // 1. SURGICAL STYLES
     const style = document.createElement('style');
@@ -412,22 +420,117 @@
     `;
     tray.appendChild(selectorContainer);
 
-    // 🚀 GENERATE BUTTON (NATIVE PRINT v8.0)
+    // 🚀 GENERATE BUTTON (v9.0 VISUAL ASSEMBLY)
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
     exportBtn.style.textAlign = 'center';
-    exportBtn.innerText = '🚀 GENERA REPORT DNA v8.0';
-    exportBtn.onclick = () => {
+    exportBtn.innerText = '🚀 GENERA MASTER PDF v9.0';
+    exportBtn.onclick = async () => {
+        const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
+        const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🧬 OPENING SYSTEM PRINT DIALOG v8.0...`;
+        t.innerHTML = `🧬 INITIALIZING VISUAL ASSEMBLY v9.0...`;
         document.body.appendChild(t);
 
-        setTimeout(() => {
-            window.print();
-            t.remove();
-        }, 500);
+        // 1. Setup PDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: orientation,
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 10;
+        const contentWidth = pageWidth - (margin * 2);
+
+        let currentY = margin;
+
+        // 2. Identify Targets
+        const targets = [];
+        const header = document.querySelector('header');
+        if (header) targets.push({ el: header, label: 'HEADER' });
+
+        const cards = document.querySelectorAll('.tutorial-card, .info-card, .registration-section');
+        cards.forEach((c, i) => targets.push({ el: c, label: `CARD ${i + 1}` }));
+
+        const footer = document.querySelector('footer');
+        if (footer) targets.push({ el: footer, label: 'FOOTER' });
+
+        // 3. Recursive Snapshot Loop
+        const sandbox = document.createElement('div');
+        sandbox.style.position = 'absolute';
+        sandbox.style.left = '-9999px';
+        sandbox.style.width = '1200px';
+        sandbox.style.background = '#fff';
+        document.body.appendChild(sandbox);
+
+        for (let i = 0; i < targets.length; i++) {
+            const item = targets[i];
+            t.innerHTML = `📸 CAPTURING ${item.label} [${i + 1}/${targets.length}]...`;
+
+            // Clone & Clean
+            const clone = item.el.cloneNode(true);
+            clone.style.width = '1120px';
+            clone.style.padding = '40px';
+            clone.style.margin = '0';
+            clone.style.background = '#fff';
+            clone.style.color = '#000';
+            clone.style.position = 'static';
+            clone.style.transform = 'none';
+            clone.style.overflow = 'visible';
+
+            // Ensure DNA badges are visible in clone
+            const badges = clone.querySelectorAll('.dna-visible-badge');
+            badges.forEach(b => {
+                b.style.display = 'block';
+                b.style.opacity = '1';
+                b.style.position = 'absolute';
+                b.style.zIndex = '9999';
+            });
+
+            sandbox.innerHTML = '';
+            sandbox.appendChild(clone);
+
+            // Wait for images in clone
+            const imgs = Array.from(clone.querySelectorAll('img'));
+            await Promise.all(imgs.map(img => {
+                if (img.complete) return Promise.resolve();
+                return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+            }));
+
+            const canvas = await html2canvas(clone, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                width: 1200
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = pdf.getImageProperties(imgData);
+            const imgHeight = (imgProps.height * contentWidth) / imgProps.width;
+
+            // Page Break Logic
+            if (currentY + imgHeight > pageHeight - margin) {
+                pdf.addPage();
+                currentY = margin;
+            }
+
+            pdf.addImage(imgData, 'PNG', margin, currentY, contentWidth, imgHeight);
+            currentY += imgHeight + 5; // Small gap between cards
+        }
+
+        // 4. Save & Cleanup
+        t.innerHTML = `💾 ASSEMBLING PDF...`;
+        pdf.save(`RENGA-DNA-v9-${pageName.toUpperCase()}.pdf`);
+        sandbox.remove();
+        t.innerHTML = `✅ ASSEMBLY COMPLETE`;
+        setTimeout(() => t.remove(), 2000);
     };
     tray.appendChild(exportBtn);
 
