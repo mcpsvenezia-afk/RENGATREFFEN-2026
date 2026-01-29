@@ -100,86 +100,65 @@
         .selector-item input { margin: 0; cursor: pointer; accent-color: #FFCC00; }
         .selector-item span { font-size: 10px; font-weight: 600; }
 
-        /* 📑 PDF EXPORT v2.4 - THE PROFESSIONAL HANDBOOK */
-        @media print {
-            .pdf-mode { background: #fff !important; color: #000 !important; }
-            .pdf-mode * { color: #000 !important; }
-            .pdf-mode .dna-visible-badge { background: #FFCC00 !important; color: #000 !important; border: 1px solid #000 !important; }
-        }
-
+        /* 📑 PDF ENGINE v3.0 - THE MASTER REPORT */
         .pdf-mode { background: #fff !important; color: #000 !important; }
         .pdf-mode section { background: #fff !important; padding: 20px 0 !important; border-bottom: 1px solid #eee !important; }
         .pdf-mode .hero, .pdf-mode nav, .pdf-mode .gold-bar, .pdf-mode footer, .pdf-mode #renga-dev-menu, .pdf-mode #renga-inspector-overlay { display: none !important; }
         
-        .pdf-mode .tutorial-card, .pdf-mode .info-card { 
+        .pdf-mode .tutorial-card, .pdf-mode .info-card, .pdf-mode .registration-section { 
             background: #fff !important; 
             border: 1px solid #eee !important; 
             box-shadow: none !important; 
             page-break-inside: avoid !important; 
             break-inside: avoid !important;
-            margin-bottom: 40px !important;
-            padding: 40px !important;
+            margin-bottom: 30px !important;
+            padding: 30px !important;
             position: relative !important;
             color: #000 !important;
         }
 
+        /* Mobile Simulation Overrides */
+        .pdf-mobile { max-width: 375px !important; margin: 0 auto !important; border: 1px solid #ccc !important; }
+        .pdf-mobile .tutorial-card, .pdf-mobile .info-card { padding: 15px !important; margin-bottom: 20px !important; }
+
         .pdf-mode h1, .pdf-mode h2, .pdf-mode h3 { color: #000 !important; font-size: 16pt !important; margin-top: 0 !important; }
-        .pdf-mode p, .pdf-mode span, .pdf-mode strong { color: #000 !important; font-size: 11pt !important; line-height: 1.6 !important; }
+        .pdf-mode p, .pdf-mode span, .pdf-mode strong { color: #000 !important; font-size: 11pt !important; line-height: 1.5 !important; }
         
-        /* DNA SIDEBAR (RIGHT) */
+        /* DNA SIDEBAR / POSITIONING */
         .pdf-mode .dna-visible-badge { 
             position: absolute !important; 
-            top: 10px !important; 
-            right: -60px !important; 
+            top: 5px !important; 
+            right: 5px !important;
             left: auto !important;
             transform: none !important;
             background: #FFCC00 !important;
             color: #000 !important;
-            font-size: 9px !important;
+            font-size: 8px !important;
             font-weight: 900 !important;
-            padding: 5px 10px !important;
-            border-radius: 4px !important;
+            padding: 3px 6px !important;
+            border-radius: 3px !important;
             border: 1px solid #000 !important;
             z-index: 9999 !important;
             display: block !important;
-            box-shadow: none !important;
         }
 
-        /* ASSET OPTIMIZATION (30% WIDTH) */
+        /* ASSET OPTIMIZATION */
         .pdf-mode .app-download-btn { 
             display: flex !important; 
-            flex-direction: row !important;
             align-items: center !important;
-            gap: 30px !important;
+            gap: 20px !important;
             border: 1px solid #eee !important;
-            border-radius: 12px !important;
-            padding: 20px !important;
+            padding: 15px !important;
             background: #fafafa !important;
-            margin-top: 20px !important;
             width: 100% !important;
-            max-width: none !important;
             page-break-inside: avoid !important;
-            break-inside: avoid !important;
         }
-        .pdf-mode .app-download-btn .app-icon { 
-            flex: 0 0 30% !important; 
-            width: 30% !important;
-            height: auto !important;
-            border-radius: 15px !important;
-            background: #fff !important;
-        }
-        .pdf-mode .app-download-btn .app-icon img { 
-            width: 100% !important; 
-            height: auto !important;
-            object-fit: contain !important;
-            transform: none !important;
-        }
-        .pdf-mode .app-download-btn .app-info { 
-            flex: 1 !important;
-            text-align: left !important;
-        }
-        .pdf-mode .app-download-btn strong { font-size: 13pt !important; margin-bottom: 5px !important; }
+        .pdf-mode .app-download-btn .app-icon { flex: 0 0 80px !important; width: 80px !important; height: 80px !important; }
+        .pdf-mode .app-download-btn .app-icon img { transform: none !important; }
         .pdf-mode .store-logo { display: none !important; }
+
+        .dev-selector .selector-section { margin-bottom: 10px; }
+        .dev-selector .section-title { font-size: 9px; color: #666; font-weight: 900; margin-bottom: 5px; display: block; }
 
         /* 🟢 ATOMIC HIGHLIGHTER & BADGES */
         .atomic-highlight { 
@@ -358,55 +337,81 @@
         tray.appendChild(b);
     });
 
-    // 📄 PDF ORIENTATION SELECTOR
+    // 📄 ADVANCED PDF EXPORT PANEL (v3.0)
     const isTutorials = window.location.pathname.includes('tutorials.html');
     const selectorContainer = document.createElement('div');
     selectorContainer.className = 'dev-selector';
     selectorContainer.innerHTML = `
-        <label>Orientamento PDF:</label>
-        <div class="selector-row">
-            <label class="selector-item">
-                <input type="radio" name="pdf-orient" value="portrait" ${!isTutorials ? 'checked' : ''}>
-                <span>Verticale</span>
-            </label>
-            <label class="selector-item">
-                <input type="radio" name="pdf-orient" value="landscape" ${isTutorials ? 'checked' : ''}>
-                <span>Orizzontale ${isTutorials ? '(Auto)' : ''}</span>
-            </label>
+        <label>Advanced PDF Export v3.0</label>
+        <div class="selector-section">
+            <span class="section-title">FORMATO:</span>
+            <div class="selector-row">
+                <label class="selector-item">
+                    <input type="radio" name="pdf-format" value="desktop" checked>
+                    <span>Desktop</span>
+                </label>
+                <label class="selector-item">
+                    <input type="radio" name="pdf-format" value="mobile">
+                    <span>Mobile</span>
+                </label>
+            </div>
+        </div>
+        <div class="selector-section">
+            <span class="section-title">ORIENTAMENTO:</span>
+            <div class="selector-row">
+                <label class="selector-item">
+                    <input type="radio" name="pdf-orient" value="portrait" ${!isTutorials ? 'checked' : ''}>
+                    <span>Verticale</span>
+                </label>
+                <label class="selector-item">
+                    <input type="radio" name="pdf-orient" value="landscape" ${isTutorials ? 'checked' : ''}>
+                    <span>Orizzontale</span>
+                </label>
+            </div>
         </div>
     `;
     tray.appendChild(selectorContainer);
 
-    // 📄 PDF EXPORT BUTTON
+    // 🚀 GENERATE BUTTON
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
-    exportBtn.innerText = '📄 EXPORT HANDBOOK v2.4';
+    exportBtn.style.textAlign = 'center';
+    exportBtn.innerText = '🚀 GENERA REPORT DNA';
     exportBtn.onclick = () => {
+        const format = document.querySelector('input[name="pdf-format"]:checked').value;
         const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
         const element = document.body;
         const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
 
-        // Enter PDF Mode for styling
+        // Enter PDF Mode
         element.classList.add('pdf-mode');
+        if (format === 'mobile') element.classList.add('pdf-mobile');
 
         const opt = {
-            margin: [0.5, 0.8, 0.5, 0.5], // Top, Right (more space for DNA), Bottom, Left
-            filename: `RENGA-HANDBOOK-${pageName.toUpperCase()}.pdf`,
+            margin: [0.4, 0.4, 0.4, 0.4],
+            filename: `RENGA-MASTER-REPORT-${format.toUpperCase()}-${pageName.toUpperCase()}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                logging: false,
+                windowWidth: format === 'mobile' ? 375 : 1200
+            },
             jsPDF: { unit: 'in', format: 'a4', orientation: orientation },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🧬 GENERATING ${orientation.toUpperCase()} HANDBOOK v2.4...`;
+        t.innerHTML = `🚀 GENERATING ${format.toUpperCase()} ${orientation.toUpperCase()} REPORT...`;
         document.body.appendChild(t);
 
         html2pdf().set(opt).from(element).save().then(() => {
             element.classList.remove('pdf-mode');
-            t.innerHTML = `✅ HANDBOOK EXPORTED SUCCESSFULLY`;
+            element.classList.remove('pdf-mobile');
+            t.innerHTML = `✅ MASTER REPORT READY`;
             setTimeout(() => t.remove(), 2000);
         });
     };
