@@ -435,8 +435,13 @@
         t.innerHTML = `🧬 INITIALIZING VISUAL ASSEMBLY v9.0...`;
         document.body.appendChild(t);
 
-        // 1. Setup PDF
-        const { jsPDF } = window.jspdf;
+        // 1. Setup PDF (Hybrid UMD Support)
+        const jsPDF = window.jspdf ? (window.jspdf.jsPDF || window.jspdf) : null;
+        if (!jsPDF) {
+            alert("⚠️ PDF ENGINE NOT LOADED YET. PLEASE WAIT 2 SECONDS.");
+            return;
+        }
+
         const pdf = new jsPDF({
             orientation: orientation,
             unit: 'mm',
