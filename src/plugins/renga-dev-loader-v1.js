@@ -100,37 +100,86 @@
         .selector-item input { margin: 0; cursor: pointer; accent-color: #FFCC00; }
         .selector-item span { font-size: 10px; font-weight: 600; }
 
-        /* 📑 PDF PRINT OPTIMIZATION (v2.3) */
+        /* 📑 PDF EXPORT v2.4 - THE PROFESSIONAL HANDBOOK */
         @media print {
-            .tutorial-card, .info-card { page-break-inside: avoid !important; break-inside: avoid !important; margin-bottom: 25px !important; }
-            body { font-size: 12pt !important; }
-            .dna-visible-badge { 
-                position: relative !important; 
-                display: inline-block !important;
-                transform: none !important; 
-                margin-left: 10px !important;
-                left: 0 !important;
-                top: 0 !important;
-                vertical-align: middle !important;
-                background: #000 !important;
-                color: #FFFF00 !important;
-                border: 1px solid #FFCC00 !important;
-            }
+            .pdf-mode { background: #fff !important; color: #000 !important; }
+            .pdf-mode * { color: #000 !important; }
+            .pdf-mode .dna-visible-badge { background: #FFCC00 !important; color: #000 !important; border: 1px solid #000 !important; }
         }
+
+        .pdf-mode { background: #fff !important; color: #000 !important; }
+        .pdf-mode section { background: #fff !important; padding: 20px 0 !important; border-bottom: 1px solid #eee !important; }
+        .pdf-mode .hero, .pdf-mode nav, .pdf-mode .gold-bar, .pdf-mode footer, .pdf-mode #renga-dev-menu, .pdf-mode #renga-inspector-overlay { display: none !important; }
         
-        /* Force avoid break even for html2pdf conversion */
-        .pdf-mode .tutorial-card, .pdf-mode .info-card { page-break-inside: avoid !important; break-inside: avoid !important; }
-        .pdf-mode .dna-visible-badge { 
-            position: relative !important; 
-            display: inline-block !important;
-            transform: none !important; 
-            margin-left: 10px !important;
-            background: #000 !important;
-            color: #FFFF00 !important;
-            font-size: 9px !important;
-            padding: 2px 4px !important;
-            border-radius: 3px !important;
+        .pdf-mode .tutorial-card, .pdf-mode .info-card { 
+            background: #fff !important; 
+            border: 1px solid #eee !important; 
+            box-shadow: none !important; 
+            page-break-inside: avoid !important; 
+            break-inside: avoid !important;
+            margin-bottom: 40px !important;
+            padding: 40px !important;
+            position: relative !important;
+            color: #000 !important;
         }
+
+        .pdf-mode h1, .pdf-mode h2, .pdf-mode h3 { color: #000 !important; font-size: 16pt !important; margin-top: 0 !important; }
+        .pdf-mode p, .pdf-mode span, .pdf-mode strong { color: #000 !important; font-size: 11pt !important; line-height: 1.6 !important; }
+        
+        /* DNA SIDEBAR (RIGHT) */
+        .pdf-mode .dna-visible-badge { 
+            position: absolute !important; 
+            top: 10px !important; 
+            right: -60px !important; 
+            left: auto !important;
+            transform: none !important;
+            background: #FFCC00 !important;
+            color: #000 !important;
+            font-size: 9px !important;
+            font-weight: 900 !important;
+            padding: 5px 10px !important;
+            border-radius: 4px !important;
+            border: 1px solid #000 !important;
+            z-index: 9999 !important;
+            display: block !important;
+            box-shadow: none !important;
+        }
+
+        /* ASSET OPTIMIZATION (30% WIDTH) */
+        .pdf-mode .app-download-btn { 
+            display: flex !important; 
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 30px !important;
+            border: 1px solid #eee !important;
+            border-radius: 12px !important;
+            padding: 20px !important;
+            background: #fafafa !important;
+            margin-top: 20px !important;
+            width: 100% !important;
+            max-width: none !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
+        .pdf-mode .app-download-btn .app-icon { 
+            flex: 0 0 30% !important; 
+            width: 30% !important;
+            height: auto !important;
+            border-radius: 15px !important;
+            background: #fff !important;
+        }
+        .pdf-mode .app-download-btn .app-icon img { 
+            width: 100% !important; 
+            height: auto !important;
+            object-fit: contain !important;
+            transform: none !important;
+        }
+        .pdf-mode .app-download-btn .app-info { 
+            flex: 1 !important;
+            text-align: left !important;
+        }
+        .pdf-mode .app-download-btn strong { font-size: 13pt !important; margin-bottom: 5px !important; }
+        .pdf-mode .store-logo { display: none !important; }
 
         /* 🟢 ATOMIC HIGHLIGHTER & BADGES */
         .atomic-highlight { 
@@ -332,7 +381,7 @@
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
-    exportBtn.innerText = '📄 EXPORT DNA REPORT v2.3';
+    exportBtn.innerText = '📄 EXPORT HANDBOOK v2.4';
     exportBtn.onclick = () => {
         const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
         const element = document.body;
@@ -342,8 +391,8 @@
         element.classList.add('pdf-mode');
 
         const opt = {
-            margin: 0.2,
-            filename: `RENGA-DNA-REVIEW-${pageName.toUpperCase()}.pdf`,
+            margin: [0.5, 0.8, 0.5, 0.5], // Top, Right (more space for DNA), Bottom, Left
+            filename: `RENGA-HANDBOOK-${pageName.toUpperCase()}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
             jsPDF: { unit: 'in', format: 'a4', orientation: orientation },
@@ -352,12 +401,12 @@
 
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🧬 GENERATING ${orientation.toUpperCase()} REPORT v2.3...`;
+        t.innerHTML = `🧬 GENERATING ${orientation.toUpperCase()} HANDBOOK v2.4...`;
         document.body.appendChild(t);
 
         html2pdf().set(opt).from(element).save().then(() => {
             element.classList.remove('pdf-mode');
-            t.innerHTML = `✅ REPORT EXPORTED SUCCESSFULLY`;
+            t.innerHTML = `✅ HANDBOOK EXPORTED SUCCESSFULLY`;
             setTimeout(() => t.remove(), 2000);
         });
     };
