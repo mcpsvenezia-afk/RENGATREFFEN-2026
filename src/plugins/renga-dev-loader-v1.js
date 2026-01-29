@@ -100,6 +100,38 @@
         .selector-item input { margin: 0; cursor: pointer; accent-color: #FFCC00; }
         .selector-item span { font-size: 10px; font-weight: 600; }
 
+        /* 📑 PDF PRINT OPTIMIZATION (v2.3) */
+        @media print {
+            .tutorial-card, .info-card { page-break-inside: avoid !important; break-inside: avoid !important; margin-bottom: 25px !important; }
+            body { font-size: 12pt !important; }
+            .dna-visible-badge { 
+                position: relative !important; 
+                display: inline-block !important;
+                transform: none !important; 
+                margin-left: 10px !important;
+                left: 0 !important;
+                top: 0 !important;
+                vertical-align: middle !important;
+                background: #000 !important;
+                color: #FFFF00 !important;
+                border: 1px solid #FFCC00 !important;
+            }
+        }
+        
+        /* Force avoid break even for html2pdf conversion */
+        .pdf-mode .tutorial-card, .pdf-mode .info-card { page-break-inside: avoid !important; break-inside: avoid !important; }
+        .pdf-mode .dna-visible-badge { 
+            position: relative !important; 
+            display: inline-block !important;
+            transform: none !important; 
+            margin-left: 10px !important;
+            background: #000 !important;
+            color: #FFFF00 !important;
+            font-size: 9px !important;
+            padding: 2px 4px !important;
+            border-radius: 3px !important;
+        }
+
         /* 🟢 ATOMIC HIGHLIGHTER & BADGES */
         .atomic-highlight { 
             outline: 4px solid #FFCC00 !important; 
@@ -278,18 +310,19 @@
     });
 
     // 📄 PDF ORIENTATION SELECTOR
+    const isTutorials = window.location.pathname.includes('tutorials.html');
     const selectorContainer = document.createElement('div');
     selectorContainer.className = 'dev-selector';
     selectorContainer.innerHTML = `
         <label>Orientamento PDF:</label>
         <div class="selector-row">
             <label class="selector-item">
-                <input type="radio" name="pdf-orient" value="portrait" checked>
+                <input type="radio" name="pdf-orient" value="portrait" ${!isTutorials ? 'checked' : ''}>
                 <span>Verticale</span>
             </label>
             <label class="selector-item">
-                <input type="radio" name="pdf-orient" value="landscape">
-                <span>Orizzontale</span>
+                <input type="radio" name="pdf-orient" value="landscape" ${isTutorials ? 'checked' : ''}>
+                <span>Orizzontale ${isTutorials ? '(Auto)' : ''}</span>
             </label>
         </div>
     `;
@@ -299,26 +332,32 @@
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
-    exportBtn.innerText = '📄 EXPORT DNA PDF';
+    exportBtn.innerText = '📄 EXPORT DNA REPORT v2.3';
     exportBtn.onclick = () => {
         const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
         const element = document.body;
         const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+
+        // Enter PDF Mode for styling
+        element.classList.add('pdf-mode');
+
         const opt = {
-            margin: 0.1,
+            margin: 0.2,
             filename: `RENGA-DNA-REVIEW-${pageName.toUpperCase()}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 1.5, useCORS: true, letterRendering: true },
-            jsPDF: { unit: 'in', format: 'a4', orientation: orientation }
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
+            jsPDF: { unit: 'in', format: 'a4', orientation: orientation },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🧬 GENERATING ${orientation.toUpperCase()} PDF...`;
+        t.innerHTML = `🧬 GENERATING ${orientation.toUpperCase()} REPORT v2.3...`;
         document.body.appendChild(t);
 
         html2pdf().set(opt).from(element).save().then(() => {
-            t.innerHTML = `✅ PDF EXPORTED SUCCESSFULLY`;
+            element.classList.remove('pdf-mode');
+            t.innerHTML = `✅ REPORT EXPORTED SUCCESSFULLY`;
             setTimeout(() => t.remove(), 2000);
         });
     };
