@@ -121,14 +121,14 @@
         .pdf-mobile { max-width: 375px !important; margin: 0 auto !important; border: 1px solid #ccc !important; }
         .pdf-mobile .tutorial-card, .pdf-mobile .info-card { padding: 15px !important; margin-bottom: 20px !important; }
 
-        .pdf-mode h1, .pdf-mode h2, .pdf-mode h3 { color: #000 !important; font-size: 16pt !important; margin-top: 0 !important; }
+        .pdf-mode h1, .pdf-mode h2, .pdf-mode h3 { color: #000 !important; font-size: 16pt !important; margin-top: 0 !important; margin-left: 0 !important; padding-left: 0 !important; }
         .pdf-mode p, .pdf-mode span, .pdf-mode strong { color: #000 !important; font-size: 11pt !important; line-height: 1.5 !important; }
         
-        /* DNA SIDEBAR / POSITIONING */
+        /* DNA SIDEBAR / POSITIONING (v3.1) */
         .pdf-mode .dna-visible-badge { 
             position: absolute !important; 
-            top: 5px !important; 
-            right: 5px !important;
+            top: 10px !important; 
+            right: 15px !important;
             left: auto !important;
             transform: none !important;
             background: #FFCC00 !important;
@@ -140,6 +140,7 @@
             border: 1px solid #000 !important;
             z-index: 9999 !important;
             display: block !important;
+            box-shadow: none !important;
         }
 
         /* ASSET OPTIMIZATION */
@@ -385,11 +386,16 @@
         const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
 
         // Enter PDF Mode
+        const originalPadding = element.style.paddingLeft;
         element.classList.add('pdf-mode');
-        if (format === 'mobile') element.classList.add('pdf-mobile');
+        if (format === 'mobile') {
+            element.classList.add('pdf-mobile');
+        } else {
+            element.style.paddingLeft = "50px"; // v3.1 Left Margin Fix
+        }
 
         const opt = {
-            margin: [0.4, 0.4, 0.4, 0.4],
+            margin: [0.5, 0.5, 0.5, 0.5],
             filename: `RENGA-MASTER-REPORT-${format.toUpperCase()}-${pageName.toUpperCase()}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
@@ -397,7 +403,8 @@
                 useCORS: true,
                 letterRendering: true,
                 logging: false,
-                windowWidth: format === 'mobile' ? 375 : 1200
+                width: format === 'mobile' ? 375 : 1400, // v3.1 Viewport fix
+                windowWidth: format === 'mobile' ? 375 : 1400
             },
             jsPDF: { unit: 'in', format: 'a4', orientation: orientation },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
@@ -405,12 +412,13 @@
 
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🚀 GENERATING ${format.toUpperCase()} ${orientation.toUpperCase()} REPORT...`;
+        t.innerHTML = `🚀 GENERATING ${format.toUpperCase()} ${orientation.toUpperCase()} REPORT v3.1...`;
         document.body.appendChild(t);
 
         html2pdf().set(opt).from(element).save().then(() => {
             element.classList.remove('pdf-mode');
             element.classList.remove('pdf-mobile');
+            element.style.paddingLeft = originalPadding;
             t.innerHTML = `✅ MASTER REPORT READY`;
             setTimeout(() => t.remove(), 2000);
         });
