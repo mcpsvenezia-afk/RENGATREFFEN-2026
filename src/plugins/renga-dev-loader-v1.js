@@ -23,7 +23,7 @@
         return;
     }
 
-    const version = "1.5.1-SHELL";
+    const version = "1.5.1-ASSEMBLY-FIX";
     console.log(`[DEV] Renga Atomic Inspector v${version} ACTIVE`);
 
     // 0.1 LOAD PDF ENGINES (v9.0 Visual Assembly)
