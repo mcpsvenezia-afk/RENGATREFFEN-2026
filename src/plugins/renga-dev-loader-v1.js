@@ -403,84 +403,95 @@
     `;
     tray.appendChild(selectorContainer);
 
-    // 🚀 GENERATE BUTTON (v4.0 CLEAN CLONE)
+    // 🚀 GENERATE BUTTON (v5.0 TABULAR EXTRACTOR)
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
     exportBtn.style.textAlign = 'center';
-    exportBtn.innerText = '🚀 GENERA MASTER REPORT v4.0';
+    exportBtn.innerText = '🚀 GENERA MASTER REPORT v5.0';
     exportBtn.onclick = () => {
         const format = document.querySelector('input[name="pdf-format"]:checked').value;
         const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
         const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
 
-        // 1. Create Temporary Clean Canvas
-        const canvas = document.createElement('div');
-        canvas.id = 'renga-print-canvas';
-        if (format === 'mobile') canvas.style.width = '375px';
-        document.body.appendChild(canvas);
+        // 1. Scraping & Table Construction
+        const reportContainer = document.createElement('div');
+        reportContainer.style.background = '#fff';
+        reportContainer.style.color = '#000';
+        reportContainer.style.padding = '40px';
+        reportContainer.style.fontFamily = 'Arial, sans-serif';
+        reportContainer.style.fontSize = '11pt';
+        reportContainer.innerHTML = `
+            <div style="border: 2px solid #FFCC00; padding: 20px; margin-bottom: 30px; text-align: center;">
+                <h1 style="margin: 0; color: #000; font-size: 24pt;">RENGATREFFEN DNA AUDIT</h1>
+                <p style="margin: 5px 0; font-weight: bold; color: #666;">MASTER REPORT v5.0 - ESTRATTORE TABELLARE</p>
+                <p style="margin: 10px 0; font-size: 10pt;">Pagina: ${pageName.toUpperCase()} | Data: ${new Date().toLocaleString()}</p>
+            </div>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #000; color: #FFCC00;">
+                        <th style="border: 1px solid #333; padding: 12px; text-align: left; width: 120px;">DNA ID</th>
+                        <th style="border: 1px solid #333; padding: 12px; text-align: center; width: 100px;">ASSET</th>
+                        <th style="border: 1px solid #333; padding: 12px; text-align: left;">CONTENUTO TESTUALE</th>
+                    </tr>
+                </thead>
+                <tbody id="report-body"></tbody>
+            </table>
+        `;
 
-        // 2. Clone Content (Filter by key components)
-        const items = document.querySelectorAll('.tutorial-card, .info-card');
-        items.forEach(item => {
-            const clone = item.cloneNode(true);
-            const container = document.createElement('div');
-            container.className = 'pdf-canvas-item';
+        const tbody = reportContainer.querySelector('#report-body');
 
-            // Find DNA Badge in the original (or clone if it was injected)
-            let dnaId = "";
-            const badge = item.querySelector('.dna-visible-badge');
-            if (badge) {
-                dnaId = badge.innerText;
-                const b = clone.querySelector('.dna-visible-badge');
-                if (b) b.remove(); // Remove old badge style
+        // Find all elements with DNA IDs via the injected badges
+        const badges = document.querySelectorAll('.dna-visible-badge');
+
+        if (badges.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="padding: 20px; text-align: center;">Nessun elemento DNA rilevato nella pagina.</td></tr>';
+        }
+
+        badges.forEach(badge => {
+            const dnaId = badge.innerText;
+            const parent = badge.parentElement;
+
+            // Extract clean text (remove badge text and trim)
+            let content = parent.innerText.replace(dnaId, '').trim();
+            if (!content && parent.title) content = `[Title]: ${parent.title}`;
+            if (!content) content = "(Nessun testo rilevato)";
+
+            // Extract asset (icon/img)
+            let assetHtml = '<span style="color: #ccc; font-size: 8pt;">N/A</span>';
+            const img = parent.querySelector('img');
+            if (img) {
+                assetHtml = `<img src="${img.src}" style="width: 50px; height: 50px; object-fit: contain; border: 1px solid #eee; border-radius: 5px; padding: 2px; background: #fafafa;">`;
             }
 
-            // Refactor Heading with DNA Pill
-            const h2 = clone.querySelector('h2');
-            if (h2) {
-                if (dnaId) {
-                    const pill = document.createElement('span');
-                    pill.className = 'pdf-dna-pill';
-                    pill.innerText = dnaId;
-                    h2.prepend(pill);
-                }
-            }
-
-            // Cleanup buttons style in canvas
-            const btn = clone.querySelector('.app-download-btn');
-            if (btn) {
-                btn.className = 'pdf-canvas-btn';
-                const sName = btn.querySelector('.store-name');
-                if (sName) sName.style.display = 'block';
-            }
-
-            container.appendChild(clone);
-            canvas.appendChild(container);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="border: 1px solid #eee; padding: 12px; vertical-align: top;">
+                    <span style="background: #000; color: #FFCC00; padding: 4px 8px; border-radius: 4px; font-weight: 900; font-size: 9pt; font-family: 'Courier New', monospace; display: inline-block;">${dnaId}</span>
+                </td>
+                <td style="border: 1px solid #eee; padding: 12px; vertical-align: middle; text-align: center;">${assetHtml}</td>
+                <td style="border: 1px solid #eee; padding: 12px; vertical-align: top; line-height: 1.5; font-size: 12px; color: #111;">
+                    ${content}
+                </td>
+            `;
+            tbody.appendChild(row);
         });
 
         const opt = {
-            margin: 0.3,
-            filename: `RENGA-v4-REPORT-${format.toUpperCase()}-${pageName.toUpperCase()}.pdf`,
+            margin: 0.5,
+            filename: `RENGA-DNA-v5-TABLE-${pageName.toUpperCase()}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                letterRendering: true,
-                logging: false,
-                width: format === 'mobile' ? 375 : 800
-            },
+            html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
             jsPDF: { unit: 'in', format: 'a4', orientation: orientation }
         };
 
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🧬 CLONING & GENERATING v4.0...`;
+        t.innerHTML = `🧬 EXTRACTING DNA TABLE v5.0...`;
         document.body.appendChild(t);
 
-        html2pdf().set(opt).from(canvas).save().then(() => {
-            canvas.remove();
-            t.innerHTML = `✅ MASTER v4.0 READY`;
+        html2pdf().set(opt).from(reportContainer).save().then(() => {
+            t.innerHTML = `✅ MASTER v5.0 READY`;
             setTimeout(() => t.remove(), 2000);
         });
     };
