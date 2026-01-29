@@ -174,7 +174,7 @@
             font-size: 10px !important;
             font-weight: 900;
             border-radius: 4px;
-            z-index: 2000;
+            z-index: 9999; /* v7.0 Badge Alpha */
             pointer-events: none;
             box-shadow: 0 2px 8px rgba(0,0,0,0.8);
             font-family: 'Inter', sans-serif;
@@ -182,6 +182,13 @@
             transform: translateY(-100%);
             white-space: nowrap;
         }
+
+        /* 📑 PDF ENGINE v7.0 - FULL-BODY SCRAPER */
+        .pdf-mode { padding: 20px !important; background: #fff !important; }
+        .pdf-mode #renga-dev-menu, .pdf-mode #renga-inspector-overlay { display: none !important; }
+        .pdf-mode section { page-break-inside: auto !important; }
+        .pdf-mode .tutorial-card, .pdf-mode .info-card { page-break-inside: avoid !important; break-inside: avoid !important; }
+        .pdf-mode .dna-visible-badge { display: block !important; opacity: 1 !important; visibility: visible !important; }
     `;
     document.head.appendChild(style);
 
@@ -369,109 +376,68 @@
     `;
     tray.appendChild(selectorContainer);
 
-    // 🚀 GENERATE BUTTON (v6.0 HIGH-FIDELITY HYBRID)
+    // 🚀 GENERATE BUTTON (v7.0 FULL-BODY SCRAPER)
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
     exportBtn.style.textAlign = 'center';
-    exportBtn.innerText = '🚀 GENERA HANDBOOK v6.0';
-    exportBtn.onclick = () => {
-        const format = document.querySelector('input[name="pdf-format"]:checked').value;
+    exportBtn.innerText = '🚀 GENERA FULL-BODY REPORT v7.0';
+    exportBtn.onclick = async () => {
         const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
         const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
-
-        // 1. Construct Hybrid Report
-        const report = document.createElement('div');
-        report.className = 'pdf-hybrid-container';
-        if (format === 'mobile') report.style.maxWidth = '400px';
-
-        report.innerHTML = `
-            <div style="background: #000; color: #FFCC00; padding: 40px; text-align: center; border-radius: 12px; margin-bottom: 40px; border: 2px solid #FFCC00;">
-                <h1 style="margin: 0; font-size: 28pt; letter-spacing: 2px;">RENGATREFFEN 2026</h1>
-                <p style="margin: 10px 0; font-size: 12pt; font-weight: bold; opacity: 0.8;">HIGH-FIDELITY HANDBOOK v6.0</p>
-                <p style="margin: 20px 0 0 0; font-size: 9pt; opacity: 0.6; font-family: monospace;">AUDIT: ${pageName.toUpperCase()} | ${new Date().toLocaleString()}</p>
-            </div>
-        `;
-
-        // Extraction Logic
-        const sourceCards = document.querySelectorAll('.tutorial-card, .info-card');
-        sourceCards.forEach(card => {
-            const frame = document.createElement('div');
-            frame.className = 'pdf-hybrid-card';
-
-            // DNA Label
-            const badge = card.querySelector('.dna-visible-badge');
-            if (badge) {
-                const label = document.createElement('div');
-                label.className = 'pdf-hybrid-badge';
-                label.innerText = badge.innerText;
-                frame.appendChild(label);
-            }
-
-            // Title
-            const title = card.querySelector('h2');
-            if (title) {
-                const h2 = document.createElement('h2');
-                h2.innerText = title.innerText;
-                frame.appendChild(h2);
-            }
-
-            // Asset
-            const img = card.querySelector('img:not(.store-logo)');
-            if (img) {
-                const asset = document.createElement('img');
-                asset.className = 'pdf-hybrid-asset';
-                asset.src = img.src;
-                frame.appendChild(asset);
-            }
-
-            // Text content
-            const pTags = card.querySelectorAll('p');
-            pTags.forEach(p => {
-                const text = document.createElement('p');
-                text.innerText = p.innerText;
-                frame.appendChild(text);
-            });
-
-            // Button recovery
-            const sourceBtn = card.querySelector('.app-download-btn');
-            if (sourceBtn) {
-                const hybridBtn = document.createElement('div');
-                hybridBtn.className = 'pdf-hybrid-btn';
-
-                const icon = sourceBtn.querySelector('.app-icon img');
-                if (icon) {
-                    const bIcon = document.createElement('img');
-                    bIcon.className = 'pdf-hybrid-btn-icon';
-                    bIcon.src = icon.src;
-                    hybridBtn.appendChild(bIcon);
-                }
-
-                const label = document.createElement('span');
-                label.innerText = sourceBtn.innerText.replace(/\n/g, ' ').trim();
-                hybridBtn.appendChild(label);
-
-                frame.appendChild(hybridBtn);
-            }
-
-            report.appendChild(frame);
-        });
-
-        const opt = {
-            margin: 0.2,
-            filename: `RENGA-HANDBOOK-v6-${pageName.toUpperCase()}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
-            jsPDF: { unit: 'in', format: 'a4', orientation: orientation }
-        };
+        const element = document.body;
 
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `🧬 GENERATING HYBRID HANDBOOK v6.0...`;
+        t.innerHTML = `📡 WAKING UP ELEMENTS (AUTO-SCROLL)...`;
         document.body.appendChild(t);
 
-        html2pdf().set(opt).from(report).save().then(() => {
-            t.innerHTML = `✅ HANDBOOK v6.0 READY`;
+        // 1. Auto-Scroll Technique (Wake up lazy assets)
+        const scrollStep = 100;
+        const totalHeight = document.body.scrollHeight;
+        for (let y = 0; y < totalHeight; y += scrollStep) {
+            window.scrollTo(0, y);
+            if (y % 1000 === 0) await new Promise(r => setTimeout(r, 10));
+        }
+        window.scrollTo(0, 0);
+        await new Promise(r => setTimeout(r, 500));
+
+        t.innerHTML = `🧬 GENERATING FULL-BODY REPORT v7.0...`;
+
+        // 2. Prepare Body for PDF
+        const originalStyle = element.getAttribute('style') || "";
+        element.classList.add('pdf-mode');
+
+        const opt = {
+            margin: 0.2, // Safety margin for the pdf page itself
+            filename: `RENGA-FULL-BODY-${pageName.toUpperCase()}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                scrollX: 0,
+                scrollY: 0,
+                windowWidth: 1200
+            },
+            jsPDF: { unit: 'in', format: 'a4', orientation: orientation },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        // Ensure logo is loaded
+        const logo = document.querySelector('.logo img');
+        if (logo && !logo.complete) {
+            await new Promise(r => {
+                logo.onload = r;
+                logo.onerror = r;
+                setTimeout(r, 2000);
+            });
+        }
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            element.classList.remove('pdf-mode');
+            element.setAttribute('style', originalStyle);
+            t.innerHTML = `✅ FULL-BODY REPORT READY`;
             setTimeout(() => t.remove(), 2000);
         });
     };
