@@ -92,6 +92,14 @@
         .dev-btn:hover { background: #222; border-color: #FFCC00; color: #FFCC00; }
         .dev-main-btn { background: #FFCC00; color: #000; border: none; width: 56px; height: 56px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 10px 30px rgba(255, 204, 0, 0.3); }
 
+        /* 📄 PDF SELECTOR STYLES */
+        .dev-selector { color: #eee; font-size: 11px; margin: 10px 0; padding: 12px; border: 1px dashed #333; border-radius: 10px; background: #111; }
+        .dev-selector label { display: block; margin-bottom: 8px; font-weight: 900; color: #FFCC00; text-transform: uppercase; font-size: 9px; letter-spacing: 1px; }
+        .selector-row { display: flex; gap: 15px; align-items: center; }
+        .selector-item { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .selector-item input { margin: 0; cursor: pointer; accent-color: #FFCC00; }
+        .selector-item span { font-size: 10px; font-weight: 600; }
+
         /* 🟢 ATOMIC HIGHLIGHTER & BADGES */
         .atomic-highlight { 
             outline: 4px solid #FFCC00 !important; 
@@ -258,33 +266,7 @@
         { t: 'DASHBOARD', act: () => location.href = '/dashboard.html' },
         { t: 'HOME PAGE', act: () => location.href = '/' },
         { t: 'TEAM LIST', act: () => location.href = '/team.html' },
-        { t: 'REGOLAMENTO', act: () => location.href = '/regolamento.html' },
-        {
-            t: '📄 EXPORT DNA PDF',
-            act: () => {
-                const element = document.body;
-                const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
-                const opt = {
-                    margin: 0.2,
-                    filename: `RENGA-DNA-REVIEW-${pageName.toUpperCase()}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-
-                // Show a toast while generating
-                const t = document.createElement('div');
-                t.className = 'renga-supra-toast';
-                t.innerHTML = `🧬 GENERATING DNA REVIEW PDF...`;
-                document.body.appendChild(t);
-
-                html2pdf().set(opt).from(element).save().then(() => {
-                    t.innerHTML = `✅ PDF EXPORTED SUCCESSFULLY`;
-                    setTimeout(() => t.remove(), 2000);
-                });
-            }
-        },
-        { t: '🔴 EXIT DEV', act: () => { localStorage.removeItem('RENGATREFFEN_DEV_MODE'); location.reload(); } }
+        { t: 'REGOLAMENTO', act: () => location.href = '/regolamento.html' }
     ];
 
     menu.forEach(m => {
@@ -294,6 +276,60 @@
         b.onclick = m.act;
         tray.appendChild(b);
     });
+
+    // 📄 PDF ORIENTATION SELECTOR
+    const selectorContainer = document.createElement('div');
+    selectorContainer.className = 'dev-selector';
+    selectorContainer.innerHTML = `
+        <label>Orientamento PDF:</label>
+        <div class="selector-row">
+            <label class="selector-item">
+                <input type="radio" name="pdf-orient" value="portrait" checked>
+                <span>Verticale</span>
+            </label>
+            <label class="selector-item">
+                <input type="radio" name="pdf-orient" value="landscape">
+                <span>Orizzontale</span>
+            </label>
+        </div>
+    `;
+    tray.appendChild(selectorContainer);
+
+    // 📄 PDF EXPORT BUTTON
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'dev-btn';
+    exportBtn.style.borderColor = '#FFCC00';
+    exportBtn.innerText = '📄 EXPORT DNA PDF';
+    exportBtn.onclick = () => {
+        const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
+        const element = document.body;
+        const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+        const opt = {
+            margin: 0.1,
+            filename: `RENGA-DNA-REVIEW-${pageName.toUpperCase()}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 1.5, useCORS: true, letterRendering: true },
+            jsPDF: { unit: 'in', format: 'a4', orientation: orientation }
+        };
+
+        const t = document.createElement('div');
+        t.className = 'renga-supra-toast';
+        t.innerHTML = `🧬 GENERATING ${orientation.toUpperCase()} PDF...`;
+        document.body.appendChild(t);
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            t.innerHTML = `✅ PDF EXPORTED SUCCESSFULLY`;
+            setTimeout(() => t.remove(), 2000);
+        });
+    };
+    tray.appendChild(exportBtn);
+
+    const exitBtn = document.createElement('button');
+    exitBtn.className = 'dev-btn';
+    exitBtn.style.color = '#ff4444';
+    exitBtn.innerText = '🔴 EXIT DEV';
+    exitBtn.onclick = () => { localStorage.removeItem('RENGATREFFEN_DEV_MODE'); location.reload(); };
+    tray.appendChild(exitBtn);
 
     const fab = document.createElement('button');
     fab.className = 'dev-main-btn';
