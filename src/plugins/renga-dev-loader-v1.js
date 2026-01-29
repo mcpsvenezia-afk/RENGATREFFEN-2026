@@ -26,10 +26,6 @@
     const version = "1.5.1-SHELL";
     console.log(`[DEV] Renga Atomic Inspector v${version} ACTIVE`);
 
-    // 0.1 LOAD PDF ENGINE
-    const pdfScript = document.createElement('script');
-    pdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-    document.head.appendChild(pdfScript);
 
     // 1. SURGICAL STYLES
     const style = document.createElement('style');
@@ -183,12 +179,33 @@
             white-space: nowrap;
         }
 
-        /* 📑 PDF ENGINE v7.0 - FULL-BODY SCRAPER */
-        .pdf-mode { padding: 20px !important; background: #fff !important; }
-        .pdf-mode #renga-dev-menu, .pdf-mode #renga-inspector-overlay { display: none !important; }
-        .pdf-mode section { page-break-inside: auto !important; }
-        .pdf-mode .tutorial-card, .pdf-mode .info-card { page-break-inside: avoid !important; break-inside: avoid !important; }
-        .pdf-mode .dna-visible-badge { display: block !important; opacity: 1 !important; visibility: visible !important; }
+        /* 📑 NATIVE PRINT ENGINE OPTIMIZATION */
+        @media print {
+            @page { margin: 1cm; size: auto; }
+            body { background: #fff !important; color: #000 !important; }
+            nav, .gold-bar, #renga-dev-menu, #renga-inspector-overlay { display: none !important; }
+            header, footer { display: block !important; opacity: 1 !important; visibility: visible !important; }
+            
+            .tutorial-card, .info-card, .registration-section { 
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important; 
+                margin-bottom: 20px !important;
+                border: 1px solid #eee !important;
+                box-shadow: none !important;
+                background: #fff !important;
+                color: #000 !important;
+            }
+            
+            .dna-visible-badge { 
+                display: block !important; 
+                opacity: 1 !important; 
+                visibility: visible !important; 
+                background: #000 !important; 
+                color: #FFFF00 !important; 
+                z-index: 9999 !important;
+                -webkit-print-color-adjust: exact;
+            }
+        }
     `;
     document.head.appendChild(style);
 
@@ -376,70 +393,22 @@
     `;
     tray.appendChild(selectorContainer);
 
-    // 🚀 GENERATE BUTTON (v7.0 FULL-BODY SCRAPER)
+    // 🚀 GENERATE BUTTON (NATIVE PRINT)
     const exportBtn = document.createElement('button');
     exportBtn.className = 'dev-btn';
     exportBtn.style.borderColor = '#FFCC00';
     exportBtn.style.textAlign = 'center';
-    exportBtn.innerText = '🚀 GENERA FULL-BODY REPORT v7.0';
-    exportBtn.onclick = async () => {
-        const orientation = document.querySelector('input[name="pdf-orient"]:checked').value;
-        const pageName = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
-        const element = document.body;
-
+    exportBtn.innerText = '🚀 GENERA REPORT (STAMPA NATIVA)';
+    exportBtn.onclick = () => {
         const t = document.createElement('div');
         t.className = 'renga-supra-toast';
-        t.innerHTML = `📡 WAKING UP ELEMENTS (AUTO-SCROLL)...`;
+        t.innerHTML = `🧬 OPENING SYSTEM PRINT DIALOG...`;
         document.body.appendChild(t);
 
-        // 1. Auto-Scroll Technique (Wake up lazy assets)
-        const scrollStep = 100;
-        const totalHeight = document.body.scrollHeight;
-        for (let y = 0; y < totalHeight; y += scrollStep) {
-            window.scrollTo(0, y);
-            if (y % 1000 === 0) await new Promise(r => setTimeout(r, 10));
-        }
-        window.scrollTo(0, 0);
-        await new Promise(r => setTimeout(r, 500));
-
-        t.innerHTML = `🧬 GENERATING FULL-BODY REPORT v7.0...`;
-
-        // 2. Prepare Body for PDF
-        const originalStyle = element.getAttribute('style') || "";
-        element.classList.add('pdf-mode');
-
-        const opt = {
-            margin: 0.2, // Safety margin for the pdf page itself
-            filename: `RENGA-FULL-BODY-${pageName.toUpperCase()}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                letterRendering: true,
-                scrollX: 0,
-                scrollY: 0,
-                windowWidth: 1200
-            },
-            jsPDF: { unit: 'in', format: 'a4', orientation: orientation },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-
-        // Ensure logo is loaded
-        const logo = document.querySelector('.logo img');
-        if (logo && !logo.complete) {
-            await new Promise(r => {
-                logo.onload = r;
-                logo.onerror = r;
-                setTimeout(r, 2000);
-            });
-        }
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            element.classList.remove('pdf-mode');
-            element.setAttribute('style', originalStyle);
-            t.innerHTML = `✅ FULL-BODY REPORT READY`;
-            setTimeout(() => t.remove(), 2000);
-        });
+        setTimeout(() => {
+            window.print();
+            t.remove();
+        }, 500);
     };
     tray.appendChild(exportBtn);
 
