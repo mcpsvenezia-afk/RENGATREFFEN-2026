@@ -1,5 +1,15 @@
-import React, { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { useEffect } from 'react';
+
+const useMobile = () => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return isMobile;
+};
 
 const RegistrationForm = () => {
     const [loading, setLoading] = useState(false);
@@ -57,7 +67,25 @@ const RegistrationForm = () => {
         return total;
     };
 
+    const isMobile = useMobile();
     const currentTotal = calculateTotal(formData.formula_partecipazione, passengers.length, lunchGuests.length);
+
+    const handleShare = async () => {
+        const shareData = {
+            title: 'Renga Treffen 2026',
+            text: 'Partecipa con me al Renga Treffen 2026! 🏁 Iscriviti qui:',
+            url: 'https://www.rengatreffen.it'
+        };
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                alert('La condivisione non è supportata su questo browser. Copia il link: https://www.rengatreffen.it');
+            }
+        } catch (err) {
+            console.error('Error sharing:', err);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -155,7 +183,23 @@ const RegistrationForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ width: '100%', color: '#fff' }}>
+        <form onSubmit={handleSubmit} style={{ width: '100%', color: '#fff', paddingBottom: isMobile ? '120px' : '0' }}>
+            {/* 📱 MOBILE SHARE BUTTON */}
+            {isMobile && (
+                <button
+                    type="button"
+                    onClick={handleShare}
+                    data-dna="9001-MOBILE-SHARE-BTN"
+                    style={{
+                        position: 'fixed', top: '10px', right: '10px', zIndex: 1000,
+                        backgroundColor: '#FFCC00', border: 'none', borderRadius: '50%',
+                        width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.3)', cursor: 'pointer'
+                    }}
+                >
+                    <span style={{ fontSize: '1.5rem' }}>📤</span>
+                </button>
+            )}
             {/* DNA ROOT FOR MATRIOSKA */}
             <div data-dna="9000-REGISTRATION-FORM" style={{ display: 'none' }}></div>
 
@@ -209,9 +253,9 @@ const RegistrationForm = () => {
                 )}
             </div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>2. Dati Team & Veicolo</h3>
-                <div style={rowStyle}>
+            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: isMobile ? '20px' : '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>2. Dati Team & Veicolo</h3>
+                <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Nome del Team</label>
                         <input type="text" name="team_name" required placeholder="Nome del team" value={formData.team_name} onChange={handleChange} style={inputStyle} />
@@ -223,9 +267,9 @@ const RegistrationForm = () => {
                 </div>
             </div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>3. Dati Pilota 1 (Richiedente)</h3>
-                <div style={rowStyle}>
+            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: isMobile ? '20px' : '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>3. Dati Pilota 1 (Richiedente)</h3>
+                <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Nome</label>
                         <input type="text" name="nome" required placeholder="Nome" value={formData.nome} onChange={handleChange} style={inputStyle} />
@@ -235,85 +279,85 @@ const RegistrationForm = () => {
                         <input type="text" name="cognome" required placeholder="Cognome" value={formData.cognome} onChange={handleChange} style={inputStyle} />
                     </div>
                 </div>
-                <div style={rowStyle}>
+                <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Email</label>
-                        <input type="email" name="email" required placeholder="email@esempio.com" value={formData.email} onChange={handleChange} style={inputStyle} />
+                        <input type="email" name="email" required placeholder="email@esempio.com" value={formData.email} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                     </div>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Telefono</label>
-                        <input type="tel" name="telefono" required placeholder="333 1234567" value={formData.telefono} onChange={handleChange} style={inputStyle} />
+                        <input type="tel" name="telefono" required placeholder="333 1234567" value={formData.telefono} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                     </div>
                 </div>
 
-                <div style={rowStyle}>
+                <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Codice Fiscale</label>
-                        <input type="text" name="codice_fiscale" required placeholder="RSSMRA80A01H501U" value={formData.codice_fiscale} onChange={handleChange} style={{ ...inputStyle, textTransform: 'uppercase' }} />
+                        <input type="text" name="codice_fiscale" required placeholder="RSSMRA80A01H501U" value={formData.codice_fiscale} onChange={handleChange} style={{ ...inputStyle, textTransform: 'uppercase', fontSize: isMobile ? '1.1rem' : '1rem' }} />
                     </div>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Comune di Nascita</label>
-                        <input type="text" name="citta_nascita" required placeholder="es. Treviso" value={formData.citta_nascita} onChange={handleChange} style={inputStyle} />
+                        <input type="text" name="citta_nascita" required placeholder="es. Treviso" value={formData.citta_nascita} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                     </div>
                 </div>
 
                 <div style={{ marginTop: '20px' }}>
                     <h4 style={{ color: '#fff', fontSize: '0.8rem', marginBottom: '15px' }}>Residenza</h4>
-                    <div style={rowStyle}>
+                    <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                         <div style={{ flex: 1.5 }}>
                             <label style={labelStyle}>Via / Piazza</label>
-                            <input type="text" name="via_residenza" required placeholder="es. Via Roma" value={formData.via_residenza} onChange={handleChange} style={inputStyle} />
+                            <input type="text" name="via_residenza" required placeholder="es. Via Roma" value={formData.via_residenza} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                         </div>
                         <div style={{ flex: 0.5 }}>
                             <label style={labelStyle}>Civico</label>
-                            <input type="text" name="civico_residenza" required placeholder="12" value={formData.civico_residenza} onChange={handleChange} style={inputStyle} />
+                            <input type="text" name="civico_residenza" required placeholder="12" value={formData.civico_residenza} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                         </div>
                     </div>
-                    <div style={rowStyle}>
+                    <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                         <div style={{ flex: 1 }}>
                             <label style={labelStyle}>CAP</label>
-                            <input type="text" name="cap_residenza" required placeholder="31100" value={formData.cap_residenza} onChange={handleChange} style={inputStyle} />
+                            <input type="text" name="cap_residenza" required placeholder="31100" value={formData.cap_residenza} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                         </div>
                         <div style={{ flex: 1 }}>
                             <label style={labelStyle}>Città</label>
-                            <input type="text" name="citta_residenza" required placeholder="Treviso" value={formData.citta_residenza} onChange={handleChange} style={inputStyle} />
+                            <input type="text" name="citta_residenza" required placeholder="Treviso" value={formData.citta_residenza} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                         </div>
                     </div>
                 </div>
 
                 <div style={{ marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
                     <h4 style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '15px' }}>Dati Secondo Pilota (Se presente)</h4>
-                    <div style={rowStyle}>
+                    <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                         <div style={{ flex: 1 }}>
                             <label style={labelStyle}>Nome 2</label>
-                            <input type="text" name="secondo_nome" placeholder="Nome partner" value={formData.secondo_nome} onChange={handleChange} style={inputStyle} />
+                            <input type="text" name="secondo_nome" placeholder="Nome partner" value={formData.secondo_nome} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                         </div>
                         <div style={{ flex: 1 }}>
                             <label style={labelStyle}>Cognome 2</label>
-                            <input type="text" name="secondo_cognome" placeholder="Cognome partner" value={formData.secondo_cognome} onChange={handleChange} style={inputStyle} />
+                            <input type="text" name="secondo_cognome" placeholder="Cognome partner" value={formData.secondo_cognome} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                         </div>
                     </div>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Cellulare 2</label>
-                        <input type="tel" name="secondo_cellulare" placeholder="333 1234567" value={formData.secondo_cellulare} onChange={handleChange} style={inputStyle} />
+                        <input type="tel" name="secondo_cellulare" placeholder="333 1234567" value={formData.secondo_cellulare} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                     </div>
                 </div>
             </div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>4. Alimentazione & Emergenza</h3>
+            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: isMobile ? '20px' : '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>4. Alimentazione & Emergenza</h3>
                 <div>
                     <label style={labelStyle}>Preferenze alimentari o allergie (Obbligatorio)</label>
                     <textarea name="food_preferences" required placeholder="Nessuna o specifica allergie..." value={formData.food_preferences} onChange={handleChange} style={{ ...inputStyle, minHeight: '80px' }} />
                 </div>
-                <div style={rowStyle}>
+                <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Cellulare Emergenza</label>
-                        <input type="tel" name="emergency_contact_phone" required placeholder="333 1234567" value={formData.emergency_contact_phone} onChange={handleChange} style={inputStyle} />
+                        <input type="tel" name="emergency_contact_phone" required placeholder="333 1234567" value={formData.emergency_contact_phone} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                     </div>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Grado Parentela / Nome</label>
-                        <input type="text" name="emergency_contact_info" required placeholder="es. Moglie, Mario Rossi" value={formData.emergency_contact_info} onChange={handleChange} style={inputStyle} />
+                        <input type="text" name="emergency_contact_info" required placeholder="es. Moglie, Mario Rossi" value={formData.emergency_contact_info} onChange={handleChange} style={{ ...inputStyle, fontSize: isMobile ? '1.1rem' : '1rem' }} />
                     </div>
                 </div>
 
@@ -335,8 +379,8 @@ const RegistrationForm = () => {
                 </div>
             </div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>5. Conferme & Privacy</h3>
+            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: isMobile ? '20px' : '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>5. Conferme & Privacy</h3>
 
                 {[
                     { id: 'is_mcps_member', label: 'Dichiaro di essere regolarmente iscritto al Moto Club PS (MCPS) per l\'anno 2026' },
@@ -377,11 +421,42 @@ const RegistrationForm = () => {
                     width: '100%', padding: '25px', backgroundColor: loading ? '#333' : '#FFCC00',
                     color: '#000', border: 'none', borderRadius: '15px', fontSize: '1.4rem',
                     fontWeight: '950', cursor: loading ? 'wait' : 'pointer', transition: '0.3s',
-                    boxShadow: '0 20px 60px rgba(255,204,0,0.2)'
+                    boxShadow: '0 20px 60px rgba(255,204,0,0.2)',
+                    display: isMobile ? 'none' : 'block'
                 }}
             >
                 {loading ? 'INVIO IN CORSO...' : 'INVIA ISCRIZIONE'}
             </button>
+
+            {/* 📍 STICKY MOBILE FOOTER */}
+            {isMobile && (
+                <div
+                    data-dna="9002-MOBILE-STICKY-FOOTER"
+                    style={{
+                        position: 'fixed', bottom: 0, left: 0, right: 0,
+                        backgroundColor: '#111', borderTop: '2px solid #E6007E',
+                        padding: '15px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        zIndex: 1000, boxShadow: '0 -10px 30px rgba(0,0,0,0.5)'
+                    }}
+                >
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{ color: '#E6007E', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase' }}>Totale:</div>
+                        <div style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 950 }}>€ {currentTotal},00</div>
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        style={{
+                            backgroundColor: loading ? '#444' : '#E6007E',
+                            color: '#fff', border: 'none', borderRadius: '10px',
+                            padding: '12px 25px', fontSize: '1rem', fontWeight: 950,
+                            boxShadow: '0 4px 15px rgba(230,0,126,0.3)'
+                        }}
+                    >
+                        {loading ? '...' : 'INVIA'}
+                    </button>
+                </div>
+            )}
         </form>
     );
 };

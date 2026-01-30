@@ -21,6 +21,8 @@ function App() {
     const [filterFormula, setFilterFormula] = useState('ALL');
     const [filterPaid, setFilterPaid] = useState('ALL');
     const [sortByDeparture, setSortByDeparture] = useState(false);
+    const [showPDFPreview, setShowPDFPreview] = useState(false);
+    const [previewType, setPreviewType] = useState('FULL'); // FULL, ONLY_4X4, ONLY_PAID, TOTALS
 
     useEffect(() => {
         const isStored = localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
@@ -52,6 +54,14 @@ function App() {
             });
         }
 
+        return list;
+    };
+
+    const getPreviewData = () => {
+        let list = [...registrations];
+        if (previewType === 'ONLY_4X4') return list.filter(r => r.formula_partecipazione === '4x4');
+        if (previewType === 'ONLY_PAID') return list.filter(r => r.is_paid === 'SI');
+        if (previewType === 'FULL') return getProcessedRegistrations();
         return list;
     };
 
@@ -201,10 +211,10 @@ function App() {
                                     🕒 ORDINA PER PARTENZA
                                 </div>
                                 <button
-                                    onClick={() => window.print()}
+                                    onClick={() => setShowPDFPreview(true)}
                                     style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', border: 'none', color: '#fff' }}
                                 >
-                                    🖨️ STAMPA REPORT
+                                    🖨️ ANTEPRIMA & STAMPA
                                 </button>
                             </div>
                         )}
@@ -247,6 +257,99 @@ function App() {
                 )}
             </main>
 
+            {/* 📄 PDF PREVIEW MODAL */}
+            {showPDFPreview && (
+                <div
+                    data-dna="2300-PDF-PREVIEW-MODAL"
+                    style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 2000,
+                        display: 'flex', flexDirection: 'column', padding: '40px'
+                    }}
+                >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                        <h2 style={{ color: '#FFCC00', margin: 0 }}>ANTEPRIMA REPORT PDF</h2>
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                            <select
+                                value={previewType}
+                                onChange={(e) => setPreviewType(e.target.value)}
+                                style={{ ...selectFilterStyle, padding: '10px 30px' }}
+                            >
+                                <option value="FULL">REPORT COMPLETO</option>
+                                <option value="ONLY_4X4">SOLO 4x4</option>
+                                <option value="ONLY_PAID">SOLO PAGATI</option>
+                                <option value="TOTALS">RIEPILOGO TOTALI</option>
+                            </select>
+                            <button
+                                onClick={() => { window.print(); setShowPDFPreview(false); }}
+                                style={{ ...filterBtnStyle, backgroundColor: '#FFCC00', color: '#000' }}
+                            >
+                                🖨️ CONFERMA & STAMPA
+                            </button>
+                            <button
+                                onClick={() => setShowPDFPreview(false)}
+                                style={{ ...filterBtnStyle, backgroundColor: '#444' }}
+                            >
+                                CHIUDI
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        id="printable-area"
+                        style={{
+                            backgroundColor: '#fff', color: '#000', flex: 1,
+                            borderRadius: '20px', padding: '50px', overflowY: 'auto',
+                            fontFamily: 'serif'
+                        }}
+                    >
+                        <div style={{ textAlign: 'center', marginBottom: '40px', borderBottom: '2px solid #000', paddingBottom: '20px' }}>
+                            <h1 style={{ margin: 0, fontSize: '2.5rem' }}>RENGA TREFFEN 2026</h1>
+                            <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>LISTA ISCRITTI - VISTA: {previewType}</p>
+                            <p>Data Generazione: {new Date().toLocaleString()}</p>
+                        </div>
+
+                        {previewType === 'TOTALS' ? (
+                            <div style={{ fontSize: '1.5rem', lineHeight: '2' }}>
+                                <p><strong>Totale Iscritti:</strong> {stats.total}</p>
+                                <p><strong>Pagati:</strong> {stats.paid}</p>
+                                <p><strong>MCPS:</strong> {stats.mcps}</p>
+                                <p><strong>Ospiti Pranzo:</strong> {stats.lunchGuests}</p>
+                            </div>
+                        ) : (
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr>
+                                        <th style={{ border: '1px solid #000', padding: '10px' }}>TEAM / PILOTA</th>
+                                        <th style={{ border: '1px solid #000', padding: '10px' }}>MOTO / VEICOLO</th>
+                                        <th style={{ border: '1px solid #000', padding: '10px' }}>STATO</th>
+                                        <th style={{ border: '1px solid #000', padding: '10px' }}>ORARIO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {getPreviewData().map(r => (
+                                        <tr key={r.id}>
+                                            <td style={{ border: '1px solid #000', padding: '10px' }}>
+                                                {r.team_name} - {r.nome} {r.cognome}
+                                            </td>
+                                            <td style={{ border: '1px solid #000', padding: '10px' }}>
+                                                {r.moto_details || r.moto}
+                                            </td>
+                                            <td style={{ border: '1px solid #000', padding: '10px' }}>
+                                                {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
+                                            </td>
+                                            <td style={{ border: '1px solid #000', padding: '10px' }}>
+                                                {r.departure_time || '--:--'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -260,7 +363,18 @@ function App() {
                     [data-dna="1001-ADMIN-BAR"], 
                     [data-dna="1100-SECTION-NAV"], 
                     [data-dna="1190-FILTER-BAR"],
-                    .btn-delete, .btn-detail, .no-print { display: none !important; }
+                    .btn-delete, .btn-detail, .no-print, [data-dna="2300-PDF-PREVIEW-MODAL"] button, [data-dna="2300-PDF-PREVIEW-MODAL"] select { display: none !important; }
+
+                    [data-dna="2300-PDF-PREVIEW-MODAL"] {
+                        position: relative !important;
+                        background: white !important;
+                        padding: 0 !important;
+                        top: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                        bottom: 0 !important;
+                        display: block !important;
+                    }
                     
                     [data-dna="1150-SUMMARY-STATS"] { 
                         display: grid !important; 
