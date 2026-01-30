@@ -164,9 +164,45 @@ const RegistrationForm = () => {
                         </button>
                     </div>
                 )}
+            </div>
 
-                <div style={{ marginTop: '20px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '15px', border: '1px dashed #444' }}>
-                    <label style={labelStyle}>Ospiti solo pranzo (€ 15 cad.)</label>
+            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>2. Dati Team & Veicolo</h3>
+                <div style={rowStyle}>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Nome del Team</label>
+                        <input type="text" name="team_name" required placeholder="Nome del team" value={formData.team_name} onChange={handleChange} style={inputStyle} />
+                    </div>
+                </div>
+                <div style={{ marginTop: '20px' }}>
+                    <label style={labelStyle}>Veicolo (Marca, Modello, Targa)</label>
+                    <input type="text" name="moto_details" required placeholder="es. KTM 890, AA123BB" value={formData.moto_details} onChange={handleChange} style={inputStyle} />
+                </div>
+            </div>
+
+            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>3. Dati Pilota</h3>
+                <div style={rowStyle}>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Nome</label>
+                        <input type="text" name="nome" required placeholder="Nome" value={formData.nome} onChange={handleChange} style={inputStyle} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Cognome</label>
+                        <input type="text" name="cognome" required placeholder="Cognome" value={formData.cognome} onChange={handleChange} style={inputStyle} />
+                    </div>
+                </div>
+                <div style={{ marginTop: '20px' }}>
+                    <label style={labelStyle}>Email</label>
+                    <input type="email" name="email" required placeholder="email@esempio.com" value={formData.email} onChange={handleChange} style={inputStyle} />
+                </div>
+                <div style={{ marginTop: '20px' }}>
+                    <label style={labelStyle}>Telefono</label>
+                    <input type="tel" name="telefono" required placeholder="333 1234567" value={formData.telefono} onChange={handleChange} style={inputStyle} />
+                </div>
+
+                <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '15px', border: '1px dashed #444' }}>
+                    <label style={{ ...labelStyle, color: '#FFCC00' }}>Ospiti solo pranzo (€ 15 cad.)</label>
                     {lunchGuests.map((g, i) => (
                         <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                             <input
@@ -180,18 +216,6 @@ const RegistrationForm = () => {
                     <button type="button" onClick={addLunchGuest} style={{ marginTop: '5px', background: 'none', border: '2px dashed #FFCC00', color: '#FFCC00', padding: '10px 20px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', width: '100%' }}>
                         + AGGIUNGI OSPITE PRANZO
                     </button>
-                </div>
-            </div>
-
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>2. Dati Team & Moto</h3>
-                <div className="form-group">
-                    <label style={labelStyle}>Nome del Team</label>
-                    <input type="text" name="team_name" required placeholder="Nome del team" value={formData.team_name} onChange={handleChange} style={inputStyle} />
-                </div>
-                <div style={{ marginTop: '20px' }}>
-                    <label style={labelStyle}>Veicolo (Marca, Modello, Targa)</label>
-                    <input type="text" name="moto_details" required placeholder="es. KTM 890, AA123BB" value={formData.moto_details} onChange={handleChange} style={inputStyle} />
                 </div>
             </div>
 
