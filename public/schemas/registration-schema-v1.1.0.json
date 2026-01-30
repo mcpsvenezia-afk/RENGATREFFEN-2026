@@ -33,6 +33,46 @@
             ]
         },
         {
+            "id": "formula",
+            "title": "Formula di Partecipazione",
+            "fields": [
+                {
+                    "name": "formula_partecipazione",
+                    "label": "Scegli la tua formula",
+                    "type": "radio",
+                    "options": [
+                        "Caccia_MCPS",
+                        "Caccia_NON_MCPS",
+                        "Discovery",
+                        "4x4"
+                    ],
+                    "required": true
+                },
+                {
+                    "name": "passeggeri_4x4",
+                    "label": "Numero Passeggeri Extra (solo 4x4)",
+                    "type": "number",
+                    "required": false,
+                    "condition": {
+                        "field": "formula_partecipazione",
+                        "value": "4x4"
+                    }
+                },
+                {
+                    "name": "pranzo_accompagnatori",
+                    "label": "Accompagnatori solo pranzo (€ 30/cad)",
+                    "type": "number",
+                    "required": false
+                },
+                {
+                    "name": "importo_dovuto",
+                    "label": "Totale Calcolato",
+                    "type": "number",
+                    "readonly": true
+                }
+            ]
+        },
+        {
             "id": "team",
             "title": "Dati Team & Moto",
             "fields": [

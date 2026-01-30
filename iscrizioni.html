@@ -581,6 +581,76 @@
 
                         </div>
 
+                        <!-- SEZIONE 2.1: FORMULA DI PARTECIPAZIONE (v7.2) -->
+                        <div class="form-section">
+                            <h3 class="section-title">Formula di Partecipazione</h3>
+                            <div class="field-wrapper">
+                                <label>Scegli la tua formula</label>
+                                <div class="radio-group-vertical">
+                                    <label class="radio-item-boxy">
+                                        <input type="radio" name="formula_partecipazione" value="Caccia_MCPS" required
+                                            onchange="updateTotal(); toggleField('4x4_passengers_group', false)">
+                                        <div class="radio-content">
+                                            <strong>Caccia al Tesoro (Iscritti MCPS)</strong>
+                                            <span>€ 75,00</span>
+                                        </div>
+                                    </label>
+                                    <label class="radio-item-boxy">
+                                        <input type="radio" name="formula_partecipazione" value="Caccia_NON_MCPS"
+                                            required
+                                            onchange="updateTotal(); toggleField('4x4_passengers_group', false)">
+                                        <div class="radio-content">
+                                            <strong>Caccia al Tesoro (NON Iscritti MCPS)</strong>
+                                            <span>€ 85,00</span>
+                                        </div>
+                                    </label>
+                                    <label class="radio-item-boxy">
+                                        <input type="radio" name="formula_partecipazione" value="Discovery" required
+                                            onchange="updateTotal(); toggleField('4x4_passengers_group', false)">
+                                        <div class="radio-content">
+                                            <strong>Formula DISCOVERY</strong>
+                                            <span>€ 85,00</span>
+                                        </div>
+                                    </label>
+                                    <label class="radio-item-boxy">
+                                        <input type="radio" name="formula_partecipazione" value="4x4" required
+                                            onchange="updateTotal(); toggleField('4x4_passengers_group', true)">
+                                        <div class="radio-content">
+                                            <strong>Formula 4x4</strong>
+                                            <span>€ 85,00 (+ € 30,00 per passeggero)</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="4x4_passengers_group" class="field-wrapper"
+                                style="display: none; margin-top: 1.5rem; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px;">
+                                <label>Numero Passeggeri Extra (Oltre al conducente)</label>
+                                <input type="number" name="passeggeri_4x4" class="renga-input" min="0" value="0"
+                                    oninput="updateTotal()">
+                                <p style="font-size: 0.8rem; color: #888; margin-top: 8px;">Costo per passeggero: €
+                                    30,00
+                                </p>
+                            </div>
+
+                            <div class="field-wrapper" style="margin-top: 1.5rem;">
+                                <label>Accompagnatori solo per il pranzo (€ 30,00 cadauno)</label>
+                                <input type="number" name="pranzo_accompagnatori" class="renga-input" min="0" value="0"
+                                    oninput="updateTotal()">
+                            </div>
+
+                            <div class="total-display"
+                                style="margin-top: 2.5rem; padding: 25px; background: rgba(230, 0, 126, 0.05); border: 2px solid #E6007E; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(230, 0, 126, 0.1);">
+                                <span
+                                    style="font-weight: 800; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 2px; color: #E6007E;">Totale
+                                    da Versare:</span>
+                                <div id="total_amount_display"
+                                    style="font-size: 3rem; font-weight: 950; color: #E6007E;">
+                                    € 0,00</div>
+                                <input type="hidden" name="importo_dovuto" id="importo_dovuto_input" value="0">
+                            </div>
+                        </div>
+
                         <!-- SEZIONE 3: DATI PERSONALI -->
 
                         <div class="form-section">
@@ -1147,55 +1217,102 @@
             <!-- URL:https://www.rengatreffen.it/ ID 2400-P -->
             <p style="position: relative;">&copy; 2026 Renga Treffen. Powered by MotoReporter.it. <br> Tutti i diritti
                 riservati.
-            
+
             </p>
         </div>
     </footer>
 
-    <script>
+    <script type="module">
+        import { submitRegistration } from '/src/core/logic-database-v1.js';
 
-        function toggleField(id, show) {
-
+        window.toggleField = function (id, show) {
             const el = document.getElementById(id);
-
             if (el) el.style.display = show ? 'block' : 'none';
-
         }
 
-        // AGGANCIO LOGICA INVIO (dal plugin esistente)
+        window.updateTotal = function () {
+            const form = document.getElementById('registration-form');
+            const formula = form.querySelector('input[name="formula_partecipazione"]:checked')?.value;
+            const extra4x4 = parseInt(form.querySelector('input[name="passeggeri_4x4"]')?.value || 0);
+            const extraLunch = parseInt(form.querySelector('input[name="pranzo_accompagnatori"]')?.value || 0);
 
-        document.getElementById('registration-form').addEventListener('submit', async (e) => {
-
-            e.preventDefault();
-
-            const formData = new FormData(e.target);
-
-            const data = Object.fromEntries(formData.entries());
-
-            console.log('[ATOM] Capturing static form data:', data);
-
-            // Qui invochiamo la logica di Supabase del plugin
-
-            // Se il plugin è caricato, possiamo esporre una funzione o gestirlo qui.
-
-            if (window.Swal) {
-
-                window.Swal.fire({
-
-                    icon: 'success',
-
-                    title: 'Richiesta Ricevuta!',
-
-                    text: 'Grazie per esserti iscritto al Renga Treffen 2026.',
-
-                    confirmButtonColor: '#FFCC00'
-
-                });
-
+            let basePrice = 0;
+            switch (formula) {
+                case 'Caccia_MCPS': basePrice = 75; break;
+                case 'Caccia_NON_MCPS': basePrice = 85; break;
+                case 'Discovery': basePrice = 85; break;
+                case '4x4': basePrice = 85; break;
             }
 
-        });
+            let total = basePrice;
+            if (formula === '4x4') total += (extra4x4 * 30);
+            total += (extraLunch * 30);
 
+            document.getElementById('total_amount_display').innerText = `€ ${total},00`;
+            document.getElementById('importo_dovuto_input').value = total;
+        }
+
+        document.getElementById('registration-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'ELABORAZIONE...';
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const result = await submitRegistration(data);
+
+                if (result.success) {
+                    let title = 'Iscrizione Inviata!';
+                    let text = 'Grazie per esserti iscritto al Renga Treffen 2026. Riceverai una mail con i dettagli.';
+                    let icon = 'success';
+
+                    if (result.stato === 'Lista_Attesa') {
+                        title = 'LISTA D\'ATTESA';
+                        text = 'Siamo spiacenti, ma i posti per questa categoria sono esauriti. Sei stato inserito in lista d\'attesa.';
+                        icon = 'warning';
+                    } else if (result.stato === 'In_Valutazione') {
+                        title = 'IN VALUTAZIONE';
+                        text = 'La tua iscrizione è in fase di valutazione poiché non hai indicato un partner. Ti contatteremo a breve.';
+                        icon = 'info';
+                    }
+
+                    if (window.Swal) {
+                        window.Swal.fire({
+                            icon: icon,
+                            title: title,
+                            text: text,
+                            confirmButtonColor: '#FFCC00'
+                        }).then(() => {
+                            window.location.href = 'index.html';
+                        });
+                    } else {
+                        alert(text);
+                        window.location.href = 'index.html';
+                    }
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (err) {
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'error',
+                        title: 'Errore',
+                        text: err.message || 'Errore durante la registrazione.',
+                        confirmButtonColor: '#E6007E'
+                    });
+                } else {
+                    alert('Errore: ' + err.message);
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        });
     </script>
 
     <script type="module" src="/src/main.ts"></script>

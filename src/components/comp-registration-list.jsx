@@ -32,9 +32,17 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                                 onSelect(reg);
                                 if (isDevMode && (e.ctrlKey || e.metaKey)) onInspect(reg);
                             }}
-                            style={{ borderBottom: '1px solid #333', cursor: 'pointer', transition: '0.2s' }}
-                            onMouseOver={e => e.currentTarget.style.backgroundColor = '#2d2d2d'}
-                            onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                            style={{
+                                borderBottom: '1px solid #333',
+                                cursor: 'pointer',
+                                transition: '0.2s',
+                                backgroundColor: reg.stato_iscrizione === 'Lista_Attesa' ? 'rgba(230,0,126,0.15)' :
+                                    reg.stato_iscrizione === 'In_Valutazione' ? 'rgba(255,165,0,0.15)' : 'transparent'
+                            }}
+                            onMouseOver={e => e.currentTarget.style.backgroundColor = reg.stato_iscrizione === 'Lista_Attesa' ? 'rgba(230,0,126,0.25)' :
+                                reg.stato_iscrizione === 'In_Valutazione' ? 'rgba(255,165,0,0.25)' : '#2d2d2d'}
+                            onMouseOut={e => e.currentTarget.style.backgroundColor = reg.stato_iscrizione === 'Lista_Attesa' ? 'rgba(230,0,126,0.15)' :
+                                reg.stato_iscrizione === 'In_Valutazione' ? 'rgba(255,165,0,0.15)' : 'transparent'}
                         >
                             <td style={tdStyle}>
                                 <span style={{ color: '#FFCC00', fontWeight: 'bold' }}>{reg.team_name}</span>
