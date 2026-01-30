@@ -267,7 +267,7 @@
 
         while (current && current !== document.documentElement) {
             let dnaId = current.getAttribute('data-dna');
-            let type = current.getAttribute('data-component') || 'ELEMENT';
+            let type = current.getAttribute('data-component') || 'CORE';
 
             // Check for previous sibling comment (Legacy/Static HTML)
             if (!dnaId) {
@@ -294,8 +294,10 @@
             return `[${role}: ${s.id}]`;
         }).join(' > ');
 
-        const technical = steps.map((s, i) => {
-            return `<URL:${baseUrl} ID:${s.id} TYPE:COMPONENT_LEVEL_${steps.length - i} -->`;
+        const technical = steps.map((s) => {
+            // New strict format as requested: <URL:... ID:XXXX TYPE:COMPONENT_NAME -->
+            const cleanType = s.type.toUpperCase().replace(/\s+/g, '_');
+            return `<URL:${baseUrl} ID:${s.id} TYPE:${cleanType} -->`;
         }).join('\n');
 
         return { breadcrumb, technical };
@@ -329,6 +331,24 @@
     };
 
     const addBadge = (target, id) => {
+        // 🛡️ Calculate Matrioska Level (Hierarchy Depth)
+        let level = 1;
+        let p = target.parentElement;
+        while (p && p !== document.documentElement) {
+            let pDna = p.getAttribute('data-dna');
+            let hasComment = false;
+            if (!pDna) {
+                let prev = p.previousSibling;
+                while (prev && prev.nodeType === 3 && !prev.nodeValue.trim()) prev = prev.previousSibling;
+                if (prev && prev.nodeType === 8 && prev.nodeValue.includes('ID ')) hasComment = true;
+            }
+            if (pDna || hasComment) level++;
+            p = p.parentElement;
+        }
+
+        const compName = target.getAttribute('data-component') || 'CORE';
+        const labelText = `Lvl ${level} | ID: ${id} | ${compName.toUpperCase()}`;
+
         // Ensure relative positioning
         const style = window.getComputedStyle(target);
         if (style.position === 'static') {
@@ -336,7 +356,7 @@
         }
         const badge = document.createElement('div');
         badge.className = 'dna-visible-badge';
-        badge.innerText = id;
+        badge.innerText = labelText;
         target.appendChild(badge);
     };
 
@@ -386,8 +406,9 @@
         const tagName = element.tagName.toLowerCase();
         const id = element.id ? `#${element.id}` : '';
         const comp = element.closest('[data-component]')?.getAttribute('data-component') || 'HTML';
+        const dnaId = element.getAttribute('data-dna') || "NO DNA";
 
-        label.innerHTML = `${h ? '🧬 MATRIOSKA ACTIVE' : tagName}${id} <span class="comp-tag">${comp}</span>`;
+        label.innerHTML = `${h ? '🧬 MATRIOSKA ACTIVE' : tagName}${id} <span class="comp-tag">ID: ${dnaId}</span> <span class="comp-tag">${comp}</span>`;
         lastAtomicElement = element;
     });
 

@@ -246,7 +246,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     return (
         <div
             data-component="CRMDetail"
-            data-dna={`CRM-PANEL-${type.toUpperCase()}`}
+            data-dna={`2000-CRM-PANEL-${type.toUpperCase()}`}
             style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative' }}
         >
 
@@ -291,9 +291,9 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                     </div>
                 </div>
 
-                <div data-dna="CRM-TAB-BAR" style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#16161e', borderBottom: '1px solid #2f334d', padding: '15px 30px' }}>
-                    {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map(t => (
-                        <button key={t.id} data-dna={`CRM-TAB-${t.id.toUpperCase()}`} onClick={() => handleTabChange(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
+                <div data-dna="2100-CRM-TAB-BAR" style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#16161e', borderBottom: '1px solid #2f334d', padding: '15px 30px' }}>
+                    {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map((t, idx) => (
+                        <button key={t.id} data-dna={`210${idx + 1}-CRM-TAB-${t.id.toUpperCase()}`} onClick={() => handleTabChange(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
                     ))}
                 </div>
 
@@ -317,7 +317,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                     <button
                                         onClick={handleSendConfirmationEmail}
                                         disabled={loading.saving}
-                                        data-dna="ACTION-SEND-CONFIRM-EMAIL"
+                                        data-dna="2201-ACTION-SEND-CONFIRM-EMAIL"
                                         style={btnActionStyle(primaryColor)}
                                     >
                                         {loading.saving ? 'INVIO IN CORSO...' : '✉️ INVIA EMAIL DI CONFERMA ISCRIZIONE'}

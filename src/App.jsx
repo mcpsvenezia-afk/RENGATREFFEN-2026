@@ -82,9 +82,9 @@ function App() {
     }
 
     return (
-        <div data-component="DashboardApp" data-dna="DASHBOARD" style={{ minHeight: '100vh', backgroundColor: '#0c0c0e', color: '#fff', fontFamily: "'Outfit', sans-serif" }}>
+        <div data-component="DashboardApp" data-dna="1000-DASHBOARD-ROOT" style={{ minHeight: '100vh', backgroundColor: '#0c0c0e', color: '#fff', fontFamily: "'Outfit', sans-serif" }}>
             {/* TOP BAR PREMIUM */}
-            <div data-dna="ADMIN-BAR" style={{ padding: '30px 60px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0c0c0e', position: 'sticky', top: 0, zIndex: 100 }}>
+            <div data-dna="1001-ADMIN-BAR" style={{ padding: '30px 60px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0c0c0e', position: 'sticky', top: 0, zIndex: 100 }}>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, letterSpacing: '4px', color: '#fff' }}>
                         RENGATREFFEN <span style={{ color: '#FFCC00' }}>CMS</span>
@@ -106,11 +106,11 @@ function App() {
                 {!selectedItem ? (
                     <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
                         {/* MAIN TABS BIG */}
-                        <div data-dna="SECTION-NAV" style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
-                            <button data-dna="TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations', 'registrations')}>
+                        <div data-dna="1100-SECTION-NAV" style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
+                            <button data-dna="1101-TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations', 'registrations')}>
                                 ISCRIZIONI ({registrations.length})
                             </button>
-                            <button data-dna="TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages', 'messages')}>
+                            <button data-dna="1102-TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages', 'messages')}>
                                 MESSAGGI ({messages.length})
                             </button>
                         </div>

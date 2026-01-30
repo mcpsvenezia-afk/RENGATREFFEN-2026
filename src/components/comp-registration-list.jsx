@@ -12,7 +12,7 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
     return (
         <div
             data-component="RegistrationList"
-            data-dna="REGISTRATION-TABLE"
+            data-dna="1200-REGISTRATION-TABLE"
             style={{ overflowX: 'auto', backgroundColor: '#262626', borderRadius: '8px', border: '1px solid #393939' }}
         >
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
