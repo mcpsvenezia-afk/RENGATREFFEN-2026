@@ -3,6 +3,9 @@ import { supabase } from '../lib/supabaseClient';
 
 const RegistrationForm = () => {
     const [loading, setLoading] = useState(false);
+    const [passengers, setPassengers] = useState([]);
+    const [lunchGuests, setLunchGuests] = useState([]);
+
     const [formData, setFormData] = useState({
         team_name: '',
         nome: '',
@@ -14,57 +17,70 @@ const RegistrationForm = () => {
         moto_details: '',
         telefono: '',
         formula_partecipazione: 'Caccia_NON_MCPS',
-        passeggeri_4x4: 0,
-        pranzo_accompagnatori: 0,
         importo_dovuto: 85
     });
 
-    const calculateTotal = (data) => {
+    const calculateTotal = (formula, passCount, guestCount) => {
         let base = 0;
-        if (data.formula_partecipazione === 'Caccia_MCPS') base = 75;
-        else if (data.formula_partecipazione === 'Caccia_NON_MCPS') base = 85;
-        else if (data.formula_partecipazione === 'Discovery') base = 85;
-        else if (data.formula_partecipazione === '4x4') base = 85;
+        if (formula === 'Caccia_MCPS') base = 75;
+        else if (formula === 'Caccia_NON_MCPS') base = 85;
+        else if (formula === 'Discovery') base = 85;
+        else if (formula === '4x4') base = 85;
 
         let total = base;
-        if (data.formula_partecipazione === '4x4') {
-            total += (parseInt(data.passeggeri_4x4 || 0) * 30);
+        if (formula === '4x4') {
+            total += (passCount * 30);
         }
-        total += (parseInt(data.pranzo_accompagnatori || 0) * 30);
+        total += (guestCount * 15);
         return total;
     };
 
+    const currentTotal = calculateTotal(formData.formula_partecipazione, passengers.length, lunchGuests.length);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        const newData = { ...formData, [name]: value };
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
-        // Update total if price-sensitive fields change
-        if (['formula_partecipazione', 'passeggeri_4x4', 'pranzo_accompagnatori'].includes(name)) {
-            newData.importo_dovuto = calculateTotal(newData);
-        }
+    const addPassenger = () => setPassengers([...passengers, '']);
+    const removePassenger = (index) => setPassengers(passengers.filter((_, i) => i !== index));
+    const updatePassenger = (index, name) => {
+        const newPass = [...passengers];
+        newPass[index] = name;
+        setPassengers(newPass);
+    };
 
-        setFormData(newData);
+    const addLunchGuest = () => setLunchGuests([...lunchGuests, '']);
+    const removeLunchGuest = (index) => setLunchGuests(lunchGuests.filter((_, i) => i !== index));
+    const updateLunchGuest = (index, name) => {
+        const newGuests = [...lunchGuests];
+        newGuests[index] = name;
+        setLunchGuests(newGuests);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
+        const finalPayload = {
+            ...formData,
+            passeggeri_4x4: passengers.length,
+            nomi_passeggeri_4x4: passengers.join(', '),
+            pranzo_accompagnatori: lunchGuests.length,
+            nomi_ospiti_pranzo: lunchGuests.join(', '),
+            importo_dovuto: currentTotal
+        };
+
         try {
-            // Import the logic dynamically to avoid issues
             const { submitRegistration } = await import('../core/logic-database-v1');
-            const result = await submitRegistration(formData);
+            const result = await submitRegistration(finalPayload);
 
             if (!result.success) throw new Error(result.error);
 
-            // Success
             if (window.Swal) {
-                let statusText = 'Riceverai una mail con le info per il bonifico.';
-                if (result.stato === 'Lista_Attesa') {
-                    statusText = 'Purtroppo siamo al completo. Sei stato inserito in lista d\'attesa.';
-                } else if (result.stato === 'In_Valutazione') {
-                    statusText = 'La tua iscrizione è in fase di valutazione (manca il partner). Ti contatteremo a breve.';
-                }
+                let statusText = `Riceverai una mail con le info per il bonifico di € ${currentTotal},00.`;
+                if (result.stato === 'Lista_Attesa') statusText = 'Purtroppo siamo al completo. Sei stato inserito in lista d\'attesa.';
+                else if (result.stato === 'In_Valutazione') statusText = 'La tua iscrizione è in fase di valutazione (manca il partner). Ti contatteremo a breve.';
 
                 window.Swal.fire({
                     title: result.stato === 'Lista_Attesa' ? 'LISTA D\'ATTESA' : 'Iscrizione Inviata!',
@@ -78,9 +94,10 @@ const RegistrationForm = () => {
             setFormData({
                 team_name: '', nome: '', cognome: '', email: '',
                 secondo_nome: '', secondo_cognome: '', secondo_cellulare: '',
-                moto_details: '', telefono: '', formula_partecipazione: 'Caccia_NON_MCPS',
-                passeggeri_4x4: 0, pranzo_accompagnatori: 0, importo_dovuto: 85
+                moto_details: '', telefono: '', formula_partecipazione: 'Caccia_NON_MCPS'
             });
+            setPassengers([]);
+            setLunchGuests([]);
 
         } catch (err) {
             console.error('Error adding registration:', err);
@@ -130,15 +147,39 @@ const RegistrationForm = () => {
                 </div>
 
                 {formData.formula_partecipazione === '4x4' && (
-                    <div style={{ marginTop: '20px', padding: '15px', background: 'rgba(0,0,0,0.2)', borderRadius: '12px' }}>
-                        <label style={labelStyle}>Numero Passeggeri Extra (€ 30/cad)</label>
-                        <input type="number" name="passeggeri_4x4" min="0" value={formData.passeggeri_4x4} onChange={handleChange} style={inputStyle} />
+                    <div style={{ marginTop: '20px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '15px', border: '1px dashed #444' }}>
+                        <label style={labelStyle}>Passeggeri Extra nel 4x4 (€ 30 cad.)</label>
+                        {passengers.map((p, i) => (
+                            <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                <input
+                                    type="text" placeholder={`Nome Passeggero ${i + 1}`} value={p}
+                                    onChange={(e) => updatePassenger(i, e.target.value)}
+                                    style={inputStyle} required
+                                />
+                                <button type="button" onClick={() => removePassenger(i)} style={{ background: 'rgba(230,0,126,0.2)', border: '1px solid #E6007E', color: '#E6007E', borderRadius: '8px', padding: '0 15px', cursor: 'pointer' }}>✕</button>
+                            </div>
+                        ))}
+                        <button type="button" onClick={addPassenger} style={{ marginTop: '5px', background: 'none', border: '2px dashed #FFCC00', color: '#FFCC00', padding: '10px 20px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', width: '100%' }}>
+                            + AGGIUNGI PASSEGGERO
+                        </button>
                     </div>
                 )}
 
-                <div style={{ marginTop: '20px' }}>
-                    <label style={labelStyle}>Accompagnatori solo pranzo (€ 30/cad)</label>
-                    <input type="number" name="pranzo_accompagnatori" min="0" value={formData.pranzo_accompagnatori} onChange={handleChange} style={inputStyle} />
+                <div style={{ marginTop: '20px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '15px', border: '1px dashed #444' }}>
+                    <label style={labelStyle}>Ospiti solo pranzo (€ 15 cad.)</label>
+                    {lunchGuests.map((g, i) => (
+                        <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                            <input
+                                type="text" placeholder={`Nome Ospite ${i + 1}`} value={g}
+                                onChange={(e) => updateLunchGuest(i, e.target.value)}
+                                style={inputStyle}
+                            />
+                            <button type="button" onClick={() => removeLunchGuest(i)} style={{ background: 'rgba(230,0,126,0.2)', border: '1px solid #E6007E', color: '#E6007E', borderRadius: '8px', padding: '0 15px', cursor: 'pointer' }}>✕</button>
+                        </div>
+                    ))}
+                    <button type="button" onClick={addLunchGuest} style={{ marginTop: '5px', background: 'none', border: '2px dashed #FFCC00', color: '#FFCC00', padding: '10px 20px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', width: '100%' }}>
+                        + AGGIUNGI OSPITE PRANZO
+                    </button>
                 </div>
             </div>
 

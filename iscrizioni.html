@@ -625,18 +625,16 @@
 
                             <div id="4x4_passengers_group" class="field-wrapper"
                                 style="display: none; margin-top: 1.5rem; background: rgba(255,255,255,0.08); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
-                                <label>Numero Passeggeri Extra (Oltre al conducente)</label>
-                                <input type="number" name="passeggeri_4x4" class="renga-input" min="0" value="0"
-                                    oninput="updateTotal()">
-                                <p style="font-size: 0.8rem; color: #aaa; margin-top: 8px;">Costo per passeggero: €
-                                    30,00</p>
+                                <label>Passeggeri Extra (Oltre al conducente - € 30,00 cad.)</label>
+                                <div id="passengers_list_4x4"
+                                    style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
+                                    <!-- Dynamic fields here -->
+                                </div>
+                                <button type="button" onclick="addPassengerField()"
+                                    style="background:none; border: 1px dashed #FFCC00; color: #FFCC00; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 800; width: 100%;">+
+                                    AGGIUNGI PASSEGGERO</button>
                             </div>
 
-                            <div class="field-wrapper" style="margin-top: 1.5rem;">
-                                <label>Accompagnatori solo per il pranzo (€ 30,00 cadauno)</label>
-                                <input type="number" name="pranzo_accompagnatori" class="renga-input" min="0" value="0"
-                                    oninput="updateTotal()">
-                            </div>
 
                             <div class="total-display"
                                 style="margin-top: 2.5rem; padding: 25px; background: rgba(230, 0, 126, 0.05); border: 2px solid #E6007E; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(230, 0, 126, 0.1);">
@@ -1150,17 +1148,24 @@
 
                             </div>
 
+                            <div class="field-wrapper"
+                                style="margin-top: 2rem; background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px dashed rgba(255,255,255,0.1);">
+                                <label style="color: #FFCC00 !important;">Ospiti solo a pranzo (€ 15,00 cad.)</label>
+                                <div id="lunch_guests_list"
+                                    style="display:flex; flex-direction:column; gap:10px; margin-bottom:10px;">
+                                    <!-- Dynamic fields here -->
+                                </div>
+                                <button type="button" onclick="addLunchGuestField()"
+                                    style="background:none; border: 1px dashed #FFCC00; color: #FFCC00; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 800; width: 100%;">+
+                                    AGGIUNGI OSPITE PRANZO</button>
+                            </div>
+
                             <div class="field-wrapper">
-
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3163-LBL -->
-
                                 <label>Grado di parentela, nome e cognome del contatto</label>
-
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3163-INP -->
-
                                 <textarea name="emergency_contact_info" class="renga-input"
                                     style="min-height: 80px;"></textarea>
-
                             </div>
 
                         </div>
@@ -1229,11 +1234,40 @@
             if (el) el.style.display = show ? 'block' : 'none';
         }
 
+        window.addPassengerField = function () {
+            const container = document.getElementById('passengers_list_4x4');
+            const div = document.createElement('div');
+            div.className = 'dynamic-row';
+            div.style.display = 'flex';
+            div.style.gap = '10px';
+            div.innerHTML = `
+                <input type="text" class="renga-input passenger-name" placeholder="Nome passeggero" required oninput="updateTotal()">
+                <button type="button" onclick="this.parentElement.remove(); updateTotal();" style="background:#E6007E; color:#fff; border:none; border-radius:8px; padding:0 15px; cursor:pointer;">✕</button>
+            `;
+            container.appendChild(div);
+            updateTotal();
+        }
+
+        window.addLunchGuestField = function () {
+            const container = document.getElementById('lunch_guests_list');
+            const div = document.createElement('div');
+            div.className = 'dynamic-row';
+            div.style.display = 'flex';
+            div.style.gap = '10px';
+            div.innerHTML = `
+                <input type="text" class="renga-input lunch-guest-name" placeholder="Nome ospite" required oninput="updateTotal()">
+                <button type="button" onclick="this.parentElement.remove(); updateTotal();" style="background:#E6007E; color:#fff; border:none; border-radius:8px; padding:0 15px; cursor:pointer;">✕</button>
+            `;
+            container.appendChild(div);
+            updateTotal();
+        }
+
         window.updateTotal = function () {
             const form = document.getElementById('registration-form');
             const formula = form.querySelector('input[name="formula_partecipazione"]:checked')?.value;
-            const extra4x4 = parseInt(form.querySelector('input[name="passeggeri_4x4"]')?.value || 0);
-            const extraLunch = parseInt(form.querySelector('input[name="pranzo_accompagnatori"]')?.value || 0);
+
+            const passCount = document.querySelectorAll('.passenger-name').length;
+            const lunchCount = document.querySelectorAll('.lunch-guest-name').length;
 
             let basePrice = 0;
             switch (formula) {
@@ -1244,8 +1278,8 @@
             }
 
             let total = basePrice;
-            if (formula === '4x4') total += (extra4x4 * 30);
-            total += (extraLunch * 30);
+            if (formula === '4x4') total += (passCount * 30);
+            total += (lunchCount * 15);
 
             document.getElementById('total_amount_display').innerText = `€ ${total},00`;
             document.getElementById('importo_dovuto_input').value = total;
@@ -1262,12 +1296,22 @@
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
 
+            // Collect names from dynamic lists
+            const passNames = Array.from(document.querySelectorAll('.passenger-name')).map(i => i.value).filter(v => v);
+            const lunchNames = Array.from(document.querySelectorAll('.lunch-guest-name')).map(i => i.value).filter(v => v);
+
+            data.passeggeri_4x4 = passNames.length;
+            data.nomi_passeggeri_4x4 = passNames.join(', ');
+            data.pranzo_accompagnatori = lunchNames.length;
+            data.nomi_ospiti_pranzo = lunchNames.join(', ');
+            data.importo_dovuto = document.getElementById('importo_dovuto_input').value;
+
             try {
                 const result = await submitRegistration(data);
 
                 if (result.success) {
                     let title = 'Iscrizione Inviata!';
-                    let text = 'Grazie per esserti iscritto al Renga Treffen 2026. Riceverai una mail con i dettagli.';
+                    let text = `Grazie per esserti iscritto al Renga Treffen 2026. Riceverai una mail con i dettagli per il bonifico di € ${data.importo_dovuto},00.`;
                     let icon = 'success';
 
                     if (result.stato === 'Lista_Attesa') {

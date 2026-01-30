@@ -217,11 +217,19 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
         accept_fango_insurance: 'ACCETTA ASSICURAZIONE',
         food_preferences: 'ALLERGIE / PREFERENZE',
         emergency_contact_phone: 'TEL. EMERGENZA SOS',
-        emergency_contact_info: 'NOME CONTATTO EMERGENZA'
+        emergency_contact_info: 'NOME CONTATTO EMERGENZA',
+        formula_partecipazione: 'FORMULA PARTECIPAZIONE',
+        importo_dovuto: 'TOTALE DOVUTO (€)',
+        passeggeri_4x4: 'NR PASSEGGERI (4x4)',
+        nomi_passeggeri_4x4: 'NOMI PASSEGGERI',
+        pranzo_accompagnatori: 'NR OSPITI PRANZO',
+        nomi_ospiti_pranzo: 'NOMI OSPITI PRANZO',
+        stato_iscrizione: 'STATO ISCRIZIONE'
     };
 
     const regTabs = [
-        { id: 'management', label: 'GESTIONE', fields: ['is_paid', 'payment_date', 'bib_number', 'departure_time'] },
+        { id: 'management', label: 'GESTIONE', fields: ['stato_iscrizione', 'is_paid', 'payment_date', 'importo_dovuto', 'bib_number', 'departure_time'] },
+        { id: 'formula', label: 'FORMULA & EXTRA', fields: ['formula_partecipazione', 'passeggeri_4x4', 'nomi_passeggeri_4x4', 'pranzo_accompagnatori', 'nomi_ospiti_pranzo'] },
         { id: 'team', label: 'TEAM & MOTO', fields: ['team_name', 'moto_details', 'team_role', 'is_mcps_member', 'mcps_delegation'] },
         { id: 'personal', label: 'ANAGRAFICA', fields: ['nome', 'cognome', 'codice_fiscale', 'citta_nascita', 'citta_residenza', 'via_residenza', 'civico_residenza', 'cap_residenza', 'telefono', 'email'] },
         { id: 'partner', label: 'PARTNER', fields: ['secondo_nome', 'secondo_cognome', 'secondo_cellulare'] },
