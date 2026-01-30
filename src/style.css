@@ -680,7 +680,23 @@ body {
   .steps-grid,
   .sponsor-grid,
   .team-grid,
-  .prizes-detailed {
+  .prizes-detailed,
+  .equip-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .equip-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .reveal.active[style*="padding: 60px 40px"] {
+    padding: 30px 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .equip-grid {
     grid-template-columns: 1fr !important;
   }
 }
@@ -706,7 +722,9 @@ body {
 
   .nav-links a {
     font-size: 1.5rem;
-    color: #111;
+    color: #fff !important;
+    /* Ensure white on dark mobile menu */
+    text-shadow: none;
   }
 
   .mobile-menu-btn {
@@ -1530,7 +1548,7 @@ textarea:focus {
 }
 
 .rule-card p {
-  color: var(--text-muted);
+  color: #fff;
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -1638,7 +1656,7 @@ textarea:focus {
 }
 
 .styled-list li {
-  color: var(--text-muted);
+  color: #fff;
   font-size: 1.1rem;
   line-height: 1.7;
   padding: 15px 0;
@@ -1781,7 +1799,7 @@ textarea:focus {
 }
 
 .pilot-desc {
-  color: var(--text-muted);
+  color: #fff;
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0;
@@ -1911,7 +1929,7 @@ textarea:focus {
 }
 
 .pilot-bio {
-  color: var(--text-muted);
+  color: #fff;
   font-size: 0.85rem;
   line-height: 1.5;
   margin: 0;
@@ -2010,7 +2028,8 @@ textarea:focus {
 }
 
 .tz-content p {
-  color: #333;
+  color: #000 !important;
+  /* Force black for maximum readability on light background */
   font-size: 0.95rem;
   line-height: 1.6;
   margin: 0;

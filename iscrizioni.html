@@ -401,7 +401,11 @@
                 <li><a href="tutorials.html" class="nav-btn fucsia">Tutorials</a></li>
 
             </ul>
-
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
 
     </nav>
@@ -636,16 +640,6 @@
                             </div>
 
 
-                            <div class="total-display"
-                                style="margin-top: 2.5rem; padding: 25px; background: rgba(230, 0, 126, 0.05); border: 2px solid #E6007E; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(230, 0, 126, 0.1);">
-                                <span
-                                    style="font-weight: 800; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 2px; color: #E6007E;">Totale
-                                    da Versare:</span>
-                                <div id="total_amount_display"
-                                    style="font-size: 3rem; font-weight: 950; color: #E6007E;">
-                                    € 0,00</div>
-                                <input type="hidden" name="importo_dovuto" id="importo_dovuto_input" value="0">
-                            </div>
                         </div>
 
                         <!-- SEZIONE 3: DATI PERSONALI -->
@@ -1198,10 +1192,18 @@
 
                         </div>
 
+                        <div class="total-display"
+                            style="margin-top: 2rem; margin-bottom: 2rem; padding: 25px; background: rgba(230, 0, 126, 0.05); border: 2px solid #E6007E; border-radius: 15px; text-align: center; box-shadow: 0 10px 30px rgba(230, 0, 126, 0.1);">
+                            <span
+                                style="font-weight: 800; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 2px; color: #E6007E;">Totale
+                                da Versare:</span>
+                            <div id="total_amount_display" style="font-size: 3rem; font-weight: 950; color: #E6007E;">
+                                € 0,00</div>
+                            <input type="hidden" name="importo_dovuto" id="importo_dovuto_input" value="0">
+                        </div>
+
                         <div class="submit-container">
-
                             <button type="submit" class="renga-submit-btn">INVIA ISCRIZIONE</button>
-
                         </div>
 
                     </form>
