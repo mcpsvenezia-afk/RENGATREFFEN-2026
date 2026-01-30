@@ -266,6 +266,8 @@
     // 🧬 VISIBLE BADGES ENGINE
     const refreshVisibleBadges = () => {
         document.querySelectorAll('.dna-visible-badge').forEach(b => b.remove());
+
+        // 1. Scan Comments (Legacy/Static)
         const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_COMMENT, null, false);
         let node;
         while (node = walker.nextNode()) {
@@ -276,25 +278,54 @@
                     let target = node.nextSibling;
                     while (target && target.nodeType === 3) target = target.nextSibling;
                     if (target && target.nodeType === 1) {
-                        // Ensure relative positioning
-                        const style = window.getComputedStyle(target);
-                        if (style.position === 'static') {
-                            target.style.position = 'relative';
-                        }
-                        const badge = document.createElement('div');
-                        badge.className = 'dna-visible-badge';
-                        badge.innerText = id;
-                        target.appendChild(badge);
+                        addBadge(target, id);
                     }
                 }
             }
         }
+
+        // 2. Scan data-dna attributes (Modern/React)
+        document.querySelectorAll('[data-dna]').forEach(el => {
+            addBadge(el, el.getAttribute('data-dna'));
+        });
     };
 
-    setTimeout(refreshVisibleBadges, 1000);
-    window.addEventListener('resize', refreshVisibleBadges);
-    window.addEventListener('scroll', refreshVisibleBadges);
+    const addBadge = (target, id) => {
+        // Ensure relative positioning
+        const style = window.getComputedStyle(target);
+        if (style.position === 'static') {
+            target.style.position = 'relative';
+        }
+        const badge = document.createElement('div');
+        badge.className = 'dna-visible-badge';
+        badge.innerText = id;
+        target.appendChild(badge);
+    };
 
+    // 6. DYNAMIC REFRESH (MutationObserver for React/SPA)
+    let refreshTimeout;
+    const throttledRefresh = () => {
+        clearTimeout(refreshTimeout);
+        refreshTimeout = setTimeout(refreshVisibleBadges, 300);
+    };
+
+    const observer = new MutationObserver((mutations) => {
+        let shouldRefresh = false;
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                // Ignore if only our own badges were added
+                const isBadge = Array.from(mutation.addedNodes).every(n => n.classList && n.classList.contains('dna-visible-badge'));
+                if (!isBadge) { shouldRefresh = true; break; }
+            }
+        }
+        if (shouldRefresh) throttledRefresh();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    setTimeout(refreshVisibleBadges, 1000);
+    window.addEventListener('resize', throttledRefresh);
+    window.addEventListener('scroll', throttledRefresh);
     document.addEventListener('mousemove', (e) => {
         if (!e.ctrlKey && !e.metaKey) {
             overlay.style.display = 'none';

@@ -10,7 +10,11 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
     const thStyle = { padding: '15px', textAlign: 'left', fontSize: '0.7rem', color: '#8d8d8d', textTransform: 'uppercase', letterSpacing: '1px' };
 
     return (
-        <div data-component="RegistrationList" style={{ overflowX: 'auto', backgroundColor: '#262626', borderRadius: '8px', border: '1px solid #393939' }}>
+        <div
+            data-component="RegistrationList"
+            data-dna="REGISTRATION-TABLE"
+            style={{ overflowX: 'auto', backgroundColor: '#262626', borderRadius: '8px', border: '1px solid #393939' }}
+        >
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr style={{ backgroundColor: '#1a1a1a' }}>

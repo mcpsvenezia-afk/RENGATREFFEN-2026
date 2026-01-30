@@ -244,7 +244,11 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     const manualNotes = notes.filter(n => !n.content?.includes('🤖 AUTO: Inviata email'));
 
     return (
-        <div data-component="CRMDetail" style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative' }}>
+        <div
+            data-component="CRMDetail"
+            data-dna={`CRM-PANEL-${type.toUpperCase()}`}
+            style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative' }}
+        >
 
             {status.visible && <div style={toastStyle(status.type === 'success' ? '#4CAF50' : '#E6007E')}>{status.message}</div>}
 

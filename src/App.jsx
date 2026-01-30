@@ -92,7 +92,10 @@ function App() {
                     </h1>
                 </div>
                 <div style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
-                    <div onClick={toggleDevMode} style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', background: isDevMode ? 'rgba(230,0,126,0.1)' : '#111', padding: '10px 25px', borderRadius: '100px', border: `1px solid ${isDevMode ? '#E6007E' : '#333'}`, transition: '0.3s' }}>
+                    <div
+                        onClick={toggleDevMode}
+                        data-dna="DASHBOARD-DEV-TOGGLE"
+                        style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', background: isDevMode ? 'rgba(230,0,126,0.1)' : '#111', padding: '10px 25px', borderRadius: '100px', border: `1px solid ${isDevMode ? '#E6007E' : '#333'}`, transition: '0.3s' }}>
                         <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: isDevMode ? '#E6007E' : '#444', boxShadow: isDevMode ? '0 0 15px #E6007E' : 'none' }}></div>
                         <span style={{ fontSize: '0.8rem', fontWeight: 900, color: isDevMode ? '#E6007E' : '#666' }}>MODO DEV {isDevMode ? 'ATTIVO' : 'SPENTO'}</span>
                     </div>
@@ -105,10 +108,10 @@ function App() {
                     <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
                         {/* MAIN TABS BIG */}
                         <div style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
-                            <button onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations', 'registrations')}>
+                            <button data-dna="TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations', 'registrations')}>
                                 ISCRIZIONI ({registrations.length})
                             </button>
-                            <button onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages', 'messages')}>
+                            <button data-dna="TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages', 'messages')}>
                                 MESSAGGI ({messages.length})
                             </button>
                         </div>
