@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contatti - Renga Treffen 2026</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -102,7 +103,7 @@
                             <!-- URL:https://www.rengatreffen.it/contatti ID 7105-INP -->
                             <div class="file-upload-area" id="file-upload-area"
                                 onclick="document.getElementById('contact-files').click()">
-                                <div class="file-upload-icon">📎</div>
+                                <div class="file-upload-icon">📤</div>
                                 <div class="file-upload-text">
                                     <span class="file-upload-label">Clicca o trascina qui i tuoi file</span>
                                     <span class="file-upload-hint">JPG, PNG, PDF (max 10MB)</span>
@@ -161,7 +162,7 @@
                                 if (files.length > 0) {
                                     let names = [];
                                     for (let f of files) names.push(f.name);
-                                    list.innerHTML = '✅ ' + names.join(', ');
+                                    list.innerHTML = '📎 ' + names.join(', ');
                                 } else {
                                     list.innerHTML = '';
                                 }
@@ -180,7 +181,11 @@
     <!-- URL:https://www.rengatreffen.it/ ID 0002-FT -->
     <footer class="main-footer">
         <div class="container">
-            <p>&copy; 2026 Renga Treffen. Powered by MotoREPORTER & FANGO Tours.</p>
+            <!-- URL:https://www.rengatreffen.it/ ID 2400-P -->
+            <p style="position: relative;">&copy; 2026 Renga Treffen. Powered by MotoReporter.it. <br> Tutti i diritti
+                riservati.
+            <div class="dna-visible-badge">2400-P</div>
+            </p>
         </div>
     </footer>
 

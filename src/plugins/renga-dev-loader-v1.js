@@ -363,7 +363,6 @@
         }
     }, true);
 
-
     // 5. TRAY UI
     const container = document.createElement('div');
     container.id = 'renga-dev-menu';
