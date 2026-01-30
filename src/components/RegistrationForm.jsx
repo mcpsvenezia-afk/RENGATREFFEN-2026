@@ -111,9 +111,9 @@ const RegistrationForm = () => {
                     ].map(opt => (
                         <label key={opt.id} style={{
                             display: 'flex', alignItems: 'center', gap: '15px', padding: '15px 20px',
-                            background: formData.formula_partecipazione === opt.id ? 'rgba(255,204,0,0.1)' : 'rgba(255,255,255,0.05)',
-                            borderRadius: '12px', border: `1px solid ${formData.formula_partecipazione === opt.id ? '#FFCC00' : 'rgba(255,255,255,0.1)'}`,
-                            cursor: 'pointer', transition: '0.3s'
+                            background: formData.formula_partecipazione === opt.id ? 'rgba(255,204,0,0.1)' : 'rgba(255,255,255,0.08)',
+                            borderRadius: '12px', border: `1px solid ${formData.formula_partecipazione === opt.id ? '#FFCC00' : 'rgba(255,255,255,0.15)'}`,
+                            cursor: 'pointer', transition: '0.3s', color: '#fff'
                         }}>
                             <input
                                 type="radio" name="formula_partecipazione" value={opt.id}
@@ -122,7 +122,7 @@ const RegistrationForm = () => {
                                 style={{ width: '20px', height: '20px', accentColor: '#FFCC00' }}
                             />
                             <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: '800', fontSize: '1.1rem' }}>{opt.label}</div>
+                                <div style={{ fontWeight: '800', fontSize: '1.1rem', color: '#fff' }}>{opt.label}</div>
                                 <div style={{ color: '#FFCC00', fontWeight: 'bold', fontSize: '0.9rem' }}>{opt.price}</div>
                             </div>
                         </label>
@@ -191,11 +191,12 @@ const inputStyle = {
 
 const labelStyle = {
     display: 'block',
-    marginBottom: '5px',
+    marginBottom: '8px',
     fontSize: '0.85rem',
-    color: '#666',
-    fontWeight: '600',
-    textTransform: 'uppercase'
+    color: '#ccc',
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: '1px'
 };
 
 const rowStyle = {
