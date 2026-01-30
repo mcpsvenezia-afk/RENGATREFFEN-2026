@@ -10,4 +10,4 @@ ADD COLUMN IF NOT EXISTS pranzo_accompagnatori INTEGER DEFAULT 0,
 ADD COLUMN IF NOT EXISTS stato_iscrizione TEXT DEFAULT 'Confermata';
 
 COMMENT ON COLUMN registrations.formula_partecipazione IS 'Caccia_MCPS, Caccia_NON_MCPS, Discovery, 4x4';
-COMMENT ON COLUMN registrations.stato_iscrizione IS 'Confermata, Lista_Attesa, In_Valutazione';
+COMMENT ON COLUMN registrations.stato_iscrizione IS 'Confermata, Lista_Attesa, Annullata';

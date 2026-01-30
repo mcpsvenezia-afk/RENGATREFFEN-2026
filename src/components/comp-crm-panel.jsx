@@ -459,8 +459,23 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                             {regTabs.find(t => t.id === activeTab)?.fields.map(k => (
                                 <div key={k} style={fieldContainerStyle}>
                                     <label style={megaLabel(primaryColor)}>{labelTranslations[k] || k.toUpperCase().replace(/_/g, ' ')}</label>
-                                    {['is_paid', 'is_mcps_member', 'team_role', 'authorize_media', 'authorize_pilot_profile', 'has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation', 'is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance'].includes(k) ? (
-                                        <select value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumSelect}><option value="">--</option><option value="SI">SI</option><option value="NO">NO</option>{k === 'team_role' && <><option value="Capitano">Capitano</option><option value="partner">partner</option></>}</select>
+                                    {['stato_iscrizione', 'is_paid', 'is_mcps_member', 'team_role', 'authorize_media', 'authorize_pilot_profile', 'has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation', 'is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance'].includes(k) ? (
+                                        <select value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumSelect}>
+                                            <option value="">--</option>
+                                            {k === 'stato_iscrizione' ? (
+                                                <>
+                                                    <option value="Confermata">Confermata</option>
+                                                    <option value="Annullata">Annullata</option>
+                                                    <option value="Lista_Attesa">Lista di attesa</option>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <option value="SI">SI</option>
+                                                    <option value="NO">NO</option>
+                                                    {k === 'team_role' && <><option value="Capitano">Capitano</option><option value="partner">partner</option></>}
+                                                </>
+                                            )}
+                                        </select>
                                     ) : (
                                         <input type={k.includes('date') ? 'date' : 'text'} value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumInput} />
                                     )}
