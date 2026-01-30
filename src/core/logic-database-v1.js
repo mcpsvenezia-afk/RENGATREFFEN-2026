@@ -74,10 +74,22 @@ export async function submitRegistration(data) {
             }
         }
 
+        // --- LOGICA ANTI-DUPLICATI (Safety Check) v7.2.7 ---
+        const { data: duplicates, error: errDup } = await supabase
+            .from('registrations')
+            .select('id')
+            .or(`and(nome.eq."${data.nome}",cognome.eq."${data.cognome}"),email.eq."${data.email}",telefono.eq."${data.telefono}"`)
+            .limit(1);
+
+        const is_duplicate = (duplicates && duplicates.length > 0);
+        if (errDup) console.error('[DB] Duplicate Check Error:', errDup);
+
         // Arricchimento dati per insert
         const finalData = {
             ...data,
-            stato_iscrizione: stato_iscrizione
+            stato_iscrizione: stato_iscrizione,
+            is_duplicate: is_duplicate,
+            admin_notes: is_duplicate ? '⚠️ ATTENZIONE: Possibile duplicato rilevato automaticamente.' : null
         };
 
         // 2. Esecuzione Insert nella tabella 'registrations'

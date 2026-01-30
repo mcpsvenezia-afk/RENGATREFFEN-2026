@@ -16,11 +16,54 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [isDevMode, setIsDevMode] = useState(false);
+
+    // Filters & Sorting v7.2.7
+    const [filterFormula, setFilterFormula] = useState('ALL');
+    const [filterPaid, setFilterPaid] = useState('ALL');
+    const [sortByDeparture, setSortByDeparture] = useState(false);
+
     useEffect(() => {
         const isStored = localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
         setIsDevMode(isStored);
         fetchAllData();
     }, []);
+
+    // Filtered & Sorted Registrations
+    const getProcessedRegistrations = () => {
+        let list = [...registrations];
+
+        // 1. Formula Filter
+        if (filterFormula !== 'ALL') {
+            list = list.filter(r => r.formula_partecipazione === filterFormula);
+        }
+
+        // 2. Paid Filter
+        if (filterPaid !== 'ALL') {
+            const isPaid = filterPaid === 'PAID';
+            list = list.filter(r => (r.is_paid === 'SI') === isPaid);
+        }
+
+        // 3. Sorting (Priority 1: Departure Time)
+        if (sortByDeparture) {
+            list.sort((a, b) => {
+                const timeA = a.departure_time || '99:99';
+                const timeB = b.departure_time || '99:99';
+                return timeA.localeCompare(timeB);
+            });
+        }
+
+        return list;
+    };
+
+    const stats = {
+        total: registrations.length,
+        mcps: registrations.filter(r => r.formula_partecipazione === 'Caccia_MCPS').length,
+        nonMcps: registrations.filter(r => r.formula_partecipazione === 'Caccia_NON_MCPS').length,
+        discovery: registrations.filter(r => r.formula_partecipazione === 'Discovery').length,
+        x4: registrations.filter(r => r.formula_partecipazione === '4x4').length,
+        paid: registrations.filter(r => r.is_paid === 'SI').length,
+        lunchGuests: registrations.reduce((acc, r) => acc + (parseInt(r.pranzo_accompagnatori) || 0), 0)
+    };
 
     const toggleDevMode = () => {
         const newState = !isDevMode;
@@ -30,7 +73,6 @@ function App() {
             localStorage.removeItem('RENGATREFFEN_DEV_MODE');
         }
         setIsDevMode(newState);
-        // Reload to let the global loader script activate/deactivate
         window.location.reload();
     };
 
@@ -42,7 +84,6 @@ function App() {
 
             const { data: msgData } = await supabase.from('messages').select('*').neq('status', 'Archiviato').order('created_at', { ascending: false });
 
-            // Check which messages have attachments
             if (msgData && msgData.length > 0) {
                 const msgIds = msgData.map(m => m.id);
                 const { data: attachData } = await supabase.from('crm_attachments').select('message_id').in('message_id', msgIds);
@@ -52,7 +93,6 @@ function App() {
 
             setMessages(msgData || []);
 
-            // 🧬 SYNC SELECTED ITEM: Se c'era un elemento aperto, aggiornalo con i nuovi dati
             if (selectedItem) {
                 const refreshed = regData?.find(r => r.id === selectedItem.data.id);
                 if (refreshed) {
@@ -71,7 +111,6 @@ function App() {
         try {
             const { error } = await supabase.from('registrations').delete().eq('id', id);
             if (error) throw error;
-            // Aggiorna la lista locale per reattività immediata
             setRegistrations(prev => prev.filter(r => r.id !== id));
         } catch (err) {
             console.error('Error deleting registration:', err);
@@ -105,6 +144,24 @@ function App() {
             <main style={{ padding: '60px' }}>
                 {!selectedItem ? (
                     <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
+                        {/* 📊 SUMMARY CARDS */}
+                        <div data-dna="1150-SUMMARY-STATS" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+                            {[
+                                { label: 'TOTALE ISCRITTI', value: stats.total, color: '#fff' },
+                                { label: 'PAGATI', value: stats.paid, color: '#4CAF50' },
+                                { label: 'OSPITI PRANZO', value: stats.lunchGuests, color: '#00E5FF' },
+                                { label: 'MOTO (MCPS)', value: stats.mcps, color: '#FFCC00' },
+                                { label: 'MOTO (NON MCPS)', value: stats.nonMcps, color: '#FFAB00' },
+                                { label: 'DISCOVERY', value: stats.discovery, color: '#FF9100' },
+                                { label: '4x4', value: stats.x4, color: '#FF6D00' }
+                            ].map(s => (
+                                <div key={s.label} style={{ background: '#111', padding: '20px', borderRadius: '20px', border: '1px solid #222', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#666', marginBottom: '10px' }}>{s.label}</div>
+                                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: s.color }}>{s.value}</div>
+                                </div>
+                            ))}
+                        </div>
+
                         {/* MAIN TABS BIG */}
                         <div data-dna="1100-SECTION-NAV" style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
                             <button data-dna="1101-TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations', 'registrations')}>
@@ -115,11 +172,48 @@ function App() {
                             </button>
                         </div>
 
+                        {/* 🔍 FILTER BAR */}
+                        {activeTab === 'registrations' && (
+                            <div data-dna="1190-FILTER-BAR" style={{ display: 'flex', gap: '20px', marginBottom: '30px', alignItems: 'center', background: '#111', padding: '20px 40px', borderRadius: '20px', border: '1px solid #333' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>FORMULA:</span>
+                                    <select value={filterFormula} onChange={e => setFilterFormula(e.target.value)} style={selectFilterStyle}>
+                                        <option value="ALL">TUTTE</option>
+                                        <option value="Caccia_MCPS">CACCIA MCPS</option>
+                                        <option value="Caccia_NON_MCPS">CACCIA NON MCPS</option>
+                                        <option value="Discovery">DISCOVERY</option>
+                                        <option value="4x4">4x4</option>
+                                    </select>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>PAGAMENTO:</span>
+                                    <select value={filterPaid} onChange={e => setFilterPaid(e.target.value)} style={selectFilterStyle}>
+                                        <option value="ALL">TUTTI</option>
+                                        <option value="PAID">PAGATI</option>
+                                        <option value="NOT_PAID">NON PAGATI</option>
+                                    </select>
+                                </div>
+                                <div style={{ flex: 1 }}></div>
+                                <div
+                                    onClick={() => setSortByDeparture(!sortByDeparture)}
+                                    style={{ ...filterBtnStyle, backgroundColor: sortByDeparture ? '#FFCC00' : '#222', color: sortByDeparture ? '#000' : '#fff' }}
+                                >
+                                    🕒 ORDINA PER PARTENZA
+                                </div>
+                                <button
+                                    onClick={() => window.print()}
+                                    style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', border: 'none', color: '#fff' }}
+                                >
+                                    🖨️ STAMPA REPORT
+                                </button>
+                            </div>
+                        )}
+
                         {/* TABLE WRAPPER DARK */}
                         <div data-dna="SECTION-TABLE" style={{ backgroundColor: '#111', borderRadius: '40px', padding: '30px', border: '1px solid #333', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' }}>
                             {activeTab === 'registrations' ? (
                                 <RegistrationList
-                                    data={registrations}
+                                    data={getProcessedRegistrations()}
                                     onSelect={(reg) => setSelectedItem({ data: reg, type: 'registration' })}
                                     onDelete={handleDeleteRegistration}
                                     isDevMode={isDevMode}
@@ -160,10 +254,47 @@ function App() {
                 /* Custom table row styling for high contrast */
                 tr:hover { background-color: #1a1a1a !important; }
                 td { color: #ccc !important; font-size: 1.1rem !important; }
+
+                @media print {
+                    body { background: white !important; color: black !important; padding: 0 !important; }
+                    [data-dna="1001-ADMIN-BAR"], 
+                    [data-dna="1100-SECTION-NAV"], 
+                    [data-dna="1190-FILTER-BAR"],
+                    .btn-delete, .btn-detail, .no-print { display: none !important; }
+                    
+                    [data-dna="1150-SUMMARY-STATS"] { 
+                        display: grid !important; 
+                        grid-template-columns: repeat(4, 1fr) !important;
+                        gap: 10px !important;
+                        margin-bottom: 20px !important;
+                        color: black !important;
+                    }
+                    [data-dna="1150-SUMMARY-STATS"] > div {
+                        background: #eee !important;
+                        border: 1px solid #ddd !important;
+                        padding: 10px !important;
+                        color: black !important;
+                    }
+                    [data-dna="1150-SUMMARY-STATS"] div { color: black !important; }
+
+                    [data-dna="SECTION-TABLE"] {
+                        background: white !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                        padding: 0 !important;
+                        width: 100% !important;
+                    }
+                    table { color: black !important; border-collapse: collapse !important; width: 100% !important; }
+                    th, td { border: 1px solid #eee !important; color: black !important; padding: 8px !important; font-size: 0.8rem !important; }
+                    tr { background: transparent !important; }
+                }
             `}</style>
         </div>
     );
 }
+
+const selectFilterStyle = { background: '#222', color: '#fff', border: '1px solid #444', padding: '10px 15px', borderRadius: '10px', fontSize: '0.9rem', outline: 'none' };
+const filterBtnStyle = { padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 800, border: '1px solid #444', transition: '0.3s', userSelect: 'none' };
 
 const btnGhostStyle = { background: '#1a1a1f', border: '1px solid #333', color: '#fff', padding: '12px 25px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 900, cursor: 'pointer' };
 const btnBackStyle = { marginBottom: '40px', backgroundColor: '#FFCC00', color: '#000', border: 'none', padding: '18px 40px', borderRadius: '50px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 20px 40px rgba(255,204,0,0.3)' };

@@ -20,14 +20,25 @@ export default async function handler(req, res) {
         let statusTitle = 'DOMANDA RICEVUTA';
         let statusColor = '#FFCC00'; // Default Gold
 
+        // Logic for Duplicate (Priority 1)
+        if (userData.is_duplicate) {
+            statusMessage = `
+                <div style="background-color: #fff1f1; border: 2px solid #E6007E; padding: 20px; margin: 25px 0; border-radius: 10px;">
+                    <p style="font-size: 15px; color: #E6007E; font-weight: bold; margin: 0; line-height: 1.5; text-align: center; text-transform: uppercase;">
+                        ⚠️ ATTENZIONE: RISULTA GIÀ UNA REGISTRAZIONE A TUO NOME. LA TUA RICHIESTA VERRÀ VERIFICATA MANUALMENTE DALLO STAFF.
+                    </p>
+                </div>
+            `;
+        }
+
         if (userData.stato_iscrizione === 'Lista_Attesa') {
             subject = `LISTA D'ATTESA - Renga Treffen ${userData.nome}`;
             statusTitle = "LISTA D'ATTESA";
             statusColor = '#FF4444'; // Red
-            statusMessage = `
+            statusMessage += `
                 <div style="background-color: #fff5f5; border-left: 5px solid #FF4444; padding: 20px; margin: 25px 0;">
                     <p style="font-size: 15px; color: #c53030; font-weight: bold; margin: 0; line-height: 1.5; text-transform: uppercase;">
-                        ATTENZIONE: IL NUMERO MASSIMO DI ISCRITTI È STATO RAGGIUNTO. LA TUA ISCRIZIONE È STATA INSERITA IN LISTA D'ATTESA. TI CONTATTEREMO IN CASO DI RINUNCE.
+                        IL NUMERO MASSIMO DI ISCRITTI È STATO RAGGIUNTO. LA TUA ISCRIZIONE È STATA INSERITA IN LISTA D'ATTESA. TI CONTATTEREMO IN CASO DI RINUNCE.
                     </p>
                 </div>
             `;
@@ -35,7 +46,7 @@ export default async function handler(req, res) {
             subject = `ISCRIZIONE IN VALUTAZIONE - Renga Treffen ${userData.nome}`;
             statusTitle = 'IN VALUTAZIONE';
             statusColor = '#FFA500'; // Orange
-            statusMessage = `
+            statusMessage += `
                 <div style="background-color: #fffaf0; border-left: 5px solid #FFA500; padding: 20px; margin: 25px 0;">
                     <p style="font-size: 15px; color: #856404; font-weight: bold; margin: 0; line-height: 1.5; text-transform: uppercase;">
                         LA TUA ISCRIZIONE È IN FASE DI VALUTAZIONE POICHÉ AL MOMENTO NON HAI INDICATO UN PARTNER PER LA COPPIA. TI CONTATTEREMO A BREVE.
@@ -43,8 +54,7 @@ export default async function handler(req, res) {
                 </div>
             `;
         } else {
-            // STANDARD
-            statusMessage = `
+            statusMessage += `
                 <div style="background-color: #fff9e6; border-left: 5px solid #FFCC00; padding: 20px; margin: 25px 0;">
                     <p style="font-size: 15px; color: #856404; font-weight: bold; margin: 0; line-height: 1.5; text-transform: uppercase;">
                         A BREVE DOPO LE VERIFICHE DEL CASO RICEVERAI LA CONFERMA DELL'ISCRIZIONE E TUTTE LE INFORMAZIONI NECESSARIE PER PROCEDERE AL PAGAMENTO.
@@ -78,23 +88,34 @@ export default async function handler(req, res) {
                     ${statusMessage}
 
                     <div style="background-color: #f8f8f8; border-radius: 15px; padding: 25px; margin: 30px 0; border: 1px solid #eee;">
-                        <h3 style="margin-top: 0; font-size: 14px; color: #888; text-transform: uppercase;">Dettagli Iscrizione:</h3>
-                        <table style="width: 100%; border-collapse: collapse;">
+                        <h3 style="margin-top: 0; font-size: 14px; color: #888; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 10px; margin-bottom: 15px;">Riepilogo Dati Trasmessi:</h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <tr><td style="padding: 5px 0; color: #888; width: 40%;">Team:</td><td style="padding: 5px 0; font-weight: bold;">${userData.team_name || 'N/A'}</td></tr>
+                            <tr><td style="padding: 5px 0; color: #888;">Veicolo:</td><td style="padding: 5px 0; font-weight: bold;">${userData.moto_details || 'N/A'}</td></tr>
+                            <tr><td style="padding: 5px 0; color: #888;">Formula:</td><td style="padding: 5px 0; font-weight: bold; color: #FFCC00;">${userData.formula_partecipazione.replace(/_/g, ' ')}</td></tr>
+                            
+                            <tr><td colspan="2" style="padding: 15px 0 5px 0; border-bottom: 1px solid #eee; font-size: 12px; color: #999; text-transform: uppercase;">Dati Pilota 1</td></tr>
+                            <tr><td style="padding: 5px 0; color: #888;">Nome:</td><td style="padding: 5px 0; font-weight: bold;">${userData.nome} ${userData.cognome}</td></tr>
+                            <tr><td style="padding: 5px 0; color: #888;">Telefono:</td><td style="padding: 5px 0; font-weight: bold;">${userData.telefono}</td></tr>
+                            
+                            ${userData.secondo_nome ? `
+                            <tr><td colspan="2" style="padding: 15px 0 5px 0; border-bottom: 1px solid #eee; font-size: 12px; color: #999; text-transform: uppercase;">Dati Pilota 2</td></tr>
+                            <tr><td style="padding: 5px 0; color: #888;">Nome 2:</td><td style="padding: 5px 0; font-weight: bold;">${userData.secondo_nome} ${userData.secondo_cognome || ''}</td></tr>
+                            <tr><td style="padding: 5px 0; color: #888;">Telefono 2:</td><td style="padding: 5px 0; font-weight: bold;">${userData.secondo_cellulare || 'N/A'}</td></tr>
+                            ` : ''}
+
+                            <tr><td colspan="2" style="padding: 15px 0 5px 0; border-bottom: 1px solid #eee; font-size: 12px; color: #999; text-transform: uppercase;">Emergenze & Salute</td></tr>
+                            <tr><td style="padding: 5px 0; color: #888;">Contatto Emergenza:</td><td style="padding: 5px 0; font-weight: bold;">${userData.emergency_contact_info} (${userData.emergency_contact_phone})</td></tr>
+                            <tr><td style="padding: 5px 0; color: #888;">Allergie/Note:</td><td style="padding: 5px 0; font-weight: bold;">${userData.food_preferences || 'Nessuna'}</td></tr>
+                            
+                            ${userData.pranzo_accompagnatori > 0 ? `
+                            <tr><td style="padding: 5px 0; color: #888;">Ospiti Pranzo:</td><td style="padding: 5px 0; font-weight: bold;">${userData.pranzo_accompagnatori} (${userData.nomi_ospiti_pranzo})</td></tr>
+                            ` : ''}
+
+                            <tr><td colspan="2" style="padding: 15px 0 5px 0; border-bottom: 1px solid #FFCC00;"></td></tr>
                             <tr>
-                                <td style="padding: 8px 0; color: #555; font-weight: bold; width: 40%;">Pilota:</td>
-                                <td style="padding: 8px 0;">${userData.nome} ${userData.cognome || ''}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px 0; color: #555; font-weight: bold;">Formula:</td>
-                                <td style="padding: 8px 0;">${userData.formula_partecipazione.replace(/_/g, ' ')}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px 0; color: #555; font-weight: bold;">Moto/Veicolo:</td>
-                                <td style="padding: 8px 0;">${userData.moto_details || 'Dato non fornito'}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px 0; color: #555; font-weight: bold;">Importo Dovuto:</td>
-                                <td style="padding: 8px 0; color: #E6007E; font-weight: 900; font-size: 18px;">€ ${userData.importo_dovuto},00</td>
+                                <td style="padding: 15px 0; color: #333; font-weight: 900; font-size: 16px;">TOTALE DOVUTO:</td>
+                                <td style="padding: 15px 0; color: #E6007E; font-weight: 950; font-size: 22px;">€ ${userData.importo_dovuto},00</td>
                             </tr>
                         </table>
                     </div>

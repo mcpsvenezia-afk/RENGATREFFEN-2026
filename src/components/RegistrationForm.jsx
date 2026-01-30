@@ -11,13 +11,35 @@ const RegistrationForm = () => {
         nome: '',
         cognome: '',
         email: '',
+        telefono: '',
+        moto_details: '',
+        formula_partecipazione: 'Caccia_NON_MCPS',
+
+        // Personal Data (Full)
+        codice_fiscale: '',
+        citta_nascita: '',
+        citta_residenza: '',
+        via_residenza: '',
+        civico_residenza: '',
+        cap_residenza: '',
+
+        // Pilot 2 (Optional)
         secondo_nome: '',
         secondo_cognome: '',
         secondo_cellulare: '',
-        moto_details: '',
-        telefono: '',
-        formula_partecipazione: 'Caccia_NON_MCPS',
-        importo_dovuto: 85
+
+        // Extra Info
+        food_preferences: '',
+        emergency_contact_phone: '',
+        emergency_contact_info: '',
+
+        // Mandatory Choices (Radio)
+        is_mcps_member: '',
+        authorize_pilot_profile: '',
+        is_fango_tours_member: '',
+        request_fango_tours_membership: '',
+        accept_fango_insurance: '',
+        accept_regulation: ''
     });
 
     const calculateTotal = (formula, passCount, guestCount) => {
@@ -78,23 +100,41 @@ const RegistrationForm = () => {
             if (!result.success) throw new Error(result.error);
 
             if (window.Swal) {
+                let title = 'Iscrizione Inviata!';
                 let statusText = `Riceverai una mail con le info per il bonifico di € ${currentTotal},00.`;
-                if (result.stato === 'Lista_Attesa') statusText = 'Purtroppo siamo al completo. Sei stato inserito in lista d\'attesa.';
-                else if (result.stato === 'In_Valutazione') statusText = 'La tua iscrizione è in fase di valutazione (manca il partner). Ti contatteremo a breve.';
+                let icon = 'success';
+
+                if (result.is_duplicate) {
+                    title = 'ATTENZIONE: DUPLICATO';
+                    statusText = 'Risulta già una registrazione a tuo nome. La tua richiesta verrà verificata manualmente.';
+                    icon = 'warning';
+                } else if (result.stato === 'Lista_Attesa') {
+                    title = 'LISTA D\'ATTESA';
+                    statusText = 'Purtroppo siamo al completo. Sei stato inserito in lista d\'attesa.';
+                    icon = 'warning';
+                } else if (result.stato === 'In_Valutazione') {
+                    title = 'IN VALUTAZIONE';
+                    statusText = 'La tua iscrizione è in fase di valutazione (manca il partner). Ti contatteremo a breve.';
+                    icon = 'info';
+                }
 
                 window.Swal.fire({
-                    title: result.stato === 'Lista_Attesa' ? 'LISTA D\'ATTESA' : 'Iscrizione Inviata!',
+                    title: title,
                     text: statusText,
-                    icon: result.stato === 'Lista_Attesa' ? 'warning' : 'success',
+                    icon: icon,
                     confirmButtonColor: '#FFCC00'
                 });
             }
 
             // Reset
             setFormData({
-                team_name: '', nome: '', cognome: '', email: '',
+                team_name: '', nome: '', cognome: '', email: '', telefono: '', moto_details: '',
+                formula_partecipazione: 'Caccia_NON_MCPS',
+                codice_fiscale: '', citta_nascita: '', citta_residenza: '', via_residenza: '', civico_residenza: '', cap_residenza: '',
                 secondo_nome: '', secondo_cognome: '', secondo_cellulare: '',
-                moto_details: '', telefono: '', formula_partecipazione: 'Caccia_NON_MCPS'
+                food_preferences: '', emergency_contact_phone: '', emergency_contact_info: '',
+                is_mcps_member: '', authorize_pilot_profile: '', is_fango_tours_member: '',
+                request_fango_tours_membership: '', accept_fango_insurance: '', accept_regulation: ''
             });
             setPassengers([]);
             setLunchGuests([]);
@@ -116,6 +156,9 @@ const RegistrationForm = () => {
 
     return (
         <form onSubmit={handleSubmit} style={{ width: '100%', color: '#fff' }}>
+            {/* DNA ROOT FOR MATRIOSKA */}
+            <div data-dna="9000-REGISTRATION-FORM" style={{ display: 'none' }}></div>
+
             <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>1. Formula di Partecipazione</h3>
 
@@ -181,7 +224,7 @@ const RegistrationForm = () => {
             </div>
 
             <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>3. Dati Pilota</h3>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>3. Dati Pilota 1 (Richiedente)</h3>
                 <div style={rowStyle}>
                     <div style={{ flex: 1 }}>
                         <label style={labelStyle}>Nome</label>
@@ -192,13 +235,86 @@ const RegistrationForm = () => {
                         <input type="text" name="cognome" required placeholder="Cognome" value={formData.cognome} onChange={handleChange} style={inputStyle} />
                     </div>
                 </div>
-                <div style={{ marginTop: '20px' }}>
-                    <label style={labelStyle}>Email</label>
-                    <input type="email" name="email" required placeholder="email@esempio.com" value={formData.email} onChange={handleChange} style={inputStyle} />
+                <div style={rowStyle}>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Email</label>
+                        <input type="email" name="email" required placeholder="email@esempio.com" value={formData.email} onChange={handleChange} style={inputStyle} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Telefono</label>
+                        <input type="tel" name="telefono" required placeholder="333 1234567" value={formData.telefono} onChange={handleChange} style={inputStyle} />
+                    </div>
                 </div>
+
+                <div style={rowStyle}>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Codice Fiscale</label>
+                        <input type="text" name="codice_fiscale" required placeholder="RSSMRA80A01H501U" value={formData.codice_fiscale} onChange={handleChange} style={{ ...inputStyle, textTransform: 'uppercase' }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Comune di Nascita</label>
+                        <input type="text" name="citta_nascita" required placeholder="es. Treviso" value={formData.citta_nascita} onChange={handleChange} style={inputStyle} />
+                    </div>
+                </div>
+
                 <div style={{ marginTop: '20px' }}>
-                    <label style={labelStyle}>Telefono</label>
-                    <input type="tel" name="telefono" required placeholder="333 1234567" value={formData.telefono} onChange={handleChange} style={inputStyle} />
+                    <h4 style={{ color: '#fff', fontSize: '0.8rem', marginBottom: '15px' }}>Residenza</h4>
+                    <div style={rowStyle}>
+                        <div style={{ flex: 1.5 }}>
+                            <label style={labelStyle}>Via / Piazza</label>
+                            <input type="text" name="via_residenza" required placeholder="es. Via Roma" value={formData.via_residenza} onChange={handleChange} style={inputStyle} />
+                        </div>
+                        <div style={{ flex: 0.5 }}>
+                            <label style={labelStyle}>Civico</label>
+                            <input type="text" name="civico_residenza" required placeholder="12" value={formData.civico_residenza} onChange={handleChange} style={inputStyle} />
+                        </div>
+                    </div>
+                    <div style={rowStyle}>
+                        <div style={{ flex: 1 }}>
+                            <label style={labelStyle}>CAP</label>
+                            <input type="text" name="cap_residenza" required placeholder="31100" value={formData.cap_residenza} onChange={handleChange} style={inputStyle} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <label style={labelStyle}>Città</label>
+                            <input type="text" name="citta_residenza" required placeholder="Treviso" value={formData.citta_residenza} onChange={handleChange} style={inputStyle} />
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ marginTop: '30px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
+                    <h4 style={{ color: '#fff', fontSize: '0.9rem', marginBottom: '15px' }}>Dati Secondo Pilota (Se presente)</h4>
+                    <div style={rowStyle}>
+                        <div style={{ flex: 1 }}>
+                            <label style={labelStyle}>Nome 2</label>
+                            <input type="text" name="secondo_nome" placeholder="Nome partner" value={formData.secondo_nome} onChange={handleChange} style={inputStyle} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <label style={labelStyle}>Cognome 2</label>
+                            <input type="text" name="secondo_cognome" placeholder="Cognome partner" value={formData.secondo_cognome} onChange={handleChange} style={inputStyle} />
+                        </div>
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Cellulare 2</label>
+                        <input type="tel" name="secondo_cellulare" placeholder="333 1234567" value={formData.secondo_cellulare} onChange={handleChange} style={inputStyle} />
+                    </div>
+                </div>
+            </div>
+
+            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>4. Alimentazione & Emergenza</h3>
+                <div>
+                    <label style={labelStyle}>Preferenze alimentari o allergie (Obbligatorio)</label>
+                    <textarea name="food_preferences" required placeholder="Nessuna o specifica allergie..." value={formData.food_preferences} onChange={handleChange} style={{ ...inputStyle, minHeight: '80px' }} />
+                </div>
+                <div style={rowStyle}>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Cellulare Emergenza</label>
+                        <input type="tel" name="emergency_contact_phone" required placeholder="333 1234567" value={formData.emergency_contact_phone} onChange={handleChange} style={inputStyle} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                        <label style={labelStyle}>Grado Parentela / Nome</label>
+                        <input type="text" name="emergency_contact_info" required placeholder="es. Moglie, Mario Rossi" value={formData.emergency_contact_info} onChange={handleChange} style={inputStyle} />
+                    </div>
                 </div>
 
                 <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '15px', border: '1px dashed #444' }}>
@@ -208,7 +324,7 @@ const RegistrationForm = () => {
                             <input
                                 type="text" placeholder={`Nome Ospite ${i + 1}`} value={g}
                                 onChange={(e) => updateLunchGuest(i, e.target.value)}
-                                style={inputStyle}
+                                style={inputStyle} required
                             />
                             <button type="button" onClick={() => removeLunchGuest(i)} style={{ background: 'rgba(230,0,126,0.2)', border: '1px solid #E6007E', color: '#E6007E', borderRadius: '8px', padding: '0 15px', cursor: 'pointer' }}>✕</button>
                         </div>
@@ -219,21 +335,49 @@ const RegistrationForm = () => {
                 </div>
             </div>
 
+            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>5. Conferme & Privacy</h3>
+
+                {[
+                    { id: 'is_mcps_member', label: 'Dichiaro di essere regolarmente iscritto al Moto Club PS (MCPS) per l\'anno 2026' },
+                    { id: 'is_fango_tours_member', label: 'Sei già tesserato con l\'associazione Fango Tours?' },
+                    { id: 'request_fango_tours_membership', label: 'Dichiaro di volermi tesserare a Fango Tours (importo compreso nell\'iscrizione)' },
+                    { id: 'accept_fango_insurance', label: 'Dichiaro di aver letto le condizioni della polizza assicurativa Fango Tours' },
+                    { id: 'authorize_pilot_profile', label: 'Autorizzi a pubblicare nel sito la tua foto e un breve CV motociclistico?' },
+                    { id: 'accept_regulation', label: 'Dichiaro di aver letto e compreso integralmente il regolamento del Renga Treffen' }
+                ].map(q => (
+                    <div key={q.id} style={{ marginBottom: '20px', paddingBottom: '15px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <label style={{ ...labelStyle, fontSize: '0.8rem', color: '#fff', marginBottom: '10px' }}>{q.label}</label>
+                        <div style={{ display: 'flex', gap: '30px' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                <input type="radio" name={q.id} value="SI" checked={formData[q.id] === 'SI'} onChange={handleChange} required style={{ accentColor: '#FFCC00' }} />
+                                <span>SI</span>
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                <input type="radio" name={q.id} value="NO" checked={formData[q.id] === 'NO'} onChange={handleChange} required style={{ accentColor: '#E6007E' }} />
+                                <span>NO</span>
+                            </label>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
             <div className="total-box" style={{
                 background: 'rgba(230,0,126,0.1)', border: '2px solid #E6007E', padding: '30px', borderRadius: '20px',
                 textAlign: 'center', marginBottom: '30px'
             }}>
-                <div style={{ color: '#E6007E', fontWeight: '900', textTransform: 'uppercase', fontSize: '0.9rem', letterSpacing: '2px' }}>Totale Iscrizione:</div>
-                <div style={{ fontSize: '3rem', fontWeight: '950', color: '#E6007E' }}>€ {formData.importo_dovuto},00</div>
+                <div style={{ color: '#E6007E', fontWeight: '900', textTransform: 'uppercase', fontSize: '0.9rem', letterSpacing: '2px' }}>Totale da Versare (Bonifico):</div>
+                <div style={{ fontSize: '3rem', fontWeight: '950', color: '#E6007E' }}>€ {currentTotal},00</div>
             </div>
 
             <button
                 type="submit"
                 disabled={loading}
                 style={{
-                    width: '100%', padding: '20px', backgroundColor: loading ? '#333' : '#FFCC00',
-                    color: '#000', border: 'none', borderRadius: '15px', fontSize: '1.2rem',
-                    fontWeight: '900', cursor: loading ? 'wait' : 'pointer', transition: '0.3s'
+                    width: '100%', padding: '25px', backgroundColor: loading ? '#333' : '#FFCC00',
+                    color: '#000', border: 'none', borderRadius: '15px', fontSize: '1.4rem',
+                    fontWeight: '950', cursor: loading ? 'wait' : 'pointer', transition: '0.3s',
+                    boxShadow: '0 20px 60px rgba(255,204,0,0.2)'
                 }}
             >
                 {loading ? 'INVIO IN CORSO...' : 'INVIA ISCRIZIONE'}

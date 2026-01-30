@@ -50,3 +50,32 @@ export async function sendApprovalEmail(userData) {
         return { success: false, error: err.message };
     }
 }
+export async function sendWaitlistEmail(userData) {
+    try {
+        const response = await fetch('/api/send-waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userData }),
+        });
+        const result = await response.json();
+        if (!response.ok) return { success: false, error: result.error };
+        return { success: true, data: result.data };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+}
+
+export async function sendRejectionEmail(userData) {
+    try {
+        const response = await fetch('/api/send-rejection', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userData }),
+        });
+        const result = await response.json();
+        if (!response.ok) return { success: false, error: result.error };
+        return { success: true, data: result.data };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+}

@@ -25,7 +25,7 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                         <th style={thStyle}>MCPS</th>
                         <th style={thStyle}>Fango</th>
                         <th style={thStyle}>Data</th>
-                        <th style={{ ...thStyle, textAlign: 'center' }}>Azioni</th>
+                        <th className="no-print" style={{ ...thStyle, textAlign: 'center' }}>Azioni</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,23 +61,41 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                             </td>
                             <td style={tdStyle}>{reg.moto_details || reg.moto}</td>
                             <td style={tdStyle}>
-                                <span style={{
-                                    padding: '2px 8px',
-                                    borderRadius: '4px',
-                                    backgroundColor: reg.is_mcps_member === 'SI' ? 'rgba(255, 204, 0, 0.1)' : 'transparent',
-                                    color: reg.is_mcps_member === 'SI' ? '#FFCC00' : '#888',
-                                    border: reg.is_mcps_member === 'SI' ? '1px solid #FFCC00' : '1px solid #444'
-                                }}>
-                                    {reg.is_mcps_member || 'N/D'}
-                                </span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                    <span style={{
+                                        padding: '2px 8px',
+                                        borderRadius: '4px',
+                                        backgroundColor: reg.is_mcps_member === 'SI' ? 'rgba(255, 204, 0, 0.1)' : 'transparent',
+                                        color: reg.is_mcps_member === 'SI' ? '#FFCC00' : '#888',
+                                        border: reg.is_mcps_member === 'SI' ? '1px solid #FFCC00' : '1px solid #444',
+                                        fontSize: '0.7rem', textAlign: 'center'
+                                    }}>
+                                        MCPS: {reg.is_mcps_member || 'N/D'}
+                                    </span>
+                                    {reg.is_duplicate && (
+                                        <span style={{
+                                            padding: '2px 8px',
+                                            borderRadius: '4px',
+                                            backgroundColor: 'rgba(230, 0, 126, 0.2)',
+                                            color: '#E6007E',
+                                            border: '1px solid #E6007E',
+                                            fontSize: '0.7rem', fontWeight: 900, textAlign: 'center', animation: 'pulse 2s infinite'
+                                        }}>
+                                            ⚠️ DUPLICATO
+                                        </span>
+                                    )}
+                                </div>
                             </td>
                             <td style={tdStyle}>
                                 <span style={{ color: reg.is_fango_tours_member === 'SI' ? '#4CAF50' : '#888' }}>
                                     {reg.is_fango_tours_member === 'SI' ? 'Tesserato' : 'No'}
                                 </span>
                             </td>
-                            <td style={tdStyle}>{new Date(reg.created_at).toLocaleDateString()}</td>
-                            <td style={{ ...tdStyle, textAlign: 'center' }}>
+                            <td style={tdStyle}>
+                                <div style={{ fontSize: '0.85rem' }}>{new Date(reg.created_at).toLocaleDateString()}</div>
+                                <div style={{ fontSize: '0.7rem', color: '#666' }}>{reg.departure_time || '--:--'}</div>
+                            </td>
+                            <td className="no-print" style={{ ...tdStyle, textAlign: 'center' }}>
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();

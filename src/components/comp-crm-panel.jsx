@@ -9,7 +9,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { sendWelcomeEmail, sendApprovalEmail } from '../core/logic-email-v1.js';
+import { sendWelcomeEmail, sendApprovalEmail, sendWaitlistEmail, sendRejectionEmail } from '../core/logic-email-v1.js';
 
 export function CRMDetail({ item, type, onBack, onRefresh }) {
     const [localItem, setLocalItem] = useState(item);
@@ -110,21 +110,46 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             const res = await sendApprovalEmail(localItem);
             if (res.success) {
                 showToast('success', 'EMAIL INVIATA');
-                // Aggiungiamo una nota automatica nel CRM
                 await supabase.from(noteTable).insert([{
                     [foreignKey]: item.id,
-                    content: '🤖 AUTO: Inviata email di conferma iscrizione via Resend.',
+                    content: '🤖 AUTO: Inviata email di conferma iscrizione (IBAN) via Resend.',
                     admin_name: 'System'
                 }]);
                 fetchNotes();
-            } else {
-                throw new Error(res.error?.message || 'Errore invio email');
-            }
-        } catch (err) {
-            showToast('error', err.message);
-        } finally {
-            setLoading(prev => ({ ...prev, saving: false }));
-        }
+            } else { throw new Error(res.error?.message || 'Errore invio email'); }
+        } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
+    }
+
+    async function handleSendWaitlistEmailAction() {
+        setLoading(prev => ({ ...prev, saving: true }));
+        try {
+            const res = await sendWaitlistEmail(localItem);
+            if (res.success) {
+                showToast('success', 'EMAIL LISTA ATTESA INVIATA');
+                await supabase.from(noteTable).insert([{
+                    [foreignKey]: item.id,
+                    content: '🤖 AUTO: Inviata email di Lista Attesa via Resend.',
+                    admin_name: 'System'
+                }]);
+                fetchNotes();
+            } else { throw new Error(res.error?.message || 'Errore invio email'); }
+        } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
+    }
+
+    async function handleSendRejectionEmailAction() {
+        setLoading(prev => ({ ...prev, saving: true }));
+        try {
+            const res = await sendRejectionEmail(localItem);
+            if (res.success) {
+                showToast('success', 'EMAIL RIFIUTO INVIATA');
+                await supabase.from(noteTable).insert([{
+                    [foreignKey]: item.id,
+                    content: '🤖 AUTO: Inviata email di Rifiuto/Non Idoneo via Resend.',
+                    admin_name: 'System'
+                }]);
+                fetchNotes();
+            } else { throw new Error(res.error?.message || 'Errore invio email'); }
+        } catch (err) { showToast('error', err.message); } finally { setLoading(prev => ({ ...prev, saving: false })); }
     }
 
     async function submitNote() {
@@ -320,7 +345,25 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                         data-dna="2201-ACTION-SEND-CONFIRM-EMAIL"
                                         style={btnActionStyle(primaryColor)}
                                     >
-                                        {loading.saving ? 'INVIO IN CORSO...' : '✉️ INVIA EMAIL DI CONFERMA ISCRIZIONE'}
+                                        {loading.saving ? 'SINCRO...' : '✉️ INVIA CONFERMA & IBAN'}
+                                    </button>
+
+                                    <button
+                                        onClick={handleSendWaitlistEmailAction}
+                                        disabled={loading.saving}
+                                        data-dna="2202-ACTION-SEND-WAITLIST-EMAIL"
+                                        style={btnActionStyle('#FFA500')}
+                                    >
+                                        {loading.saving ? 'SINCRO...' : '✉️ INVIA LISTA ATTESA'}
+                                    </button>
+
+                                    <button
+                                        onClick={handleSendRejectionEmailAction}
+                                        disabled={loading.saving}
+                                        data-dna="2203-ACTION-SEND-REJECTION-EMAIL"
+                                        style={btnActionStyle('#999')}
+                                    >
+                                        {loading.saving ? 'SINCRO...' : '✉️ INVIA RIFIUTO/NON IDONEO'}
                                     </button>
 
                                     <div style={{ padding: '25px', backgroundColor: '#000', borderRadius: '20px', border: '1px solid #333', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}>
@@ -466,8 +509,10 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                             {k === 'stato_iscrizione' ? (
                                                 <>
                                                     <option value="Confermata">Confermata</option>
+                                                    <option value="In_Valutazione">In Valutazione (Scandaglio)</option>
+                                                    <option value="Lista_Attesa">Lista d'attesa</option>
+                                                    <option value="Rifiutata">Rifiutata / Non Idoneo</option>
                                                     <option value="Annullata">Annullata</option>
-                                                    <option value="Lista_Attesa">Lista di attesa</option>
                                                 </>
                                             ) : (
                                                 <>
