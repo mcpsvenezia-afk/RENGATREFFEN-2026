@@ -37,6 +37,15 @@ body {
   color: var(--text-light);
   line-height: 1.6;
   overflow-x: hidden;
+  font-size: 16px;
+  /* Base font size 16px */
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 17px;
+    /* Slightly larger on mobile for readability */
+  }
 }
 
 /* Navigation */
@@ -667,8 +676,12 @@ body {
 
   .info-split,
   .form-row,
-  .contact-grid {
-    grid-template-columns: 1fr;
+  .contact-grid,
+  .steps-grid,
+  .sponsor-grid,
+  .team-grid,
+  .prizes-detailed {
+    grid-template-columns: 1fr !important;
   }
 }
 

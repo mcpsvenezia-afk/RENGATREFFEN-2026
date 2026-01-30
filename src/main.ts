@@ -19,7 +19,7 @@ document.head.appendChild(styleFix);
 console.log('--- 🧬 RENGA CORE v1.0.6 (NAVIGATION FIX) READY ---');
 window.RENGA_VERSION = '1.0.6';
 
-// --- 📱 NAVIGATION & MOBILE ENGINE v1.1.0 ---
+// --- 📱 NAVIGATION & MOBILE ENGINE v1.2.0 ---
 const mobileBtn = document.querySelector('.mobile-menu-btn');
 const navLinks = document.querySelector('.nav-links');
 
@@ -37,6 +37,41 @@ mobileBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
     toggleMenu();
 });
+
+// --- 📈 SOCIAL SHARING ENGINE ---
+const injectShareButton = () => {
+    if (window.innerWidth < 768 && navLinks && !document.querySelector('.nav-share-item')) {
+        const shareLi = document.createElement('li');
+        shareLi.className = 'nav-share-item';
+        shareLi.innerHTML = `
+            <a href="#" class="nav-btn yellow" data-dna="SOCIAL-SHARE-BTN" style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                <span>📢 CONDIVIDI</span>
+            </a>
+        `;
+        navLinks.appendChild(shareLi);
+
+        shareLi.onclick = async (e) => {
+            e.preventDefault();
+            const shareData = {
+                title: 'Renga Treffen 2026',
+                text: 'Partecipa con me al Renga Treffen 2026! 🏁 Iscriviti qui:',
+                url: 'https://www.rengatreffen.it'
+            };
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    alert('Copia questo link: https://www.rengatreffen.it');
+                }
+            } catch (err) {
+                console.log('Share cancelled or failed');
+            }
+        };
+    }
+};
+
+window.addEventListener('load', injectShareButton);
+window.addEventListener('resize', injectShareButton);
 
 // Close menu when clicking outside
 document.addEventListener('click', (e) => {
