@@ -32,6 +32,7 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                     {data.map(reg => (
                         <tr
                             key={reg.id}
+                            data-dna={`ROW-ID-${reg.id}`}
                             onClick={(e) => {
                                 onSelect(reg);
                                 if (isDevMode && (e.ctrlKey || e.metaKey)) onInspect(reg);

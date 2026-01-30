@@ -82,10 +82,9 @@ function App() {
     }
 
     return (
-        <div data-component="DashboardApp" style={{ backgroundColor: '#09090b', minHeight: '100vh', color: '#fff', fontFamily: '"Inter", sans-serif' }}>
-
-            {/* HEADER ULTRA DARK */}
-            <header style={{ backgroundColor: '#000', padding: '30px 60px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #333' }}>
+        <div data-component="DashboardApp" data-dna="DASHBOARD" style={{ minHeight: '100vh', backgroundColor: '#0c0c0e', color: '#fff', fontFamily: "'Outfit', sans-serif" }}>
+            {/* TOP BAR PREMIUM */}
+            <div data-dna="ADMIN-BAR" style={{ padding: '30px 60px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0c0c0e', position: 'sticky', top: 0, zIndex: 100 }}>
                 <div>
                     <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, letterSpacing: '4px', color: '#fff' }}>
                         RENGATREFFEN <span style={{ color: '#FFCC00' }}>CMS</span>
@@ -101,13 +100,13 @@ function App() {
                     </div>
                     <button onClick={fetchAllData} style={btnGhostStyle}>{loading ? '...' : '🔄 SYNC SYSTEM'}</button>
                 </div>
-            </header>
+            </div>
 
             <main style={{ padding: '60px' }}>
                 {!selectedItem ? (
                     <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
                         {/* MAIN TABS BIG */}
-                        <div style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
+                        <div data-dna="SECTION-NAV" style={{ display: 'flex', gap: '20px', marginBottom: '60px' }}>
                             <button data-dna="TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations', 'registrations')}>
                                 ISCRIZIONI ({registrations.length})
                             </button>
@@ -117,7 +116,7 @@ function App() {
                         </div>
 
                         {/* TABLE WRAPPER DARK */}
-                        <div style={{ backgroundColor: '#111', borderRadius: '40px', padding: '30px', border: '1px solid #333', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' }}>
+                        <div data-dna="SECTION-TABLE" style={{ backgroundColor: '#111', borderRadius: '40px', padding: '30px', border: '1px solid #333', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' }}>
                             {activeTab === 'registrations' ? (
                                 <RegistrationList
                                     data={registrations}

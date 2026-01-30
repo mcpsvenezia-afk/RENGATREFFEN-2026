@@ -291,9 +291,9 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#16161e', borderBottom: '1px solid #2f334d', padding: '15px 30px' }}>
+                <div data-dna="CRM-TAB-BAR" style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#16161e', borderBottom: '1px solid #2f334d', padding: '15px 30px' }}>
                     {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map(t => (
-                        <button key={t.id} onClick={() => handleTabChange(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
+                        <button key={t.id} data-dna={`CRM-TAB-${t.id.toUpperCase()}`} onClick={() => handleTabChange(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
                     ))}
                 </div>
 
@@ -317,6 +317,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                     <button
                                         onClick={handleSendConfirmationEmail}
                                         disabled={loading.saving}
+                                        data-dna="ACTION-SEND-CONFIRM-EMAIL"
                                         style={btnActionStyle(primaryColor)}
                                     >
                                         {loading.saving ? 'INVIO IN CORSO...' : '✉️ INVIA EMAIL DI CONFERMA ISCRIZIONE'}

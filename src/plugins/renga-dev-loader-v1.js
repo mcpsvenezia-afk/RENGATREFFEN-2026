@@ -38,6 +38,19 @@
     // 1. SURGICAL STYLES
     const style = document.createElement('style');
     style.innerHTML = `
+        /* 🛡️ SUPER MATRIOSKA FLASH */
+        .dna-matrioska-flash {
+            outline: 6px solid #00FFFF !important;
+            outline-offset: -6px !important;
+            animation: dnaFlash 0.6s cubic-bezier(0.19, 1, 0.22, 1) forwards !important;
+            z-index: 2147483647 !important;
+        }
+        @keyframes dnaFlash {
+            0% { outline-color: #00FFFF; box-shadow: 0 0 100px rgba(0,255,255,0.8); outline-width: 10px; }
+            40% { outline-color: #FFCC00; box-shadow: 0 0 50px rgba(255,204,0,0.5); }
+            100% { outline-color: transparent; box-shadow: none; outline-width: 0; }
+        }
+
         #renga-inspector-overlay {
             position: fixed;
             pointer-events: none;
@@ -244,23 +257,48 @@
     overlay.appendChild(label);
     document.body.appendChild(overlay);
 
-    // 3. ATOMIC SELECTOR (DNA v2 - Shell Logic)
+    // 3. ATOMIC SELECTOR (DNA v3 - SUPER MATRIOSKA)
     let lastAtomicElement = null;
-    let currentDnaPrefix = "";
 
-    const findAtomicContainer = (el) => {
+    const findDnaHierarchy = (el) => {
         let current = el;
-        while (current && current !== document.body) {
-            let prev = current.previousSibling;
-            while (prev && prev.nodeType === 3 && !prev.nodeValue.trim()) {
-                prev = prev.previousSibling;
+        const hierarchy = [];
+        const baseUrl = window.location.origin + window.location.pathname;
+
+        while (current && current !== document.documentElement) {
+            let dnaId = current.getAttribute('data-dna');
+            let type = current.getAttribute('data-component') || 'ELEMENT';
+
+            // Check for previous sibling comment (Legacy/Static HTML)
+            if (!dnaId) {
+                let prev = current.previousSibling;
+                while (prev && prev.nodeType === 3 && !prev.nodeValue.trim()) prev = prev.previousSibling;
+                if (prev && prev.nodeType === 8 && prev.nodeValue.includes('ID ')) {
+                    const match = prev.nodeValue.match(/ID\s+([^\s]+)/);
+                    if (match) dnaId = match[1].trim();
+                }
             }
-            if (prev && prev.nodeType === 8 && prev.nodeValue.includes('URL:')) {
-                return { element: current, prefix: prev.nodeValue };
+
+            if (dnaId) {
+                hierarchy.push({ id: dnaId, type: type });
             }
+
             current = current.parentElement;
         }
-        return null;
+
+        if (hierarchy.length === 0) return null;
+
+        const steps = hierarchy.reverse();
+        const breadcrumb = steps.map((s, i) => {
+            const role = i === 0 ? 'ROOT' : i === steps.length - 1 ? 'ELEMENT' : 'SECTION';
+            return `[${role}: ${s.id}]`;
+        }).join(' > ');
+
+        const technical = steps.map((s, i) => {
+            return `<URL:${baseUrl} ID:${s.id} TYPE:COMPONENT_LEVEL_${steps.length - i} -->`;
+        }).join('\n');
+
+        return { breadcrumb, technical };
     };
 
     // 🧬 VISIBLE BADGES ENGINE
@@ -335,13 +373,8 @@
         const target = document.elementFromPoint(e.clientX, e.clientY);
         if (!target || target === overlay || target === label || target.classList.contains('dna-visible-badge')) return;
 
-        const atomic = findAtomicContainer(target);
-        const element = atomic ? atomic.element : target;
-        currentDnaPrefix = atomic ? atomic.prefix : "";
-
-        const componentParent = element.closest('[data-component]');
-        const componentName = componentParent ? componentParent.getAttribute('data-component') : "HTML";
-        const componentVer = componentParent ? componentParent.getAttribute('data-version') : "";
+        const h = findDnaHierarchy(target);
+        const element = target; // In v3 we hover the actual element
 
         const rect = element.getBoundingClientRect();
         overlay.style.display = 'block';
@@ -351,45 +384,35 @@
         overlay.style.height = `${rect.height}px`;
 
         const tagName = element.tagName.toLowerCase();
-        const firstClass = element.className && typeof element.className === 'string' ? '.' + element.className.split(' ')[0] : '';
         const id = element.id ? `#${element.id}` : '';
+        const comp = element.closest('[data-component]')?.getAttribute('data-component') || 'HTML';
 
-        const dnaBadge = currentDnaPrefix ? `<span style="background:#000;color:#FFCC00;padding:2px 5px;border-radius:4px;margin-right:5px;font-size:9px;">DNA ACTIVE</span>` : "";
-
-        label.innerHTML = `${dnaBadge}<span>${tagName}${id}${firstClass}</span> <span class="comp-tag">${componentName}</span> <span class="version-tag">${componentVer}</span>`;
-
+        label.innerHTML = `${h ? '🧬 MATRIOSKA ACTIVE' : tagName}${id} <span class="comp-tag">${comp}</span>`;
         lastAtomicElement = element;
     });
 
-    // 4. DNA CLICK
+    // 4. DNA CLICK (SUPER MATRIOSKA)
     document.addEventListener('click', (e) => {
         if (e.ctrlKey || e.metaKey) {
-            // 🛑 CLEANUP & PREVENTION
             e.preventDefault();
             e.stopPropagation();
 
-            // Rimuove l'highlight da qualsiasi altro elemento precedentemente selezionato
-            document.querySelectorAll('.atomic-highlight, .is-highlighted').forEach(el => {
-                el.classList.remove('atomic-highlight');
-                el.classList.remove('is-highlighted');
-            });
+            const hierarchy = findDnaHierarchy(e.target);
+            if (!hierarchy) return;
 
-            if (!lastAtomicElement) return;
+            // Flash effect
+            e.target.classList.add('dna-matrioska-flash');
+            setTimeout(() => e.target.classList.remove('dna-matrioska-flash'), 1000);
 
-            let html = lastAtomicElement.outerHTML;
-            if (currentDnaPrefix) {
-                html = `<!--${currentDnaPrefix}-->\n` + html;
-            }
-
-            navigator.clipboard.writeText(html).then(() => {
+            const content = `${hierarchy.breadcrumb}\n\n${hierarchy.technical}`;
+            navigator.clipboard.writeText(content).then(() => {
                 const t = document.createElement('div');
                 t.className = 'renga-supra-toast';
-                t.innerHTML = `🧬 MISSION ACCOMPLISHED (ID COPIED)`;
+                t.style.background = '#00FFFF';
+                t.style.color = '#000';
+                t.innerHTML = `🧬 MATRIOSKA CAPTURED!`;
                 document.body.appendChild(t);
                 setTimeout(() => t.remove(), 2000);
-
-                // Applica il nuovo highlight unico (Persistente fino al prossimo click)
-                lastAtomicElement.classList.add('atomic-highlight');
             });
         }
     }, true);
