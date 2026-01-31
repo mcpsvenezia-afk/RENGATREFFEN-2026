@@ -113,6 +113,7 @@ export function SettingsTab({ isDevMode }) {
                     </span>
                 </div>
                 <button
+                    data-dna="1502-TOGGLE-REGISTRATIONS"
                     onClick={() => setSettings({ ...settings, is_open: !settings.is_open })}
                     style={{
                         padding: '10px 25px',
@@ -130,6 +131,7 @@ export function SettingsTab({ isDevMode }) {
 
             <div style={{ marginTop: '40px', textAlign: 'center' }}>
                 <button
+                    data-dna="1501-SAVE-SETTINGS"
                     onClick={handleSave}
                     disabled={loading}
                     style={{

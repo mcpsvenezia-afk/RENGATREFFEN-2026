@@ -7,6 +7,10 @@
             "destination": "/dashboard.html"
         },
         {
+            "source": "/admin",
+            "destination": "/dashboard.html"
+        },
+        {
             "source": "/contatti",
             "destination": "/contatti.html"
         },
