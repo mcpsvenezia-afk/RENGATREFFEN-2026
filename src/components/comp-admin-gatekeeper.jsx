@@ -48,7 +48,7 @@ export function AdminGatekeeper({ children, isDevMode }) {
         const { error } = await supabase.auth.signInWithOtp({
             email: email,
             options: {
-                shouldCreateUser: false // Only allow existing user if possible, or handle via logic
+                shouldCreateUser: true
             }
         });
 
