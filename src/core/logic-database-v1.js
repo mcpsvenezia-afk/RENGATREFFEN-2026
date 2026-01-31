@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabaseClient';
 import { sendWelcomeEmail } from './logic-email-v1.js';
 
 /**
@@ -6,16 +6,6 @@ import { sendWelcomeEmail } from './logic-email-v1.js';
  * Sistema nervoso per la gestione delle persistenza dati su Supabase.
  * Versione: 1.1.0 (Integrazione Email)
  */
-
-// Inizializzazione client tramite variabili d'ambiente
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('[DB] Errore: Credenziali Supabase mancanti in process.env');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 /**
  * Invia i dati di iscrizione al database e notifica l'utente via email.
@@ -42,6 +32,7 @@ export async function submitRegistration(data) {
     }
 
     try {
+        let stato_iscrizione = 'Confermata';
         // 1. Fetch Dynamic Settings
         let maxMoto = 30;
         let max4x4 = 10;
