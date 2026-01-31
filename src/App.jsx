@@ -414,7 +414,7 @@ function App() {
                     }}
                 >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                        <h2 style={{ color: '#FFCC00', margin: 0 }}>ANTEPRIMA REPORT PDF</h2>
+                        <h2 className="no-print" style={{ color: '#FFCC00', margin: 0 }}>ANTEPRIMA REPORT PDF</h2>
                         <div style={{ display: 'flex', gap: '20px' }}>
                             <select
                                 value={printOrientation}
@@ -459,7 +459,6 @@ function App() {
                     >
                         <div style={{ textAlign: 'center', marginBottom: '40px', borderBottom: '2px solid #000', paddingBottom: '20px' }}>
                             <h1 style={{ margin: 0, fontSize: '2.5rem' }}>RENGA TREFFEN 2026</h1>
-                            <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>REPORT ISCRIZIONI (Dati Filtrati)</p>
                             <p>Data Generazione: {new Date().toLocaleString()}</p>
                         </div>
 
