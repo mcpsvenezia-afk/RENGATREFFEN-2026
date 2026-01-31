@@ -6,12 +6,96 @@ export function RadarTab() {
     const [tracking, setTracking] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPhoto, setSelectedPhoto] = useState(null);
+    const [gpxTracks, setGpxTracks] = useState(() => {
+        const saved = localStorage.getItem('RENGATREFFEN_RADAR_GPX');
+        return saved ? JSON.parse(saved) : [];
+    });
+
     const mapRef = useRef(null);
     const leafletMap = useRef(null);
     const markers = useRef({});
+    const polylineLayers = useRef({});
+
+    useEffect(() => {
+        localStorage.setItem('RENGATREFFEN_RADAR_GPX', JSON.stringify(gpxTracks));
+        renderGpxTracks();
+    }, [gpxTracks]);
+
+    const renderGpxTracks = () => {
+        if (!leafletMap.current || !window.L) return;
+
+        // Rimuovi polilinee vecchie non più presenti
+        Object.keys(polylineLayers.current).forEach(id => {
+            if (!gpxTracks.find(t => t.id === id)) {
+                leafletMap.current.removeLayer(polylineLayers.current[id]);
+                delete polylineLayers.current[id];
+            }
+        });
+
+        // Aggiungi o aggiorna tracce
+        gpxTracks.forEach(track => {
+            if (polylineLayers.current[track.id]) {
+                polylineLayers.current[track.id].setStyle({
+                    color: track.color,
+                    weight: track.weight
+                });
+            } else {
+                const layer = window.L.polyline(track.points, {
+                    color: track.color,
+                    weight: track.weight,
+                    opacity: 0.8
+                }).addTo(leafletMap.current);
+                polylineLayers.current[track.id] = layer;
+            }
+        });
+    };
+
+    const handleGpxUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(event.target.result, 'text/xml');
+            const points = Array.from(xmlDoc.querySelectorAll('trkpt')).map(pt => [
+                parseFloat(pt.getAttribute('lat')),
+                parseFloat(pt.getAttribute('lon'))
+            ]);
+
+            if (points.length === 0) {
+                alert("File GPX non valido o senza punti traccia.");
+                return;
+            }
+
+            const newTrack = {
+                id: `gpx_${Date.now()}`,
+                name: file.name,
+                points: points,
+                color: '#FFCC00',
+                weight: 4
+            };
+
+            setGpxTracks(prev => [...prev, newTrack]);
+            if (leafletMap.current) {
+                leafletMap.current.fitBounds(points);
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = ""; // Reset
+    };
+
+    const updateTrackProp = (id, prop, value) => {
+        setGpxTracks(prev => prev.map(t => t.id === id ? { ...t, [prop]: value } : t));
+    };
+
+    const removeTrack = (id) => {
+        setGpxTracks(prev => prev.filter(t => t.id !== id));
+    };
 
     useEffect(() => {
         fetchInitialData();
+        // ... (rest of search/logic exactly as before)
         const logsSub = supabase
             .channel('radar-logs')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'race_logs' }, payload => {
@@ -143,10 +227,37 @@ export function RadarTab() {
         <div style={containerStyle}>
             {/* MAPPA CENTRALE */}
             <div style={cardStyle}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
                     <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.2rem' }}>🛰️ AMBROGIO RADAR <span style={{ color: '#FFCC00' }}>LIVE Tracking</span></h2>
-                    <div style={{ fontSize: '0.8rem', color: '#666' }}>{tracking.length} Team tracciati</div>
+
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <label style={{
+                            background: '#111', border: '1px solid #333', padding: '6px 15px',
+                            borderRadius: '10px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900
+                        }}>
+                            📁 CARICA TRACCIA GPX
+                            <input type="file" accept=".gpx" style={{ display: 'none' }} onChange={handleGpxUpload} />
+                        </label>
+                        <div style={{ fontSize: '0.8rem', color: '#666' }}>{tracking.length} Team tracciati</div>
+                    </div>
                 </div>
+
+                {/* LISTA TRACCE GPX CARICATE */}
+                {gpxTracks.length > 0 && (
+                    <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginBottom: '15px', paddingBottom: '10px' }}>
+                        {gpxTracks.map(track => (
+                            <div key={track.id} style={{
+                                background: '#111', border: '1px solid #333', padding: '8px 12px',
+                                borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '10px', minWidth: 'fit-content'
+                            }}>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#888', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{track.name}</span>
+                                <input type="color" value={track.color} onChange={e => updateTrackProp(track.id, 'color', e.target.value)} style={{ padding: 0, border: 'none', width: '20px', height: '20px', background: 'none' }} />
+                                <input type="range" min="1" max="10" value={track.weight} onChange={e => updateTrackProp(track.id, 'weight', parseInt(e.target.value))} style={{ width: '50px', accentColor: '#FFCC00' }} />
+                                <button onClick={() => removeTrack(track.id)} style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', fontWeight: 900 }}>×</button>
+                            </div>
+                        ))}
+                    </div>
+                )}
                 {!window.L ? (
                     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
                         CARICAMENTO MOTORE MAPPA...
