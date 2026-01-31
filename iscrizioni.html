@@ -546,8 +546,28 @@
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3104-INP -->
 
                                     <input type="text" name="team_name" id="team_name_input" class="renga-input"
-                                        placeholder="Inserisci il nome del tuo team" required
-                                        oninput="updateTotal(); applyStaffMode()">
+                                        placeholder="Inserisci il nome del tuo team" required oninput="
+                                            const isStaff = this.value.toLowerCase().includes('staff');
+                                            console.log('🎭 Team name:', this.value, '-> Staff Mode:', isStaff);
+                                            document.querySelectorAll('.form-section').forEach(section => {
+                                                const title = section.querySelector('.section-title')?.textContent || '';
+                                                const isRequired = title.includes('Dati Personali Pilota') || title.includes('Fango Tours') || title.includes('Alimentazione') || title.includes('Conferma Finale');
+                                                if (isStaff && isRequired) {
+                                                    section.style.border = '5px solid #4CAF50';
+                                                    section.style.boxShadow = '0 0 30px rgba(76, 175, 80, 0.8)';
+                                                    section.style.background = 'rgba(76, 175, 80, 0.1)';
+                                                    console.log('✅ GREEN:', title);
+                                                } else {
+                                                    section.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                                                    section.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.5)';
+                                                    section.style.background = '#0d0d12';
+                                                }
+                                                if (isStaff && !isRequired) {
+                                                    section.querySelectorAll('input[required], textarea[required]').forEach(inp => inp.removeAttribute('required'));
+                                                }
+                                            });
+                                            updateTotal();
+                                        ">
 
                                 </div>
 
