@@ -29,6 +29,7 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr style={{ backgroundColor: '#111', borderBottom: '2px solid #222' }}>
+                        <th className="no-print" style={{ ...thStyle, width: '60px', textAlign: 'center' }}></th>
                         <th style={{ ...thStyle, width: '80px' }}># GARA</th>
                         <th style={{ ...thStyle, width: '100px' }}>PARTENZA</th>
                         <th style={thStyle}>FORMULA</th>
@@ -37,7 +38,6 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                         <th style={thStyle}>EMAIL/CELL</th>
                         <th style={thStyle}>MOTO/TARGA</th>
                         <th style={thStyle}>MCPS</th>
-                        <th className="no-print" style={{ ...thStyle, textAlign: 'center' }}>Azioni</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,6 +62,35 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                                 onMouseOver={e => e.currentTarget.style.filter = 'brightness(1.5)'}
                                 onMouseOut={e => e.currentTarget.style.filter = 'none'}
                             >
+                                <td className="no-print" style={{ ...tdStyle, textAlign: 'center', width: '60px' }}>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (window.confirm(`Eliminare l'iscrizione di ${reg.nome} ${reg.cognome}?`)) onDelete(reg.id);
+                                        }}
+                                        style={{
+                                            border: 'none',
+                                            background: 'rgba(230, 0, 126, 0.1)',
+                                            color: '#E6007E',
+                                            cursor: 'pointer',
+                                            fontSize: '1rem',
+                                            padding: '8px',
+                                            borderRadius: '8px',
+                                            transition: '0.2s'
+                                        }}
+                                        onMouseOver={e => {
+                                            e.currentTarget.style.background = '#E6007E';
+                                            e.currentTarget.style.color = '#fff';
+                                        }}
+                                        onMouseOut={e => {
+                                            e.currentTarget.style.background = 'rgba(230, 0, 126, 0.1)';
+                                            e.currentTarget.style.color = '#E6007E';
+                                        }}
+                                        title="Elimina"
+                                    >
+                                        🗑️
+                                    </button>
+                                </td>
                                 <td style={{ ...tdStyle, color: '#FFCC00', fontWeight: 900, fontSize: '1.4rem' }}>
                                     {reg.bib_number || '--'}
                                 </td>
@@ -103,17 +132,6 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                                     }}>
                                         MCPS: {reg.is_mcps_member || 'NO'}
                                     </span>
-                                </td>
-                                <td className="no-print" style={{ ...tdStyle, textAlign: 'center' }}>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            if (window.confirm(`Eliminare ${reg.nome} ${reg.cognome}?`)) onDelete(reg.id);
-                                        }}
-                                        style={{ border: 'none', background: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
-                                    >
-                                        🗑️
-                                    </button>
                                 </td>
                             </tr>
                         );
