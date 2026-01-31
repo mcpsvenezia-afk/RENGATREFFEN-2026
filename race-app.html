@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Race App | Renga Treffen 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --bg-dark: #0c0c0e;
+            --accent-red: #ff4444;
+            --accent-yellow: #FFCC00;
+            --accent-purple: #E6007E;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            margin: 0;
+            font-weight: 900;
+        }
+
+        .auth-card,
+        .race-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .bib-input {
+            width: 100%;
+            background: #000;
+            border: 2px solid #333;
+            color: var(--accent-yellow);
+            font-size: 3rem;
+            text-align: center;
+            padding: 20px;
+            border-radius: 25px;
+            font-weight: 900;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .bib-input:focus {
+            border-color: var(--accent-yellow);
+            box-shadow: 0 0 30px rgba(255, 204, 0, 0.2);
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 25px;
+            border-radius: 100px;
+            border: none;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.4s;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-yellow {
+            background: var(--accent-yellow);
+            color: #000;
+        }
+
+        .btn-red {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        .btn-purple {
+            background: var(--accent-purple);
+            color: #fff;
+        }
+
+        .team-info {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .card-badge {
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            border: 2px solid currentColor;
+        }
+
+        .photo-number {
+            font-size: 5rem;
+            font-weight: 950;
+            margin: 20px 0;
+            line-height: 1;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #4CAF50;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #4CAF50;
+        }
+
+        .btn-shoot {
+            flex: 1;
+            margin-top: 40px;
+            background: #fff;
+            color: #000;
+            height: 120px;
+            border-radius: 60px;
+            border: none;
+            font-weight: 950;
+            font-size: 1.5rem;
+            box-shadow: 0 20px 50px rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+
+        .btn-shoot:active {
+            transform: scale(0.95);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #444;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #race-ui {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>RENGATREFFEN <span style="color: #FFCC00">RACE</span></h1>
+        </header>
+
+        <!-- AUTH SCREEN -->
+        <div id="auth-ui" class="auth-card">
+            <div class="input-group">
+                <label>Inserisci Numero Gara</label>
+                <input type="number" id="bib-number" class="bib-input" placeholder="000">
+            </div>
+            <button onclick="handleLogin()" class="btn-main btn-yellow">ACCEDI ALLA GARA</button>
+        </div>
+
+        <!-- RACE SCREEN -->
+        <div id="race-ui" class="race-card">
+            <div class="team-info">
+                <div id="team-badge" class="card-badge">SCHEDA ...</div>
+                <div id="photo-display" class="photo-number">FOTO 1</div>
+                <div class="status-pill">
+                    <div class="dot"></div> GPS ATTIVO
+                </div>
+            </div>
+
+            <button onclick="handleShoot()" id="shoot-btn" class="btn-shoot">SCATTA E REGISTRA</button>
+            <p style="text-align: center; font-size: 0.7rem; color: #555; margin-top: 20px;">
+                Il ricalcolo orario è automatico e invisibile.<br>Calcola i tuoi tempi con cura.
+            </p>
+        </div>
+
+        <footer class="footer">
+            v7.8 THE SILENT ENGINE | powered by MotoReporter
+        </footer>
+    </div>
+
+    <script type="module">
+        import { supabase } from '/src/lib/supabaseClient.js';
+
+        let currentTeam = null;
+        let photoNumber = 1;
+
+        window.handleLogin = async function () {
+            const bib = document.getElementById('bib-number').value;
+            if (!bib) return;
+
+            const { data, error } = await supabase
+                .from('registrations')
+                .select('*')
+                .eq('bib_number', bib)
+                .single();
+
+            if (error || !data) {
+                Swal.fire('Errore', 'Numero gara non trovato.', 'error');
+                return;
+            }
+
+            currentTeam = data;
+
+            // Check existing logs to determine photo number
+            const { count } = await supabase
+                .from('race_logs')
+                .select('*', { count: 'exact', head: true })
+                .eq('registration_id', currentTeam.id);
+
+            photoNumber = (count || 0) + 1;
+            updateUI();
+        }
+
+        function updateUI() {
+            const color = currentTeam.card_color || 'ROSSA';
+            const badge = document.getElementById('team-badge');
+            badge.innerText = `SCHEDA ${color}`;
+            badge.style.color = color === 'ROSSA' ? '#ff4444' : (color === 'GIALLA' ? '#FFCC00' : '#E6007E');
+
+            document.getElementById('photo-display').innerText = `FOTO ${photoNumber}`;
+            document.getElementById('auth-ui').style.display = 'none';
+            document.getElementById('race-ui').style.display = 'block';
+        }
+
+        window.handleShoot = async function () {
+            const btn = document.getElementById('shoot-btn');
+            btn.disabled = true;
+            btn.innerText = 'REGISTRAZIONE...';
+
+            // Get GPS
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    const { error } = await supabase
+                        .from('race_logs')
+                        .insert([{
+                            registration_id: currentTeam.id,
+                            photo_number: photoNumber,
+                            gps_lat: pos.coords.latitude,
+                            gps_lng: pos.coords.longitude,
+                            gps_alt: pos.coords.altitude,
+                            client_timestamp: new Date().toISOString()
+                        }]);
+
+                    if (error) throw error;
+
+                    Swal.fire({
+                        title: 'REGISTRATO!',
+                        text: `Foto ${photoNumber} acquisita con successo.`,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    photoNumber++;
+                    document.getElementById('photo-display').innerText = `FOTO ${photoNumber}`;
+                } catch (err) {
+                    Swal.fire('Errore', err.message, 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = 'SCATTA E REGISTRA';
+                }
+            }, (err) => {
+                Swal.fire('GPS Error', 'Assicurati di aver attivato il GPS.', 'error');
+                btn.disabled = false;
+                btn.innerText = 'SCATTA E REGISTRA';
+            }, { enableHighAccuracy: true });
+        }
+    </script>
+</body>
+
+</html>

@@ -366,6 +366,65 @@
             /* Ripristina fondo originale */
 
         }
+
+        /* STICKY FOOTER MOBILE v7.7 */
+        .mobile-sticky-footer {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #0d0d12;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            z-index: 9999;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-sticky-footer {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+            }
+
+            .main-footer {
+                padding-bottom: 120px;
+            }
+
+            .back-to-top-fixed {
+                bottom: 100px;
+            }
+        }
+
+        .btn-sticky-send {
+            flex: 1;
+            background: linear-gradient(135deg, #FFCC00 0%, #FFB300 100%);
+            color: #000;
+            border: none;
+            padding: 1.2rem;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
+        }
+
+        .btn-sticky-share {
+            width: 55px;
+            height: 55px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
     </style>
 
 </head>
@@ -1479,6 +1538,29 @@
         });
     </script>
 
+    <div class="mobile-sticky-footer" id="mobile-sticky-footer">
+        <button type="button" class="btn-sticky-share" onclick="handleSocialShare()">📤</button>
+        <button type="button" class="btn-sticky-send"
+            onclick="document.getElementById('registration-form').dispatchEvent(new Event('submit'))">INVIA ORA</button>
+    </div>
+
+    <script>
+        window.handleSocialShare = async function () {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Renga Treffen 2026',
+                        text: 'Partecipa anche tu al Renga Treffen 2026! Iscrizioni aperte.',
+                        url: window.location.href
+                    });
+                } catch (err) {
+                    console.log('Share failed:', err);
+                }
+            } else {
+                alert('La condivisione non è supportata su questo browser.');
+            }
+        }
+    </script>
     <a href="#" class="back-to-top-fixed">↑</a>
     <script type="module" src="/src/main.ts"></script>
 </body>

@@ -306,6 +306,34 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                 </div>
                             </div>
                             <div style={{ marginTop: '15px' }}>
+                                {localItem.is_duplicate && (
+                                    <span style={{
+                                        color: '#ff4444',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 900,
+                                        letterSpacing: '2px',
+                                        background: 'rgba(255,68,68,0.1)',
+                                        padding: '8px 20px',
+                                        borderRadius: '50px',
+                                        border: '2px solid #ff4444',
+                                        display: 'inline-block',
+                                        marginRight: '15px'
+                                    }}>⚠️ DUPLICATO</span>
+                                )}
+                                {localItem.stato_iscrizione === 'Lista_Attesa' && (
+                                    <span style={{
+                                        color: '#FFA500',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 900,
+                                        letterSpacing: '2px',
+                                        background: 'rgba(255,165,0,0.1)',
+                                        padding: '8px 20px',
+                                        borderRadius: '50px',
+                                        border: '2px solid #FFA500',
+                                        display: 'inline-block',
+                                        marginRight: '15px'
+                                    }}>⏳ LISTA ATTESA</span>
+                                )}
                                 <span style={idBadgeStyle(accentColor)}>ISCRIZIONE #{item.id}</span>
                             </div>
                         </div>
@@ -315,221 +343,221 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div data-dna="2100-CRM-TAB-BAR" style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#16161e', borderBottom: '1px solid #2f334d', padding: '15px 30px' }}>
-                    {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map((t, idx) => (
-                        <button key={t.id} data-dna={`210${idx + 1}-CRM-TAB-${t.id.toUpperCase()}`} onClick={() => handleTabChange(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
-                    ))}
-                </div>
+            <div data-dna="2100-CRM-TAB-BAR" style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#16161e', borderBottom: '1px solid #2f334d', padding: '15px 30px' }}>
+                {(isMsg ? [{ id: 'm', label: 'MESSAGGIO' }] : regTabs).map((t, idx) => (
+                    <button key={t.id} data-dna={`210${idx + 1}-CRM-TAB-${t.id.toUpperCase()}`} onClick={() => handleTabChange(t.id)} style={tabStyle(activeTab === t.id, primaryColor)}>{t.label}</button>
+                ))}
+            </div>
 
-                <div style={{ padding: '60px', minHeight: '650px', background: '#1a1b26' }}>
-                    {activeTab === 'm' ? (
-                        <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>MESSAGGIO RICEVUTO</h3><textarea value={localItem.message || ''} onChange={e => setLocalItem({ ...localItem, message: e.target.value })} style={ultraTextAreaStyle} /></div>
-                    ) : activeTab === 'bio' ? (
-                        <div style={{ display: 'grid', gap: '40px' }}>
-                            <div style={photoSection}><div style={photoDropBox(primaryColor)}>{localItem.pilot_photo ? <img src={localItem.pilot_photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📷'}<input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} /></div><div><h4 style={{ color: primaryColor, margin: 0, fontWeight: 900 }}>LOGO / FOTO</h4><p style={{ color: '#666', fontSize: '0.8rem' }}>Asset memorizzato nel profilo.</p></div></div>
-                            <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>BIOGRAFIA / CV</h3><textarea value={localItem.pilot_bio || ''} onChange={e => setLocalItem({ ...localItem, pilot_bio: e.target.value })} style={ultraTextAreaStyle} /></div>
-                        </div>
-                    ) : activeTab === 'comms' ? (
-                        <div style={sectionBox}>
-                            <h3 style={sectionTitle(primaryColor)}>CENTRO COMUNICAZIONI</h3>
+            <div style={{ padding: '60px', minHeight: '650px', background: '#1a1b26' }}>
+                {activeTab === 'm' ? (
+                    <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>MESSAGGIO RICEVUTO</h3><textarea value={localItem.message || ''} onChange={e => setLocalItem({ ...localItem, message: e.target.value })} style={ultraTextAreaStyle} /></div>
+                ) : activeTab === 'bio' ? (
+                    <div style={{ display: 'grid', gap: '40px' }}>
+                        <div style={photoSection}><div style={photoDropBox(primaryColor)}>{localItem.pilot_photo ? <img src={localItem.pilot_photo} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📷'}<input type="file" style={{ position: 'absolute', opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} /></div><div><h4 style={{ color: primaryColor, margin: 0, fontWeight: 900 }}>LOGO / FOTO</h4><p style={{ color: '#666', fontSize: '0.8rem' }}>Asset memorizzato nel profilo.</p></div></div>
+                        <div style={sectionBox}><h3 style={sectionTitle(primaryColor)}>BIOGRAFIA / CV</h3><textarea value={localItem.pilot_bio || ''} onChange={e => setLocalItem({ ...localItem, pilot_bio: e.target.value })} style={ultraTextAreaStyle} /></div>
+                    </div>
+                ) : activeTab === 'comms' ? (
+                    <div style={sectionBox}>
+                        <h3 style={sectionTitle(primaryColor)}>CENTRO COMUNICAZIONI</h3>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 400px) 1fr', gap: '60px', alignItems: 'start' }}>
-                                {/* COLONNA SINISTRA: AZIONI */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                                    <p style={{ color: '#888', margin: 0, fontSize: '0.95rem', lineHeight: '1.5' }}>Invia comunicazioni ufficiali al pilota tramite il motore Resend.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 400px) 1fr', gap: '60px', alignItems: 'start' }}>
+                            {/* COLONNA SINISTRA: AZIONI */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
+                                <p style={{ color: '#888', margin: 0, fontSize: '0.95rem', lineHeight: '1.5' }}>Invia comunicazioni ufficiali al pilota tramite il motore Resend.</p>
 
-                                    <button
-                                        onClick={handleSendConfirmationEmail}
-                                        disabled={loading.saving}
-                                        data-dna="2201-ACTION-SEND-CONFIRM-EMAIL"
-                                        style={btnActionStyle(primaryColor)}
-                                    >
-                                        {loading.saving ? 'SINCRO...' : '✉️ INVIA CONFERMA & IBAN'}
-                                    </button>
+                                <button
+                                    onClick={handleSendConfirmationEmail}
+                                    disabled={loading.saving}
+                                    data-dna="2201-ACTION-SEND-CONFIRM-EMAIL"
+                                    style={btnActionStyle(primaryColor)}
+                                >
+                                    {loading.saving ? 'SINCRO...' : '✉️ INVIA CONFERMA & IBAN'}
+                                </button>
 
-                                    <button
-                                        onClick={handleSendWaitlistEmailAction}
-                                        disabled={loading.saving}
-                                        data-dna="2202-ACTION-SEND-WAITLIST-EMAIL"
-                                        style={btnActionStyle('#FFA500')}
-                                    >
-                                        {loading.saving ? 'SINCRO...' : '✉️ INVIA LISTA ATTESA'}
-                                    </button>
+                                <button
+                                    onClick={handleSendWaitlistEmailAction}
+                                    disabled={loading.saving}
+                                    data-dna="2202-ACTION-SEND-WAITLIST-EMAIL"
+                                    style={btnActionStyle('#FFA500')}
+                                >
+                                    {loading.saving ? 'SINCRO...' : '✉️ INVIA LISTA ATTESA'}
+                                </button>
 
-                                    <button
-                                        onClick={handleSendRejectionEmailAction}
-                                        disabled={loading.saving}
-                                        data-dna="2203-ACTION-SEND-REJECTION-EMAIL"
-                                        style={btnActionStyle('#999')}
-                                    >
-                                        {loading.saving ? 'SINCRO...' : '✉️ INVIA RIFIUTO/NON IDONEO'}
-                                    </button>
+                                <button
+                                    onClick={handleSendRejectionEmailAction}
+                                    disabled={loading.saving}
+                                    data-dna="2203-ACTION-SEND-REJECTION-EMAIL"
+                                    style={btnActionStyle('#999')}
+                                >
+                                    {loading.saving ? 'SINCRO...' : '✉️ INVIA RIFIUTO/NON IDONEO'}
+                                </button>
 
-                                    <div style={{ padding: '25px', backgroundColor: '#000', borderRadius: '20px', border: '1px solid #333', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4CAF50', boxShadow: '0 0 10px #4CAF50' }}></div>
-                                            <span style={{ color: '#555', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '1px' }}>STATO: PRONTO</span>
-                                        </div>
-                                        <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>L'email invierà il template ufficiale a:<br /><strong style={{ color: '#aaa' }}>{localItem.email}</strong></p>
+                                <div style={{ padding: '25px', backgroundColor: '#000', borderRadius: '20px', border: '1px solid #333', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#4CAF50', boxShadow: '0 0 10px #4CAF50' }}></div>
+                                        <span style={{ color: '#555', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '1px' }}>STATO: PRONTO</span>
                                     </div>
-                                </div>
-
-                                {/* COLONNA DESTRA: STORICO PREMIUM */}
-                                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '40px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)', minHeight: '300px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px', borderBottom: '1px solid #333', paddingBottom: '20px' }}>
-                                        <span style={{ fontSize: '1.5rem' }}>📜</span>
-                                        <h4 style={{ color: '#fff', fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', margin: 0, letterSpacing: '2px' }}>STORICO INVII</h4>
-                                    </div>
-
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                        {commsLogs.map(log => (
-                                            <div key={log.id} style={{
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                backgroundColor: '#16161e',
-                                                padding: '18px 25px',
-                                                borderRadius: '20px',
-                                                border: '1px solid #2f334d',
-                                                boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                                                transition: '0.3s'
-                                            }}>
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        <span style={{ color: '#4CAF50', fontSize: '0.7rem', fontWeight: 900, background: 'rgba(76,175,80,0.1)', padding: '4px 10px', borderRadius: '50px' }}>EMAIL DI CONFERMA ISCRIZIONE - INVIATA</span>
-                                                    </div>
-                                                    <div style={{ color: '#aaa', fontSize: '0.9rem', fontWeight: 500 }}>{new Date(log.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
-                                                </div>
-                                                <button
-                                                    onClick={() => deleteNote(log.id)}
-                                                    style={{
-                                                        background: 'rgba(230,0,126,0.1)',
-                                                        border: '1px solid rgba(230,0,126,0.2)',
-                                                        color: '#E6007E',
-                                                        cursor: 'pointer',
-                                                        fontSize: '0.7rem',
-                                                        fontWeight: 900,
-                                                        padding: '10px 18px',
-                                                        borderRadius: '12px',
-                                                        textTransform: 'uppercase'
-                                                    }}
-                                                >
-                                                    Elimina
-                                                </button>
-                                            </div>
-                                        ))}
-                                        {commsLogs.length === 0 && (
-                                            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-                                                <div style={{ fontSize: '3rem', opacity: 0.2, marginBottom: '15px' }}>📩</div>
-                                                <div style={{ color: '#444', fontSize: '0.9rem', fontStyle: 'italic', letterSpacing: '0.5px' }}>Nessuna comunicazione registrata per questo pilota.</div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ) : activeTab === 'crm' ? (
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px' }}>
-                            {/* CRM LOGS (Main side of tab) */}
-                            <div style={sectionBox}>
-                                <h3 style={sectionTitle(primaryColor)}>REGISTRO ATTIVITÀ CRM</h3>
-
-                                <div style={{ marginBottom: '30px' }}>
-                                    <textarea
-                                        id="note-input-area"
-                                        value={newNote}
-                                        onChange={e => setNewNote(e.target.value)}
-                                        style={darkInputArea}
-                                        placeholder="Annota progressi, telefonate o stati..."
-                                    />
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
-                                        {editingNoteId && <span onClick={() => { setEditingNoteId(null); setNewNote(''); }} style={{ color: primaryColor, fontSize: '0.9rem', cursor: 'pointer' }}>ANNULLA MODIFICA</span>}
-                                        <div style={{ flex: 1 }}></div>
-                                        <button onClick={submitNote} style={btnAddNoteStyle(primaryColor)}>
-                                            {editingNoteId ? '💾 AGGIORNA NOTA' : '+ AGGIUNGI NOTA'}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                    {manualNotes.map(n => (
-                                        <div key={n.id} style={noteItemBox(primaryColor)}>
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                                                <span style={{ color: primaryColor, fontSize: '0.75rem', fontWeight: 900 }}>{new Date(n.created_at).toLocaleString()}</span>
-                                                <div style={{ display: 'flex', gap: '12px' }}>
-                                                    <span onClick={() => startEditNote(n)} style={{ cursor: 'pointer', opacity: 0.5 }}>✏️</span>
-                                                    <span onClick={() => deleteNote(n.id)} style={{ cursor: 'pointer', opacity: 0.5 }}>🗑️</span>
-                                                </div>
-                                            </div>
-                                            <div style={{ color: '#eee', fontSize: '1.05rem', lineHeight: '1.5' }}>{n.content}</div>
-                                        </div>
-                                    ))}
-                                    {manualNotes.length === 0 && <div style={{ textAlign: 'center', color: '#444', padding: '40px' }}>Nessun log CRM presente.</div>}
+                                    <p style={{ color: '#666', fontSize: '0.85rem', margin: 0 }}>L'email invierà il template ufficiale a:<br /><strong style={{ color: '#aaa' }}>{localItem.email}</strong></p>
                                 </div>
                             </div>
 
-                            {/* ATTACHMENTS (Side of CRM tab) */}
-                            <div style={sectionBox}>
-                                <h3 style={sectionTitle(primaryColor)}>📎 ALLEGATI</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-                                    {attachments.map(a => (
-                                        <a key={a.id} href={a.file_url} target="_blank" rel="noopener noreferrer" style={{
+                            {/* COLONNA DESTRA: STORICO PREMIUM */}
+                            <div style={{ background: 'rgba(0,0,0,0.2)', padding: '40px', borderRadius: '30px', border: '1px solid rgba(255,255,255,0.05)', minHeight: '300px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '30px', borderBottom: '1px solid #333', paddingBottom: '20px' }}>
+                                    <span style={{ fontSize: '1.5rem' }}>📜</span>
+                                    <h4 style={{ color: '#fff', fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', margin: 0, letterSpacing: '2px' }}>STORICO INVII</h4>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {commsLogs.map(log => (
+                                        <div key={log.id} style={{
                                             display: 'flex',
+                                            justifyContent: 'space-between',
                                             alignItems: 'center',
-                                            gap: '12px',
-                                            padding: '12px 15px',
-                                            background: '#000',
-                                            border: '1px solid #333',
-                                            borderRadius: '12px',
-                                            textDecoration: 'none'
+                                            backgroundColor: '#16161e',
+                                            padding: '18px 25px',
+                                            borderRadius: '20px',
+                                            border: '1px solid #2f334d',
+                                            boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                                            transition: '0.3s'
                                         }}>
-                                            <span style={{ fontSize: '1.2rem' }}>📎</span>
-                                            <div style={{ flex: 1, overflow: 'hidden' }}>
-                                                <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.8rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{a.file_name}</div>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <span style={{ color: '#4CAF50', fontSize: '0.7rem', fontWeight: 900, background: 'rgba(76,175,80,0.1)', padding: '4px 10px', borderRadius: '50px' }}>EMAIL DI CONFERMA ISCRIZIONE - INVIATA</span>
+                                                </div>
+                                                <div style={{ color: '#aaa', fontSize: '0.9rem', fontWeight: 500 }}>{new Date(log.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                                             </div>
-                                        </a>
+                                            <button
+                                                onClick={() => deleteNote(log.id)}
+                                                style={{
+                                                    background: 'rgba(230,0,126,0.1)',
+                                                    border: '1px solid rgba(230,0,126,0.2)',
+                                                    color: '#E6007E',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 900,
+                                                    padding: '10px 18px',
+                                                    borderRadius: '12px',
+                                                    textTransform: 'uppercase'
+                                                }}
+                                            >
+                                                Elimina
+                                            </button>
+                                        </div>
                                     ))}
-                                    {attachments.length === 0 && <div style={{ color: '#444', fontSize: '0.85rem', textAlign: 'center' }}>Nessun allegato</div>}
-                                </div>
-                                <div style={{ position: 'relative' }}>
-                                    <button style={btnAttachFullStyle}>{loading.attach ? '...' : '+ CARICA'}</button>
-                                    <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
-                            {regTabs.find(t => t.id === activeTab)?.fields.map(k => (
-                                <div key={k} style={fieldContainerStyle}>
-                                    <label style={megaLabel(primaryColor)}>{labelTranslations[k] || k.toUpperCase().replace(/_/g, ' ')}</label>
-                                    {['stato_iscrizione', 'is_paid', 'is_mcps_member', 'team_role', 'authorize_media', 'authorize_pilot_profile', 'has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation', 'is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance'].includes(k) ? (
-                                        <select value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumSelect}>
-                                            <option value="">--</option>
-                                            {k === 'stato_iscrizione' ? (
-                                                <>
-                                                    <option value="Confermata">Confermata</option>
-                                                    <option value="In_Valutazione">In Valutazione (Scandaglio)</option>
-                                                    <option value="Lista_Attesa">Lista d'attesa</option>
-                                                    <option value="Rifiutata">Rifiutata / Non Idoneo</option>
-                                                    <option value="Annullata">Annullata</option>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <option value="SI">SI</option>
-                                                    <option value="NO">NO</option>
-                                                    {k === 'team_role' && <><option value="Capitano">Capitano</option><option value="partner">partner</option></>}
-                                                </>
-                                            )}
-                                        </select>
-                                    ) : (
-                                        <input type={k.includes('date') ? 'date' : 'text'} value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumInput} />
+                                    {commsLogs.length === 0 && (
+                                        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                                            <div style={{ fontSize: '3rem', opacity: 0.2, marginBottom: '15px' }}>📩</div>
+                                            <div style={{ color: '#444', fontSize: '0.9rem', fontStyle: 'italic', letterSpacing: '0.5px' }}>Nessuna comunicazione registrata per questo pilota.</div>
+                                        </div>
                                     )}
                                 </div>
-                            ))}
+                            </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                ) : activeTab === 'crm' ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '40px' }}>
+                        {/* CRM LOGS (Main side of tab) */}
+                        <div style={sectionBox}>
+                            <h3 style={sectionTitle(primaryColor)}>REGISTRO ATTIVITÀ CRM</h3>
+
+                            <div style={{ marginBottom: '30px' }}>
+                                <textarea
+                                    id="note-input-area"
+                                    value={newNote}
+                                    onChange={e => setNewNote(e.target.value)}
+                                    style={darkInputArea}
+                                    placeholder="Annota progressi, telefonate o stati..."
+                                />
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '15px' }}>
+                                    {editingNoteId && <span onClick={() => { setEditingNoteId(null); setNewNote(''); }} style={{ color: primaryColor, fontSize: '0.9rem', cursor: 'pointer' }}>ANNULLA MODIFICA</span>}
+                                    <div style={{ flex: 1 }}></div>
+                                    <button onClick={submitNote} style={btnAddNoteStyle(primaryColor)}>
+                                        {editingNoteId ? '💾 AGGIORNA NOTA' : '+ AGGIUNGI NOTA'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                {manualNotes.map(n => (
+                                    <div key={n.id} style={noteItemBox(primaryColor)}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                            <span style={{ color: primaryColor, fontSize: '0.75rem', fontWeight: 900 }}>{new Date(n.created_at).toLocaleString()}</span>
+                                            <div style={{ display: 'flex', gap: '12px' }}>
+                                                <span onClick={() => startEditNote(n)} style={{ cursor: 'pointer', opacity: 0.5 }}>✏️</span>
+                                                <span onClick={() => deleteNote(n.id)} style={{ cursor: 'pointer', opacity: 0.5 }}>🗑️</span>
+                                            </div>
+                                        </div>
+                                        <div style={{ color: '#eee', fontSize: '1.05rem', lineHeight: '1.5' }}>{n.content}</div>
+                                    </div>
+                                ))}
+                                {manualNotes.length === 0 && <div style={{ textAlign: 'center', color: '#444', padding: '40px' }}>Nessun log CRM presente.</div>}
+                            </div>
+                        </div>
+
+                        {/* ATTACHMENTS (Side of CRM tab) */}
+                        <div style={sectionBox}>
+                            <h3 style={sectionTitle(primaryColor)}>📎 ALLEGATI</h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                                {attachments.map(a => (
+                                    <a key={a.id} href={a.file_url} target="_blank" rel="noopener noreferrer" style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        padding: '12px 15px',
+                                        background: '#000',
+                                        border: '1px solid #333',
+                                        borderRadius: '12px',
+                                        textDecoration: 'none'
+                                    }}>
+                                        <span style={{ fontSize: '1.2rem' }}>📎</span>
+                                        <div style={{ flex: 1, overflow: 'hidden' }}>
+                                            <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.8rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{a.file_name}</div>
+                                        </div>
+                                    </a>
+                                ))}
+                                {attachments.length === 0 && <div style={{ color: '#444', fontSize: '0.85rem', textAlign: 'center' }}>Nessun allegato</div>}
+                            </div>
+                            <div style={{ position: 'relative' }}>
+                                <button style={btnAttachFullStyle}>{loading.attach ? '...' : '+ CARICA'}</button>
+                                <input type="file" onChange={handleFileAttach} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' }}>
+                        {regTabs.find(t => t.id === activeTab)?.fields.map(k => (
+                            <div key={k} style={fieldContainerStyle}>
+                                <label style={megaLabel(primaryColor)}>{labelTranslations[k] || k.toUpperCase().replace(/_/g, ' ')}</label>
+                                {['stato_iscrizione', 'is_paid', 'is_mcps_member', 'team_role', 'authorize_media', 'authorize_pilot_profile', 'has_roadbook_skill', 'understand_treasure_hunt', 'understand_knobby_tires', 'understand_team_of_2', 'understand_donation_no_refund', 'understand_rain_or_shine', 'accept_regulation', 'is_fango_tours_member', 'request_fango_tours_membership', 'accept_fango_insurance'].includes(k) ? (
+                                    <select value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumSelect}>
+                                        <option value="">--</option>
+                                        {k === 'stato_iscrizione' ? (
+                                            <>
+                                                <option value="Confermata">Confermata</option>
+                                                <option value="In_Valutazione">In Valutazione (Scandaglio)</option>
+                                                <option value="Lista_Attesa">Lista d'attesa</option>
+                                                <option value="Rifiutata">Rifiutata / Non Idoneo</option>
+                                                <option value="Annullata">Annullata</option>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <option value="SI">SI</option>
+                                                <option value="NO">NO</option>
+                                                {k === 'team_role' && <><option value="Capitano">Capitano</option><option value="partner">partner</option></>}
+                                            </>
+                                        )}
+                                    </select>
+                                ) : (
+                                    <input type={k.includes('date') ? 'date' : 'text'} value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumInput} />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-export function SettingsTab({ isDevMode }) {
+export function SettingsTab({ isDevMode, onRefresh }) {
     const [settings, setSettings] = useState({
         max_moto: 30,
         max_4x4: 10,
         is_open: true,
-        iban: 'IT55V0760111800001064700964'
+        iban: 'IT55V0760111800001064700964',
+        race_params: {
+            start_time_caccia: '08:00',
+            start_time_discovery: '09:00',
+            start_time_4x4: '09:30',
+            team_interval_minutes: 1,
+            offset_red: 0,
+            offset_yellow: 2,
+            offset_purple: 4,
+            penalty_skipped_photo: 1000
+        }
     });
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -19,6 +29,72 @@ export function SettingsTab({ isDevMode }) {
         const { data, error } = await supabase.from('settings').select('*').eq('id', 'event_params').single();
         if (data) {
             setSettings(data.value);
+        }
+    }
+
+    async function regenerateRaceTimes() {
+        if (!window.confirm("Attenzione: questa operazione sovrascriverà i tempi obiettivo di tutti i team confermati. Continuare?")) return;
+        setLoading(true);
+        try {
+            const { data: regs, error: errRegs } = await supabase
+                .from('registrations')
+                .select('*')
+                .eq('stato_iscrizione', 'Confermata')
+                .order('bib_number', { ascending: true });
+
+            if (errRegs) throw errRegs;
+
+            const p = settings.race_params;
+            const updates = [];
+            const cardColors = ['ROSSA', 'GIALLA', 'VIOLA'];
+            const cardOffsets = {
+                'ROSSA': p?.offset_red || 0,
+                'GIALLA': p?.offset_yellow || 0,
+                'VIOLA': p?.offset_purple || 0
+            };
+
+            const photoBaseOffsets = [45, 90, 135, 180, 225, 270, 315, 360, 405, 450];
+
+            regs.forEach((team, index) => {
+                const color = cardColors[index % 3];
+                const cardOffset = cardOffsets[color];
+
+                let baseStart = p?.start_time_caccia || '08:00';
+                if (team.formula_partecipazione === 'Discovery') baseStart = p?.start_time_discovery || '09:00';
+                if (team.formula_partecipazione === '4x4') baseStart = p?.start_time_4x4 || '09:30';
+
+                const [h, m] = (team.departure_time || baseStart).split(':').map(Number);
+                const depDate = new Date();
+                depDate.setHours(h, m, 0, 0);
+
+                const targets = {};
+                photoBaseOffsets.forEach((baseOffset, idx) => {
+                    const targetDate = new Date(depDate.getTime() + (baseOffset + cardOffset) * 60000);
+                    const timeStr = targetDate.toLocaleTimeString('it-IT', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    targets[`photo_${idx + 1}`] = timeStr;
+                });
+
+                updates.push({
+                    id: team.id,
+                    card_color: color,
+                    target_times: targets
+                });
+            });
+
+            for (const upd of updates) {
+                await supabase.from('registrations').update({
+                    card_color: upd.card_color,
+                    target_times: upd.target_times
+                }).eq('id', upd.id);
+            }
+
+            if (onRefresh) onRefresh();
+            alert(`GARA v7.8: Configurazione completata per ${updates.length} team.`);
+        } catch (err) {
+            console.error(err);
+            alert("Errore durante la rigenerazione: " + err.message);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -105,6 +181,89 @@ export function SettingsTab({ isDevMode }) {
                 />
             </div>
 
+            <h3 style={{ color: '#00E5FF', fontSize: '1.4rem', fontWeight: 900, marginTop: '50px', marginBottom: '25px', textTransform: 'uppercase' }}>🏁 MOTORE GARA (v7.8)</h3>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div style={itemStyle}>
+                    <label style={labelStyle}>Ora Partenza CACCIA</label>
+                    <input
+                        type="time"
+                        value={settings.race_params?.start_time_caccia || '08:00'}
+                        onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, start_time_caccia: e.target.value } })}
+                        style={inputStyle}
+                    />
+                </div>
+                <div style={itemStyle}>
+                    <label style={labelStyle}>Ora Partenza DISCOVERY</label>
+                    <input
+                        type="time"
+                        value={settings.race_params?.start_time_discovery || '09:00'}
+                        onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, start_time_discovery: e.target.value } })}
+                        style={inputStyle}
+                    />
+                </div>
+                <div style={itemStyle}>
+                    <label style={labelStyle}>Ora Partenza 4x4</label>
+                    <input
+                        type="time"
+                        value={settings.race_params?.start_time_4x4 || '09:30'}
+                        onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, start_time_4x4: e.target.value } })}
+                        style={inputStyle}
+                    />
+                </div>
+                <div style={itemStyle}>
+                    <label style={labelStyle}>Intervallo Team (Minuti)</label>
+                    <input
+                        type="number"
+                        value={settings.race_params?.team_interval_minutes || 1}
+                        onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, team_interval_minutes: parseInt(e.target.value) } })}
+                        style={inputStyle}
+                    />
+                </div>
+            </div>
+
+            <div style={{ ...itemStyle, background: 'linear-gradient(135deg, rgba(255,68,68,0.05), rgba(0,0,0,0.2))', borderLeft: '10px solid #ff4444' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
+                    <div>
+                        <label style={{ ...labelStyle, color: '#ff4444' }}>Offset ROSSA (Min)</label>
+                        <input
+                            type="number"
+                            value={settings.race_params?.offset_red || 0}
+                            onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, offset_red: parseInt(e.target.value) } })}
+                            style={inputStyle}
+                        />
+                    </div>
+                    <div>
+                        <label style={{ ...labelStyle, color: '#FFCC00' }}>Offset GIALLA (Min)</label>
+                        <input
+                            type="number"
+                            value={settings.race_params?.offset_yellow || 2}
+                            onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, offset_yellow: parseInt(e.target.value) } })}
+                            style={inputStyle}
+                        />
+                    </div>
+                    <div>
+                        <label style={{ ...labelStyle, color: '#E6007E' }}>Offset VIOLA (Min)</label>
+                        <input
+                            type="number"
+                            value={settings.race_params?.offset_purple || 4}
+                            onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, offset_purple: parseInt(e.target.value) } })}
+                            style={inputStyle}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div style={itemStyle}>
+                <label style={labelStyle}>Penalità Foto Saltata (Secondi/Punti)</label>
+                <input
+                    type="number"
+                    value={settings.race_params?.penalty_skipped_photo || 1000}
+                    onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, penalty_skipped_photo: parseInt(e.target.value) } })}
+                    style={inputStyle}
+                />
+            </div>
+
             <div style={{ ...itemStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                     <span style={labelStyle}>Stato Iscrizioni Online</span>
@@ -126,6 +285,27 @@ export function SettingsTab({ isDevMode }) {
                     }}
                 >
                     {settings.is_open ? 'CHIUDI ORA' : 'APRI ORA'}
+                </button>
+            </div>
+
+            <div style={{ marginTop: '20px', padding: '30px', background: 'rgba(0,229,255,0.05)', borderRadius: '24px', border: '1px dashed #00E5FF', textAlign: 'center' }}>
+                <h4 style={{ color: '#00E5FF', margin: '0 0 10px 0', fontSize: '0.9rem' }}>AZIONI AVANZATE GARA</h4>
+                <p style={{ color: '#666', fontSize: '0.8rem', marginBottom: '20px' }}>Ricalcola colori schede e orari obiettivo per tutti i team.</p>
+                <button
+                    onClick={regenerateRaceTimes}
+                    disabled={loading}
+                    style={{
+                        background: 'transparent',
+                        color: '#00E5FF',
+                        border: '2px solid #00E5FF',
+                        padding: '12px 30px',
+                        borderRadius: '50px',
+                        fontWeight: 900,
+                        cursor: 'pointer',
+                        fontSize: '0.8rem'
+                    }}
+                >
+                    🚀 RIGENERA TEMPI OBIETTIVO
                 </button>
             </div>
 
