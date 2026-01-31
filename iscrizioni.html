@@ -1254,7 +1254,7 @@
             const isStaff = teamNameInput.value.toLowerCase().includes('staff');
             const sections = document.querySelectorAll('.form-section');
 
-            // Define which sections are REQUIRED for Staff (Green) vs OPTIONAL (Red)
+            // Define which sections are REQUIRED for Staff (Green borders only)
             const staffRequiredSections = [
                 'Dati Personali Pilota (Tu)',
                 'Associazione Fango Tours',
@@ -1266,32 +1266,25 @@
                 const title = section.querySelector('.section-title')?.textContent.trim();
                 const isRequired = staffRequiredSections.some(req => title?.includes(req));
 
-                if (isStaff) {
-                    if (isRequired) {
-                        // GREEN BORDER for required sections
-                        section.style.border = '2px solid #4CAF50';
-                        section.style.boxShadow = '0 10px 40px rgba(76, 175, 80, 0.15)';
-                        section.style.background = 'rgba(76, 175, 80, 0.02)';
-                    } else {
-                        // RED BORDER for optional sections
-                        section.style.border = '2px solid #E6007E';
-                        section.style.boxShadow = '0 10px 40px rgba(230, 0, 126, 0.1)';
-                        section.style.background = 'rgba(230, 0, 126, 0.01)';
-                        section.style.opacity = '0.8';
-
-                        // Remove 'required' from inputs in RED sections
-                        section.querySelectorAll('input[required], textarea[required]').forEach(input => {
-                            input.removeAttribute('required');
-                        });
-                    }
+                if (isStaff && isRequired) {
+                    // 🟢 GREEN BORDER for REQUIRED sections only
+                    section.style.border = '3px solid #4CAF50';
+                    section.style.boxShadow = '0 10px 40px rgba(76, 175, 80, 0.3)';
+                    section.style.background = 'rgba(76, 175, 80, 0.05)';
                 } else {
-                    // Reset to default styling
+                    // Reset to default gray styling
                     section.style.border = '1px solid rgba(255, 255, 255, 0.1)';
                     section.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.5)';
                     section.style.background = '#0d0d12';
-                    section.style.opacity = '1';
+                }
 
-                    // Restore 'required' attributes (if they were originally required)
+                // Remove 'required' from inputs in NON-REQUIRED sections when Staff mode is active
+                if (isStaff && !isRequired) {
+                    section.querySelectorAll('input[required], textarea[required]').forEach(input => {
+                        input.removeAttribute('required');
+                    });
+                } else if (!isStaff) {
+                    // Restore 'required' attributes when NOT in staff mode
                     section.querySelectorAll('input[name], textarea[name]').forEach(input => {
                         const name = input.getAttribute('name');
                         // Re-add required for critical fields
