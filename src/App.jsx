@@ -10,6 +10,7 @@ import { MessageList } from './components/comp-message-list';
 import { CRMDetail } from './components/comp-crm-panel';
 import { SettingsTab } from './components/comp-admin-settings';
 import { RankingsTab } from './components/comp-admin-rankings';
+import { RadarTab } from './components/comp-admin-radar';
 import { AdminGatekeeper } from './components/comp-admin-gatekeeper';
 
 function App() {
@@ -322,6 +323,9 @@ function App() {
                                     <button data-dna="1103-TAB-RANKINGS" onClick={() => setActiveTab('rankings')} style={mainTabStyle(activeTab === 'rankings', 'rankings')}>
                                         CLASSIFICHE 🏆
                                     </button>
+                                    <button data-dna="1105-TAB-RADAR" onClick={() => setActiveTab('radar')} style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff' }}>
+                                        RADAR 🛰️
+                                    </button>
                                     <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={mainTabStyle(activeTab === 'settings', 'settings')}>
                                         IMPOSTAZIONI ⚙️
                                     </button>
@@ -402,6 +406,8 @@ function App() {
                                         registrations={registrations}
                                         onRefresh={fetchAllData}
                                     />
+                                ) : activeTab === 'radar' ? (
+                                    <RadarTab />
                                 ) : (
                                     <SettingsTab
                                         isDevMode={isDevMode}

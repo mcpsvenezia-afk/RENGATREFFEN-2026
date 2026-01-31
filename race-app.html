@@ -425,44 +425,85 @@
 
         window.handleShoot = async function () {
             const btn = document.getElementById('shoot-btn');
-            btn.disabled = true;
-            btn.innerText = 'ACQUISIZIONE...';
+            const fileInput = document.getElementById('camera-input');
+            const file = fileInput.files[0];
 
-            const saveLocally = (pos) => {
+            if (!file) {
+                Swal.fire('Errore', 'Nessuna foto acquisita.', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'CARICAMENTO...';
+
+            const saveData = async (pos, photoUrl = null) => {
                 const newLog = {
                     registration_id: currentTeam.id,
                     photo_number: photoNumber,
                     gps_lat: pos ? pos.coords.latitude : null,
                     gps_lng: pos ? pos.coords.longitude : null,
                     gps_alt: pos ? pos.coords.altitude : null,
+                    photo_url: photoUrl,
                     client_timestamp: new Date().toISOString()
                 };
 
-                pendingLogs.push(newLog);
-                localStorage.setItem('RENGATREFFEN_PENDING_LOGS', JSON.stringify(pendingLogs));
+                try {
+                    // Proviamo ad inviare subito se online, altrimenti coda (il log, non la foto)
+                    const { error } = await supabase.from('race_logs').insert([newLog]);
+                    if (error) throw error;
 
-                Swal.fire({
-                    title: 'FOTO ACQUISITA!',
-                    text: `Registrazione foto ${photoNumber} riuscita.`,
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+                    Swal.fire({
+                        title: 'SUCCESSO!',
+                        text: `Foto ${photoNumber} registrata correttamente.`,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } catch (err) {
+                    console.warn("Offline o Errore DB, salvo localmente:", err);
+                    pendingLogs.push(newLog);
+                    localStorage.setItem('RENGATREFFEN_PENDING_LOGS', JSON.stringify(pendingLogs));
+                }
 
                 photoNumber++;
                 updateUI();
                 btn.disabled = false;
                 btn.innerText = '📸 SCATTA E REGISTRA';
+                fileInput.value = ""; // Pulisci per il prossimo scatto
                 syncOfflineData();
             };
 
+            // 1. Upload Storage (se online)
+            let photoUrl = null;
+            if (navigator.onLine) {
+                try {
+                    const fileExt = file.name.split('.').pop() || 'jpg';
+                    const fileName = `${currentTeam.bib_number}_P${photoNumber}_${Date.now()}.${fileExt}`;
+
+                    const { data, error } = await supabase.storage
+                        .from('race_photos')
+                        .upload(fileName, file);
+
+                    if (error) throw error;
+
+                    const { data: publicUrl } = supabase.storage
+                        .from('race_photos')
+                        .getPublicUrl(fileName);
+
+                    photoUrl = publicUrl.publicUrl;
+                } catch (err) {
+                    console.error("Storage upload failed:", err);
+                }
+            }
+
+            // 2. Get GPS e salva log
             navigator.geolocation.getCurrentPosition(
-                (pos) => saveLocally(pos),
+                (pos) => saveData(pos, photoUrl),
                 (err) => {
-                    console.warn("GPS fallito, salvo solo timestamp:", err);
-                    saveLocally(null);
+                    console.warn("GPS fallito, procedo solo con foto:", err);
+                    saveData(null, photoUrl);
                 },
-                { enableHighAccuracy: true, timeout: 5000 }
+                { enableHighAccuracy: true, timeout: 7000 }
             );
         }
 
