@@ -36,7 +36,11 @@ function App() {
 
         // 1. Formula Filter
         if (filterFormula !== 'ALL') {
-            list = list.filter(r => r.formula_partecipazione === filterFormula);
+            if (filterFormula === 'CACCIA_ALL') {
+                list = list.filter(r => (r.formula_partecipazione || '').startsWith('Caccia'));
+            } else {
+                list = list.filter(r => r.formula_partecipazione === filterFormula);
+            }
         }
 
         // 2. Status/Paid Filter
@@ -285,6 +289,7 @@ function App() {
                                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>FORMULA:</span>
                                     <select value={filterFormula} onChange={e => setFilterFormula(e.target.value)} style={selectFilterStyle}>
                                         <option value="ALL">TUTTE</option>
+                                        <option value="CACCIA_ALL">CACCIA TUTTI</option>
                                         <option value="Caccia_MCPS">CACCIA MCPS</option>
                                         <option value="Caccia_NON_MCPS">CACCIA NON MCPS</option>
                                         <option value="Discovery">DISCOVERY</option>
