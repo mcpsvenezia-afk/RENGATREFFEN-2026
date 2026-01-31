@@ -24,9 +24,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
  */
 export async function submitRegistration(data) {
     // Log di debug attivo solo in modalità sviluppo
-    if (process.env.NODE_ENV === 'development') {
+    const isDevMode = typeof window !== 'undefined' && localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
+
+    if (process.env.NODE_ENV === 'development' || isDevMode) {
         console.group('🧬 [DEBUG] DB_SUBMIT_REGISTRATION');
         console.log('Payload:', data);
+        console.log('Dev Mode Active:', isDevMode);
         console.groupEnd();
     }
 
@@ -60,10 +63,14 @@ export async function submitRegistration(data) {
         }
 
         // Regole Overbooking
-        if (data.formula_partecipazione !== '4x4' && countMoto >= 30) {
-            stato_iscrizione = 'Lista_Attesa';
-        } else if (data.formula_partecipazione === '4x4' && count4x4 >= 10) {
-            stato_iscrizione = 'Lista_Attesa';
+        if (isDevMode) {
+            console.log('[DB] DEV MODE: Bypassing overbooking rules');
+        } else {
+            if (data.formula_partecipazione !== '4x4' && countMoto >= 30) {
+                stato_iscrizione = 'Lista_Attesa';
+            } else if (data.formula_partecipazione === '4x4' && count4x4 >= 10) {
+                stato_iscrizione = 'Lista_Attesa';
+            }
         }
 
         // Single Player Check (Solo per Moto)
@@ -75,14 +82,19 @@ export async function submitRegistration(data) {
         }
 
         // --- LOGICA ANTI-DUPLICATI (Safety Check) v7.2.7 ---
-        const { data: duplicates, error: errDup } = await supabase
-            .from('registrations')
-            .select('id')
-            .or(`and(nome.eq."${data.nome}",cognome.eq."${data.cognome}"),email.eq."${data.email}",telefono.eq."${data.telefono}"`)
-            .limit(1);
+        let is_duplicate = false;
+        if (isDevMode) {
+            console.log('[DB] DEV MODE: Bypassing duplicate check');
+        } else {
+            const { data: duplicates, error: errDup } = await supabase
+                .from('registrations')
+                .select('id')
+                .or(`and(nome.eq."${data.nome}",cognome.eq."${data.cognome}"),email.eq."${data.email}",telefono.eq."${data.telefono}"`)
+                .limit(1);
 
-        const is_duplicate = (duplicates && duplicates.length > 0);
-        if (errDup) console.error('[DB] Duplicate Check Error:', errDup);
+            is_duplicate = (duplicates && duplicates.length > 0);
+            if (errDup) console.error('[DB] Duplicate Check Error:', errDup);
+        }
 
         // Arricchimento dati per insert
         const finalData = {

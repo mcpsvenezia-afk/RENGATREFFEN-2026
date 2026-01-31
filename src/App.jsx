@@ -23,6 +23,8 @@ function App() {
     const [sortType, setSortType] = useState('DEFAULT'); // DEFAULT, TIME, BIB, TEAM, COGNOME, STAFF, LUNCH
     const [showPDFPreview, setShowPDFPreview] = useState(false);
     const [previewType, setPreviewType] = useState('FULL'); // FULL, ONLY_4X4, ONLY_PAID, TOTALS
+    const [printOrientation, setPrintOrientation] = useState('PORTRAIT'); // PORTRAIT, LANDSCAPE
+    const [printMode, setPrintMode] = useState('COLOR'); // COLOR, BW
 
     useEffect(() => {
         const isStored = localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
@@ -163,6 +165,16 @@ function App() {
         if (previewType === 'ONLY_4X4') return list.filter(r => r.formula_partecipazione === '4x4');
         if (previewType === 'ONLY_PAID') return list.filter(r => r.is_paid === 'SI');
         return list;
+    };
+
+    const getTeamColor = (name) => {
+        if (!name || name.toLowerCase() === 'staff') return '#E0F7FA'; // Light Cyan for staff
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const h = Math.abs(hash % 360);
+        return `hsla(${h}, 60%, 90%, 1)`; // Very light color for PDF
     };
 
     const stats = {
@@ -327,7 +339,7 @@ function App() {
                                 </button>
                                 <button
                                     onClick={() => setShowPDFPreview(true)}
-                                    style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', border: 'none', color: '#fff' }}
+                                    style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', border: 'none', color: '#000' }}
                                 >
                                     🖨️ ANTEPRIMA & STAMPA
                                 </button>
@@ -395,6 +407,25 @@ function App() {
                                 <option value="ONLY_PAID">SOLO PAGATI</option>
                                 <option value="TOTALS">RIEPILOGO TOTALI</option>
                             </select>
+
+                            <select
+                                value={printOrientation}
+                                onChange={(e) => setPrintOrientation(e.target.value)}
+                                style={{ ...selectFilterStyle, padding: '10px 30px' }}
+                            >
+                                <option value="PORTRAIT">VERTICALE</option>
+                                <option value="LANDSCAPE">ORIZZONTALE</option>
+                            </select>
+
+                            <select
+                                value={printMode}
+                                onChange={(e) => setPrintMode(e.target.value)}
+                                style={{ ...selectFilterStyle, padding: '10px 30px' }}
+                            >
+                                <option value="COLOR">A COLORI</option>
+                                <option value="BW">BIANCO E NERO</option>
+                            </select>
+
                             <button
                                 onClick={() => { window.print(); setShowPDFPreview(false); }}
                                 style={{ ...filterBtnStyle, backgroundColor: '#FFCC00', color: '#000' }}
@@ -456,8 +487,8 @@ function App() {
                                 </thead>
                                 <tbody>
                                     {getPreviewData().map(r => (
-                                        <tr key={r.id}>
-                                            <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold' }}>
+                                        <tr key={r.id} style={{ backgroundColor: printMode === 'COLOR' ? getTeamColor(r.team_name) : 'transparent' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>
                                                 {(() => {
                                                     switch (sortType) {
                                                         case 'TIME': return r.departure_time || '--:--';
@@ -470,17 +501,17 @@ function App() {
                                                     }
                                                 })()}
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000' }}>
                                                 <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
                                                 <div style={{ fontSize: '0.8rem' }}>{r.nome} {r.cognome}</div>
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000' }}>
                                                 {r.moto_details || r.moto}
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000' }}>
                                                 {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000' }}>
                                                 {r.formula_partecipazione?.replace('_', ' ')}
                                             </td>
                                         </tr>
@@ -501,6 +532,10 @@ function App() {
                 td { color: #ccc !important; font-size: 1.1rem !important; }
 
                 @media print {
+                    @page {
+                        size: ${printOrientation === 'LANDSCAPE' ? 'landscape' : 'portrait'};
+                        margin: 20mm;
+                    }
                     body { background: white !important; color: black !important; padding: 0 !important; }
                     [data-dna="1000-DASHBOARD-ROOT"] > *:not([data-dna="2300-PDF-PREVIEW-MODAL"]) { display: none !important; }
                     [data-dna="1001-ADMIN-BAR"], 
@@ -530,6 +565,7 @@ function App() {
                     }
                     
                     #printable-area * { color: black !important; border-color: black !important; }
+                    #printable-area table tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                 }
             `}</style>
         </div>
