@@ -1249,10 +1249,16 @@
         // 🎭 STAFF MODE DETECTION & STYLING
         window.applyStaffMode = function () {
             const teamNameInput = document.getElementById('team_name_input');
-            if (!teamNameInput) return;
+            if (!teamNameInput) {
+                console.log('⚠️ Team name input not found!');
+                return;
+            }
 
-            const isStaff = teamNameInput.value.toLowerCase().includes('staff');
+            const teamName = teamNameInput.value;
+            const isStaff = teamName.toLowerCase().includes('staff');
             const sections = document.querySelectorAll('.form-section');
+
+            console.log(`🎭 Staff Mode Check: "${teamName}" -> isStaff: ${isStaff}`);
 
             // Define which sections are REQUIRED for Staff (Green borders only)
             const staffRequiredSections = [
@@ -1262,20 +1268,29 @@
                 'Conferma Finale'
             ];
 
+            let greenCount = 0;
             sections.forEach(section => {
                 const title = section.querySelector('.section-title')?.textContent.trim();
                 const isRequired = staffRequiredSections.some(req => title?.includes(req));
 
                 if (isStaff && isRequired) {
-                    // 🟢 GREEN BORDER for REQUIRED sections only
-                    section.style.border = '3px solid #4CAF50';
-                    section.style.boxShadow = '0 10px 40px rgba(76, 175, 80, 0.3)';
-                    section.style.background = 'rgba(76, 175, 80, 0.05)';
+                    // 🟢 ULTRA-VISIBLE GREEN BORDER for REQUIRED sections
+                    section.style.border = '5px solid #4CAF50';
+                    section.style.boxShadow = '0 0 30px rgba(76, 175, 80, 0.8), inset 0 0 20px rgba(76, 175, 80, 0.2)';
+                    section.style.background = 'rgba(76, 175, 80, 0.1)';
+                    section.style.transform = 'scale(1.02)';
+                    section.style.transition = 'all 0.3s ease';
+                    greenCount++;
+                    console.log(`✅ GREEN: ${title}`);
                 } else {
                     // Reset to default gray styling
                     section.style.border = '1px solid rgba(255, 255, 255, 0.1)';
                     section.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.5)';
                     section.style.background = '#0d0d12';
+                    section.style.transform = 'scale(1)';
+                    if (isStaff) {
+                        console.log(`⚪ GRAY: ${title}`);
+                    }
                 }
 
                 // Remove 'required' from inputs in NON-REQUIRED sections when Staff mode is active
@@ -1294,6 +1309,10 @@
                     });
                 }
             });
+
+            if (isStaff) {
+                console.log(`🎯 Staff Mode Active: ${greenCount} sections highlighted in GREEN`);
+            }
 
             updateTotal();
         }
