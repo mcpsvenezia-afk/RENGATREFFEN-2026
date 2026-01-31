@@ -485,10 +485,10 @@ function App() {
                                 <p><strong>Ospiti Pranzo:</strong> {stats.lunchGuests}</p>
                             </div>
                         ) : (
-                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+                            <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                                 <thead>
                                     <tr style={{ backgroundColor: '#f5f5f5' }}>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>
                                             {(() => {
                                                 switch (sortType) {
                                                     case 'TIME': return 'PARTENZA';
@@ -501,10 +501,10 @@ function App() {
                                                 }
                                             })()}
                                         </th>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>TEAM / PILOTA</th>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>MOTO / VEICOLO</th>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>STATO</th>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>FORMULA</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>TEAM / PILOTA</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>MOTO / VEICOLO</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>STATO</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>FORMULA</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -523,17 +523,17 @@ function App() {
                                                     }
                                                 })()}
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
                                                 <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
-                                                <div style={{ fontSize: '0.8rem' }}>{r.nome} {r.cognome}</div>
+                                                <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{r.nome} {r.cognome}</div>
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
                                                 {r.moto_details || r.moto}
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
                                                 {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
                                                 {r.formula_partecipazione?.replace('_', ' ')}
                                             </td>
                                         </tr>
@@ -547,11 +547,11 @@ function App() {
 
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                #renga-dev-menu { position: fixed; bottom: 30px; right: 30px; z-index: 2147483646; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
                 
-                /* Custom table row styling for high contrast */
-                tr:hover { background-color: #1a1a1a !important; }
-                td { color: #ccc !important; font-size: 1.1rem !important; }
+                /* Custom table row styling for high contrast (Dashboard Only) */
+                [data-dna="SECTION-TABLE"] tr:hover { background-color: #1a1a1a !important; }
+                [data-dna="SECTION-TABLE"] td { color: #ccc !important; font-size: 1.1rem !important; }
 
                 @media print {
                     @page {
@@ -586,8 +586,9 @@ function App() {
                         color: black !important;
                     }
                     
-                    #printable-area * { color: black !important; border-color: black !important; }
+                    #printable-area * { color: black !important; border-color: black !important; font-weight: bold !important; }
                     #printable-area table tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                    .pdf-table td, .pdf-table th { color: #000 !important; font-weight: bold !important; border: 1px solid #000 !important; }
                 }
             `}</style>
         </div>
