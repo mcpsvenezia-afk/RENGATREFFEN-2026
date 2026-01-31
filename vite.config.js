@@ -16,6 +16,7 @@ export default defineConfig({
                 timetable: resolve(__dirname, 'timetable.html'),
                 tutorials: resolve(__dirname, 'tutorials.html'),
                 sponsor: resolve(__dirname, 'sponsor.html'),
+                race: resolve(__dirname, 'race-app.html'),
             },
         },
     },

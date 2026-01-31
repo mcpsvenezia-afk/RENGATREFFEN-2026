@@ -37,6 +37,10 @@
         {
             "source": "/sponsor",
             "destination": "/sponsor.html"
+        },
+        {
+            "source": "/race",
+            "destination": "/race-app.html"
         }
     ]
 }
