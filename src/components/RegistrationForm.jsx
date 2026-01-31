@@ -193,6 +193,11 @@ const RegistrationForm = () => {
 
     const isStaff = formData.team_name.toLowerCase().includes('staff');
 
+    // Debug logging
+    if (formData.team_name) {
+        console.log('🎭 React Staff Mode:', formData.team_name, '-> isStaff:', isStaff);
+    }
+
     const getSectionStyle = (isStaffRequired) => {
         const baseStyle = {
             background: 'rgba(255,255,255,0.03)',
@@ -203,15 +208,12 @@ const RegistrationForm = () => {
             border: '1px solid rgba(255,255,255,0.1)'
         };
 
-        if (isStaff) {
-            baseStyle.border = `2px solid ${isStaffRequired ? '#4CAF50' : '#E6007E'}`;
-            baseStyle.boxShadow = `0 10px 40px ${isStaffRequired ? 'rgba(76,175,80,0.15)' : 'rgba(230,0,126,0.1)'}`;
-            if (isStaffRequired) {
-                baseStyle.background = 'rgba(76,175,80,0.02)';
-            } else {
-                baseStyle.background = 'rgba(230,0,126,0.01)';
-                baseStyle.opacity = '0.8';
-            }
+        // Only apply GREEN borders to REQUIRED sections when Staff mode is active
+        if (isStaff && isStaffRequired) {
+            baseStyle.border = '5px solid #4CAF50';
+            baseStyle.boxShadow = '0 0 30px rgba(76, 175, 80, 0.8), inset 0 0 20px rgba(76, 175, 80, 0.2)';
+            baseStyle.background = 'rgba(76, 175, 80, 0.1)';
+            baseStyle.transform = 'scale(1.02)';
         }
 
         return baseStyle;
