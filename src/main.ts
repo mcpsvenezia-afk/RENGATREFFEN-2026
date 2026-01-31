@@ -45,7 +45,7 @@ const injectShareButton = () => {
         shareLi.className = 'nav-share-item';
         shareLi.innerHTML = `
             <a href="#" class="nav-btn yellow" data-dna="SOCIAL-SHARE-BTN" style="display: flex; align-items: center; gap: 10px; justify-content: center;">
-                <span>📢 CONDIVIDI</span>
+                <span>📢 INVITA UN AMICO</span>
             </a>
         `;
         navLinks.appendChild(shareLi);

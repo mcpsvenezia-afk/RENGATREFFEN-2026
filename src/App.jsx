@@ -1,6 +1,6 @@
 /**
- * 🧬 PAGE: Admin Dashboard v3.1 (High Contrast Edition)
- * Goal: Maximum Readability, Dark Premium Background, Big Elements
+ * 🧬 PAGINA: Admin Dashboard v3.1 (Edizione Alto Contrasto)
+ * Obiettivo: Massima leggibilità, Sfondo Dark Premium, Elementi grandi
  */
 
 import React, { useEffect, useState } from 'react';
@@ -19,8 +19,8 @@ function App() {
 
     // Filters & Sorting v7.2.7
     const [filterFormula, setFilterFormula] = useState('ALL');
-    const [filterPaid, setFilterPaid] = useState('ALL');
-    const [sortByDeparture, setSortByDeparture] = useState(false);
+    const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PAID, NOT_PAID, WAITING, REJECTED
+    const [sortType, setSortType] = useState('DEFAULT'); // DEFAULT, TIME, BIB, TEAM, COGNOME, STAFF, LUNCH
     const [showPDFPreview, setShowPDFPreview] = useState(false);
     const [previewType, setPreviewType] = useState('FULL'); // FULL, ONLY_4X4, ONLY_PAID, TOTALS
 
@@ -39,29 +39,125 @@ function App() {
             list = list.filter(r => r.formula_partecipazione === filterFormula);
         }
 
-        // 2. Paid Filter
-        if (filterPaid !== 'ALL') {
-            const isPaid = filterPaid === 'PAID';
-            list = list.filter(r => (r.is_paid === 'SI') === isPaid);
+        // 2. Status/Paid Filter
+        if (filterStatus !== 'ALL') {
+            if (filterStatus === 'PAID') list = list.filter(r => r.is_paid === 'SI');
+            else if (filterStatus === 'NOT_PAID') list = list.filter(r => r.is_paid !== 'SI');
+            else if (filterStatus === 'WAITING') list = list.filter(r => r.stato_iscrizione === 'Lista_Attesa');
+            else if (filterStatus === 'REJECTED') list = list.filter(r => r.stato_iscrizione === 'Rifiutata');
         }
 
-        // 3. Sorting (Priority 1: Departure Time)
-        if (sortByDeparture) {
-            list.sort((a, b) => {
-                const timeA = a.departure_time || '99:99';
-                const timeB = b.departure_time || '99:99';
-                return timeA.localeCompare(timeB);
-            });
-        }
+        // 3. Advanced Sorting
+        list.sort((a, b) => {
+            // Priority: STAFF grouping
+            const isStaffA = (a.team_name || '').toLowerCase() === 'staff';
+            const isStaffB = (b.team_name || '').toLowerCase() === 'staff';
+
+            if (sortType === 'STAFF') {
+                if (isStaffA && !isStaffB) return -1;
+                if (!isStaffA && isStaffB) return 1;
+            }
+
+            switch (sortType) {
+                case 'TIME':
+                    return (a.departure_time || '99:99').localeCompare(b.departure_time || '99:99');
+                case 'BIB':
+                    return (parseInt(a.bib_number) || 999) - (parseInt(b.bib_number) || 999);
+                case 'TEAM':
+                    return (a.team_name || '').localeCompare(b.team_name || '');
+                case 'COGNOME':
+                    return (a.cognome || '').localeCompare(b.cognome || '');
+                case 'LUNCH':
+                    return (parseInt(b.pranzo_accompagnatori) || 0) - (parseInt(a.pranzo_accompagnatori) || 0);
+                default:
+                    return new Date(b.created_at) - new Date(a.created_at);
+            }
+        });
 
         return list;
     };
 
+    const handleAutoAssign = async () => {
+        if (!window.confirm("Attenzione: gli orari e i numeri di partenza verranno ricalcolati per tutti gli iscritti confermati. Procedere?")) return;
+
+        setLoading(true);
+        try {
+            let currentList = [...registrations].filter(r => r.stato_iscrizione === 'Confermata');
+
+            // Helper to group by team
+            const groupByTeam = (list) => {
+                const groups = {};
+                list.forEach(r => {
+                    const t = r.team_name || 'NO_TEAM_' + r.id;
+                    if (!groups[t]) groups[t] = [];
+                    groups[t].push(r);
+                });
+                return Object.values(groups);
+            };
+
+            // Group categories
+            const x4Groups = groupByTeam(currentList.filter(r => r.formula_partecipazione === '4x4'));
+            const cacciaGroups = groupByTeam(currentList.filter(r => r.formula_partecipazione?.startsWith('Caccia')));
+            const discoveryGroups = groupByTeam(currentList.filter(r => r.formula_partecipazione === 'Discovery'));
+
+            let updates = [];
+            let currentBib = 1;
+
+            const formatTime = (totalMinutes) => {
+                const h = Math.floor(totalMinutes / 60);
+                const m = totalMinutes % 60;
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            };
+
+            // 1. 4x4: Starts 08:00, 1 min interval per group
+            let time4x4 = 8 * 60;
+            x4Groups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
+                const time = formatTime(time4x4);
+                group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
+                currentBib++;
+                time4x4 += 1;
+            });
+
+            // 2. Caccia: Starts 08:30, 2 min interval per group
+            let timeCaccia = 8 * 60 + 30;
+            cacciaGroups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
+                const time = formatTime(timeCaccia);
+                group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
+                currentBib++;
+                timeCaccia += 2;
+            });
+
+            // 3. Discovery: Starts after Caccia + 20 min break, 1 min interval per group
+            let timeDiscovery = timeCaccia + 20;
+            discoveryGroups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
+                const time = formatTime(timeDiscovery);
+                group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
+                currentBib++;
+                timeDiscovery += 1;
+            });
+
+            // Save to DB
+            for (const upd of updates) {
+                await supabase.from('registrations').update({
+                    bib_number: upd.bib_number,
+                    departure_time: upd.departure_time
+                }).eq('id', upd.id);
+            }
+
+            await fetchAllData();
+            alert("Assegnazione automatica completata!");
+        } catch (err) {
+            console.error(err);
+            alert("Errore durante l'assegnazione: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const getPreviewData = () => {
-        let list = [...registrations];
+        let list = getProcessedRegistrations();
         if (previewType === 'ONLY_4X4') return list.filter(r => r.formula_partecipazione === '4x4');
         if (previewType === 'ONLY_PAID') return list.filter(r => r.is_paid === 'SI');
-        if (previewType === 'FULL') return getProcessedRegistrations();
         return list;
     };
 
@@ -147,7 +243,7 @@ function App() {
                         <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: isDevMode ? '#E6007E' : '#444', boxShadow: isDevMode ? '0 0 15px #E6007E' : 'none' }}></div>
                         <span style={{ fontSize: '0.8rem', fontWeight: 900, color: isDevMode ? '#E6007E' : '#666' }}>MODO DEV {isDevMode ? 'ATTIVO' : 'SPENTO'}</span>
                     </div>
-                    <button onClick={fetchAllData} style={btnGhostStyle}>{loading ? '...' : '🔄 SYNC SYSTEM'}</button>
+                    <button onClick={fetchAllData} style={btnGhostStyle}>{loading ? '...' : '🔄 SINCRONIZZA SISTEMA'}</button>
                 </div>
             </div>
 
@@ -196,20 +292,34 @@ function App() {
                                     </select>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>PAGAMENTO:</span>
-                                    <select value={filterPaid} onChange={e => setFilterPaid(e.target.value)} style={selectFilterStyle}>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>STATO/PAGAMENTO:</span>
+                                    <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectFilterStyle}>
                                         <option value="ALL">TUTTI</option>
                                         <option value="PAID">PAGATI</option>
                                         <option value="NOT_PAID">NON PAGATI</option>
+                                        <option value="WAITING">LISTA D'ATTESA</option>
+                                        <option value="REJECTED">RIFIUTATI</option>
+                                    </select>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>ORDINA PER:</span>
+                                    <select value={sortType} onChange={e => setSortType(e.target.value)} style={selectFilterStyle}>
+                                        <option value="DEFAULT">PIÙ RECENTI</option>
+                                        <option value="TIME">ORARIO PARTENZA</option>
+                                        <option value="BIB">NUMERO GARA</option>
+                                        <option value="TEAM">NOME TEAM</option>
+                                        <option value="COGNOME">COGNOME PILOTA</option>
+                                        <option value="STAFF">GRUPPO STAFF</option>
+                                        <option value="LUNCH">OSPITI PRANZO</option>
                                     </select>
                                 </div>
                                 <div style={{ flex: 1 }}></div>
-                                <div
-                                    onClick={() => setSortByDeparture(!sortByDeparture)}
-                                    style={{ ...filterBtnStyle, backgroundColor: sortByDeparture ? '#FFCC00' : '#222', color: sortByDeparture ? '#000' : '#fff' }}
+                                <button
+                                    onClick={handleAutoAssign}
+                                    style={{ ...filterBtnStyle, backgroundColor: '#E6007E', border: 'none', color: '#fff' }}
                                 >
-                                    🕒 ORDINA PER PARTENZA
-                                </div>
+                                    ⚡ AUTO-TIME
+                                </button>
                                 <button
                                     onClick={() => setShowPDFPreview(true)}
                                     style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', border: 'none', color: '#fff' }}

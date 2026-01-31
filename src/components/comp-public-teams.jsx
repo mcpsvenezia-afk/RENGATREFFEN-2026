@@ -65,9 +65,9 @@ export function PublicTeamList() {
     if (loading) return <div style={{ textAlign: 'center', padding: '50px', color: '#FFCC00', fontWeight: 900, fontSize: '1.5rem' }}>CARICAMENTO TEAM...</div>;
 
     if (teams.length === 0) return (
-        <div style={{ textAlign: 'center', padding: '100px 20px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '32px', border: '1px dashed #333' }}>
-            <h3 style={{ color: '#666', fontSize: '1.5rem' }}>Nessun team confermato al momento.</h3>
-            <p style={{ color: '#444', marginTop: '10px' }}>Le iscrizioni sono in corso!</p>
+        <div style={{ textAlign: 'center', padding: '100px 20px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '32px', border: '1px dashed #FFCC00' }}>
+            <h3 style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 900 }}>Nessun team confermato al momento.</h3>
+            <p style={{ color: '#FFCC00', marginTop: '15px', fontSize: '1.1rem', fontWeight: 700 }}>Le iscrizioni sono in corso!</p>
         </div>
     );
 

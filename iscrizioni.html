@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="it">
 
@@ -96,13 +96,27 @@
         }
 
         .form-grid {
-
             display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        .address-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 20px;
+        }
 
-            gap: 2rem;
+        @media (max-width: 768px) {
 
+            .form-grid,
+            .address-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .form-section {
+                padding: 1.5rem;
+            }
         }
 
         .field-wrapper {
@@ -531,8 +545,8 @@
 
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3104-INP -->
 
-                                    <input type="text" name="team_name" class="renga-input"
-                                        placeholder="Inserisci il nome del tuo team" required>
+                                    <input type="text" name="team_name" id="team_name_input" class="renga-input"
+                                        placeholder="Inserisci il nome del tuo team" required oninput="updateTotal()">
 
                                 </div>
 
@@ -718,7 +732,7 @@
 
                             </div>
 
-                            <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr;">
+                            <div class="address-grid">
 
                                 <div class="field-wrapper">
 
@@ -1219,7 +1233,7 @@
     <!-- URL:https://www.rengatreffen.it/ ID 0002-FT -->
 
     <footer class="main-footer">
-        <div class="container">
+        <div class="container footer-bottom">
             <!-- URL:https://www.rengatreffen.it/ ID 2400-P -->
             <p style="position: relative;">&copy; 2026 Renga Treffen. Powered by MotoReporter.it. <br> Tutti i diritti
                 riservati.
@@ -1267,16 +1281,21 @@
         window.updateTotal = function () {
             const form = document.getElementById('registration-form');
             const formula = form.querySelector('input[name="formula_partecipazione"]:checked')?.value;
+            const teamName = document.getElementById('team_name_input')?.value || '';
 
             const passCount = document.querySelectorAll('.passenger-name').length;
             const lunchCount = document.querySelectorAll('.lunch-guest-name').length;
 
             let basePrice = 0;
-            switch (formula) {
-                case 'Caccia_MCPS': basePrice = 75; break;
-                case 'Caccia_NON_MCPS': basePrice = 85; break;
-                case 'Discovery': basePrice = 85; break;
-                case '4x4': basePrice = 85; break;
+            if (teamName.toLowerCase() !== 'staff') {
+                switch (formula) {
+                    case 'Caccia_MCPS': basePrice = 75; break;
+                    case 'Caccia_NON_MCPS': basePrice = 85; break;
+                    case 'Discovery': basePrice = 85; break;
+                    case '4x4': basePrice = 85; break;
+                }
+            } else {
+                console.log('Staff team detected: Participation cost = 0');
             }
 
             let total = basePrice;
@@ -1360,8 +1379,8 @@
         });
     </script>
 
+    <a href="#" class="back-to-top-fixed">↑</a>
     <script type="module" src="/src/main.ts"></script>
-
 </body>
 
 </html>
