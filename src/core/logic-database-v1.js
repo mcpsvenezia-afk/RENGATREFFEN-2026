@@ -42,8 +42,21 @@ export async function submitRegistration(data) {
     }
 
     try {
-        // --- LOGICA DI CONTROLLO OVERBOOKING (DNA Check) v7.2 ---
-        let stato_iscrizione = 'Confermata';
+        // 1. Fetch Dynamic Settings
+        let maxMoto = 30;
+        let max4x4 = 10;
+        let isOpen = true;
+
+        const { data: settsData } = await supabase.from('settings').select('value').eq('id', 'event_params').single();
+        if (settsData && settsData.value) {
+            maxMoto = settsData.value.max_moto ?? 30;
+            max4x4 = settsData.value.max_4x4 ?? 10;
+            isOpen = settsData.value.is_open ?? true;
+        }
+
+        if (!isOpen && !isDevMode) {
+            return { success: false, error: "Le iscrizioni online sono attualmente chiuse." };
+        }
 
         // Conteggio registrazioni esistenti per categoria
         // Moto (Caccia + Discovery)
@@ -66,9 +79,9 @@ export async function submitRegistration(data) {
         if (isDevMode) {
             console.log('[DB] DEV MODE: Bypassing overbooking rules');
         } else {
-            if (data.formula_partecipazione !== '4x4' && countMoto >= 30) {
+            if (data.formula_partecipazione !== '4x4' && countMoto >= maxMoto) {
                 stato_iscrizione = 'Lista_Attesa';
-            } else if (data.formula_partecipazione === '4x4' && count4x4 >= 10) {
+            } else if (data.formula_partecipazione === '4x4' && count4x4 >= max4x4) {
                 stato_iscrizione = 'Lista_Attesa';
             }
         }

@@ -8,6 +8,8 @@ import { supabase } from './lib/supabaseClient';
 import { RegistrationList } from './components/comp-registration-list';
 import { MessageList } from './components/comp-message-list';
 import { CRMDetail } from './components/comp-crm-panel';
+import { SettingsTab } from './components/comp-admin-settings';
+import { RankingsTab } from './components/comp-admin-rankings';
 
 function App() {
     const [registrations, setRegistrations] = useState([]);
@@ -311,6 +313,12 @@ function App() {
                             <button data-dna="1102-TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages', 'messages')}>
                                 MESSAGGI ({messages.length})
                             </button>
+                            <button data-dna="1103-TAB-RANKINGS" onClick={() => setActiveTab('rankings')} style={mainTabStyle(activeTab === 'rankings', 'rankings')}>
+                                CLASSIFICHE 🏆
+                            </button>
+                            <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={mainTabStyle(activeTab === 'settings', 'settings')}>
+                                IMPOSTAZIONI ⚙️
+                            </button>
                         </div>
 
                         {/* 🔍 FILTER BAR */}
@@ -375,12 +383,21 @@ function App() {
                                     isDevMode={isDevMode}
                                     onInspect={(reg) => navigator.clipboard.writeText(JSON.stringify(reg, null, 2))}
                                 />
-                            ) : (
+                            ) : activeTab === 'messages' ? (
                                 <MessageList
                                     data={messages}
                                     onSelect={(msg) => setSelectedItem({ data: msg, type: 'message' })}
                                     isDevMode={isDevMode}
                                     onInspect={(msg) => navigator.clipboard.writeText(JSON.stringify(msg, null, 2))}
+                                />
+                            ) : activeTab === 'rankings' ? (
+                                <RankingsTab
+                                    registrations={registrations}
+                                    onRefresh={fetchAllData}
+                                />
+                            ) : (
+                                <SettingsTab
+                                    isDevMode={isDevMode}
                                 />
                             )}
                         </div>
@@ -462,61 +479,92 @@ function App() {
                             <p>Data Generazione: {new Date().toLocaleString()}</p>
                         </div>
 
-                        <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                            <thead>
-                                <tr style={{ backgroundColor: '#f5f5f5' }}>
-                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>
-                                        {(() => {
-                                            switch (sortType) {
-                                                case 'TIME': return 'PARTENZA';
-                                                case 'BIB': return '# GARA';
-                                                case 'TEAM': return 'TEAM';
-                                                case 'COGNOME': return 'PILOTA';
-                                                case 'STAFF': return 'STAFF';
-                                                case 'LUNCH': return 'OSPITI';
-                                                default: return '# GARA';
-                                            }
-                                        })()}
-                                    </th>
-                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>TEAM / PILOTA</th>
-                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>MOTO / VEICOLO</th>
-                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>STATO</th>
-                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>FORMULA</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {getPreviewData().map(r => (
-                                    <tr key={r.id} style={{ backgroundColor: printMode === 'COLOR' ? getTeamColor(r.team_name) : 'transparent' }}>
-                                        <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>
+                        {activeTab === 'rankings' ? (
+                            <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#f5f5f5' }}>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'center', width: '60px', color: '#000', fontWeight: 'bold' }}>POS</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', color: '#000', fontWeight: 'bold' }}>TEAM</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'center', width: '120px', color: '#000', fontWeight: 'bold' }}>PUNTEGGIO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(() => {
+                                        const teams = Array.from(new Set(registrations
+                                            .filter(r => r.team_name && r.team_name.toLowerCase() !== 'staff')
+                                            .map(r => r.team_name)
+                                        )).map(name => ({
+                                            name,
+                                            score: registrations.find(r => r.team_name === name)?.score_caccia || 0
+                                        })).sort((a, b) => b.score - a.score);
+
+                                        return teams.map((t, i) => (
+                                            <tr key={t.name}>
+                                                <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#000' }}>{i + 1}</td>
+                                                <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>{t.name.toUpperCase()}</td>
+                                                <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: '#000' }}>{t.score}</td>
+                                            </tr>
+                                        ));
+                                    })()}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+                                <thead>
+                                    <tr style={{ backgroundColor: '#f5f5f5' }}>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>
                                             {(() => {
                                                 switch (sortType) {
-                                                    case 'TIME': return r.departure_time || '--:--';
-                                                    case 'BIB': return r.bib_number || '--';
-                                                    case 'TEAM': return r.team_name;
-                                                    case 'COGNOME': return r.cognome;
-                                                    case 'STAFF': return r.team_name;
-                                                    case 'LUNCH': return r.pranzo_accompagnatori || 0;
-                                                    default: return r.bib_number || '--';
+                                                    case 'TIME': return 'PARTENZA';
+                                                    case 'BIB': return '# GARA';
+                                                    case 'TEAM': return 'TEAM';
+                                                    case 'COGNOME': return 'PILOTA';
+                                                    case 'STAFF': return 'STAFF';
+                                                    case 'LUNCH': return 'OSPITI';
+                                                    default: return '# GARA';
                                                 }
                                             })()}
-                                        </td>
-                                        <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
-                                            <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
-                                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{r.nome} {r.cognome}</div>
-                                        </td>
-                                        <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
-                                            {r.moto_details || r.moto}
-                                        </td>
-                                        <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
-                                            {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
-                                        </td>
-                                        <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
-                                            {r.formula_partecipazione?.replace('_', ' ')}
-                                        </td>
+                                        </th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>TEAM / PILOTA</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>MOTO / VEICOLO</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>STATO</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>FORMULA</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {getPreviewData().map(r => (
+                                        <tr key={r.id} style={{ backgroundColor: printMode === 'COLOR' ? getTeamColor(r.team_name) : 'transparent' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>
+                                                {(() => {
+                                                    switch (sortType) {
+                                                        case 'TIME': return r.departure_time || '--:--';
+                                                        case 'BIB': return r.bib_number || '--';
+                                                        case 'TEAM': return r.team_name;
+                                                        case 'COGNOME': return r.cognome;
+                                                        case 'STAFF': return r.team_name;
+                                                        case 'LUNCH': return r.pranzo_accompagnatori || 0;
+                                                        default: return r.bib_number || '--';
+                                                    }
+                                                })()}
+                                            </td>
+                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
+                                                <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
+                                                <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{r.nome} {r.cognome}</div>
+                                            </td>
+                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
+                                                {r.moto_details || r.moto}
+                                            </td>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
+                                                {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
+                                            </td>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
+                                                {r.formula_partecipazione?.replace('_', ' ')}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
                 </div>
             )}
@@ -577,8 +625,14 @@ const filterBtnStyle = { padding: '10px 20px', borderRadius: '10px', cursor: 'po
 const btnGhostStyle = { background: '#1a1a1f', border: '1px solid #333', color: '#fff', padding: '12px 25px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 900, cursor: 'pointer' };
 const btnBackStyle = { marginBottom: '40px', backgroundColor: '#FFCC00', color: '#000', border: 'none', padding: '18px 40px', borderRadius: '50px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 20px 40px rgba(255,204,0,0.3)' };
 const mainTabStyle = (active, type) => {
-    const activeColor = type === 'messages' ? '#00E5FF' : '#FFCC00';
-    const shadowColor = type === 'messages' ? 'rgba(0,229,255,0.2)' : 'rgba(255,204,0,0.2)';
+    let activeColor = '#FFCC00';
+    if (type === 'messages') activeColor = '#00E5FF';
+    if (type === 'rankings') activeColor = '#00E5FF';
+    if (type === 'settings') activeColor = '#fff';
+
+    let shadowColor = 'rgba(255,204,0,0.2)';
+    if (type === 'messages' || type === 'rankings') shadowColor = 'rgba(0,229,255,0.2)';
+    if (type === 'settings') shadowColor = 'rgba(255,255,255,0.1)';
 
     return {
         padding: '25px 50px',

@@ -15,6 +15,15 @@ const RegistrationForm = () => {
     const [loading, setLoading] = useState(false);
     const [passengers, setPassengers] = useState([]);
     const [lunchGuests, setLunchGuests] = useState([]);
+    const [eventSettings, setEventSettings] = useState({ is_open: true });
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            const { data } = await supabase.from('settings').select('value').eq('id', 'event_params').single();
+            if (data && data.value) setEventSettings(data.value);
+        };
+        fetchSettings();
+    }, []);
 
     const [formData, setFormData] = useState({
         team_name: '',
@@ -414,19 +423,34 @@ const RegistrationForm = () => {
                 <div style={{ fontSize: '3rem', fontWeight: '950', color: '#E6007E' }}>€ {currentTotal},00</div>
             </div>
 
-            <button
-                type="submit"
-                disabled={loading}
-                style={{
-                    width: '100%', padding: '25px', backgroundColor: loading ? '#333' : '#FFCC00',
-                    color: '#000', border: 'none', borderRadius: '15px', fontSize: '1.4rem',
-                    fontWeight: '950', cursor: loading ? 'wait' : 'pointer', transition: '0.3s',
-                    boxShadow: '0 20px 60px rgba(255,204,0,0.2)',
-                    display: isMobile ? 'none' : 'block'
-                }}
-            >
-                {loading ? 'INVIO IN CORSO...' : 'INVIA ISCRIZIONE'}
-            </button>
+            {eventSettings.is_open ? (
+                <button
+                    type="submit"
+                    disabled={loading}
+                    style={{
+                        width: '100%', padding: '25px', backgroundColor: loading ? '#333' : '#FFCC00',
+                        color: '#000', border: 'none', borderRadius: '15px', fontSize: '1.4rem',
+                        fontWeight: '950', cursor: loading ? 'wait' : 'pointer', transition: '0.3s',
+                        boxShadow: '0 20px 60px rgba(255,204,0,0.2)',
+                        display: isMobile ? 'none' : 'block'
+                    }}
+                >
+                    {loading ? 'INVIO IN CORSO...' : 'INVIA ISCRIZIONE'}
+                </button>
+            ) : (
+                <div style={{
+                    display: isMobile ? 'none' : 'block',
+                    backgroundColor: 'rgba(230,0,126,0.1)',
+                    padding: '30px',
+                    borderRadius: '20px',
+                    textAlign: 'center',
+                    border: '2px dashed #E6007E',
+                    marginBottom: '30px'
+                }}>
+                    <h2 style={{ color: '#E6007E', margin: '0 0 10px 0' }}>ISCRIZIONI CHIUSE</h2>
+                    <p style={{ color: '#888', margin: 0 }}>Le iscrizioni per questa edizione sono momentaneamente chiuse o sospese.</p>
+                </div>
+            )}
 
             {/* 📍 STICKY MOBILE FOOTER */}
             {isMobile && (
@@ -443,18 +467,33 @@ const RegistrationForm = () => {
                         <div style={{ color: '#E6007E', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase' }}>Totale:</div>
                         <div style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 950 }}>€ {currentTotal},00</div>
                     </div>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        style={{
-                            backgroundColor: loading ? '#444' : '#E6007E',
-                            color: '#fff', border: 'none', borderRadius: '10px',
-                            padding: '12px 25px', fontSize: '1rem', fontWeight: 950,
-                            boxShadow: '0 4px 15px rgba(230,0,126,0.3)'
-                        }}
-                    >
-                        {loading ? '...' : 'INVIA'}
-                    </button>
+                    {eventSettings.is_open ? (
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            style={{
+                                backgroundColor: loading ? '#444' : '#E6007E',
+                                color: '#fff', border: 'none', borderRadius: '10px',
+                                padding: '12px 25px', fontSize: '1rem', fontWeight: 950,
+                                boxShadow: '0 4px 15px rgba(230,0,126,0.3)'
+                            }}
+                        >
+                            {loading ? '...' : 'INVIA'}
+                        </button>
+                    ) : (
+                        <div style={{
+                            backgroundColor: 'rgba(230,0,126,0.1)',
+                            padding: '10px 15px',
+                            borderRadius: '10px',
+                            textAlign: 'center',
+                            border: '1px dashed #E6007E',
+                            fontSize: '0.8rem',
+                            color: '#E6007E',
+                            fontWeight: 'bold'
+                        }}>
+                            CHIUSO ⛔
+                        </div>
+                    )}
                 </div>
             )}
         </form>
