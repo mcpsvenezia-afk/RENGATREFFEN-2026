@@ -191,6 +191,32 @@ const RegistrationForm = () => {
         }
     };
 
+    const isStaff = formData.team_name.toLowerCase().includes('staff');
+
+    const getSectionStyle = (isStaffRequired) => {
+        const baseStyle = {
+            background: 'rgba(255,255,255,0.03)',
+            padding: isMobile ? '20px' : '30px',
+            borderRadius: '20px',
+            marginBottom: '30px',
+            transition: '0.4s ease',
+            border: '1px solid rgba(255,255,255,0.1)'
+        };
+
+        if (isStaff) {
+            baseStyle.border = `2px solid ${isStaffRequired ? '#4CAF50' : '#E6007E'}`;
+            baseStyle.boxShadow = `0 10px 40px ${isStaffRequired ? 'rgba(76,175,80,0.15)' : 'rgba(230,0,126,0.1)'}`;
+            if (isStaffRequired) {
+                baseStyle.background = 'rgba(76,175,80,0.02)';
+            } else {
+                baseStyle.background = 'rgba(230,0,126,0.01)';
+                baseStyle.opacity = '0.8';
+            }
+        }
+
+        return baseStyle;
+    };
+
     return (
         <form onSubmit={handleSubmit} style={{ width: '100%', color: '#fff', paddingBottom: isMobile ? '120px' : '0' }}>
             {/* 📱 MOBILE SHARE BUTTON */}
@@ -212,7 +238,7 @@ const RegistrationForm = () => {
             {/* DNA ROOT FOR MATRIOSKA */}
             <div data-dna="9000-REGISTRATION-FORM" style={{ display: 'none' }}></div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="form-section-react" style={getSectionStyle(false)}>
                 <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px' }}>1. Formula di Partecipazione</h3>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -232,6 +258,7 @@ const RegistrationForm = () => {
                                 type="radio" name="formula_partecipazione" value={opt.id}
                                 checked={formData.formula_partecipazione === opt.id}
                                 onChange={handleChange}
+                                required={!isStaff}
                                 style={{ width: '20px', height: '20px', accentColor: '#FFCC00' }}
                             />
                             <div style={{ flex: 1 }}>
@@ -262,7 +289,7 @@ const RegistrationForm = () => {
                 )}
             </div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: isMobile ? '20px' : '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="form-section-react" style={getSectionStyle(false)}>
                 <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>2. Dati Team & Veicolo</h3>
                 <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                     <div style={{ flex: 1 }}>
@@ -272,11 +299,11 @@ const RegistrationForm = () => {
                 </div>
                 <div style={{ marginTop: '20px' }}>
                     <label style={labelStyle}>Veicolo (Marca, Modello, Targa)</label>
-                    <input type="text" name="moto_details" required placeholder="es. KTM 890, AA123BB" value={formData.moto_details} onChange={handleChange} style={inputStyle} />
+                    <input type="text" name="moto_details" required={!isStaff} placeholder="es. KTM 890, AA123BB" value={formData.moto_details} onChange={handleChange} style={inputStyle} />
                 </div>
             </div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: isMobile ? '20px' : '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="form-section-react" style={getSectionStyle(true)}>
                 <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>3. Dati Pilota 1 (Richiedente)</h3>
                 <div style={{ ...rowStyle, flexDirection: isMobile ? 'column' : 'row' }}>
                     <div style={{ flex: 1 }}>
@@ -353,7 +380,7 @@ const RegistrationForm = () => {
                 </div>
             </div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: isMobile ? '20px' : '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="form-section-react" style={getSectionStyle(true)}>
                 <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>4. Alimentazione & Emergenza</h3>
                 <div>
                     <label style={labelStyle}>Preferenze alimentari o allergie (Obbligatorio)</label>
@@ -388,7 +415,7 @@ const RegistrationForm = () => {
                 </div>
             </div>
 
-            <div className="form-section-react" style={{ background: 'rgba(255,255,255,0.03)', padding: isMobile ? '20px' : '30px', borderRadius: '20px', marginBottom: '30px', border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="form-section-react" style={getSectionStyle(true)}>
                 <h3 style={{ color: '#FFCC00', marginTop: 0, marginBottom: '25px', textTransform: 'uppercase', letterSpacing: '2px', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>5. Conferme & Privacy</h3>
 
                 {[
