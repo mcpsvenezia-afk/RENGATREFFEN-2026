@@ -57,7 +57,14 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
             regs.forEach((team, index) => {
                 const color = cardColors[index % 3];
-                const cardOffset = cardOffsets[color];
+                const prefix = color.toLowerCase();
+
+                const offsets = [
+                    p?.[`offset_${prefix}_1`] || 0,
+                    p?.[`offset_${prefix}_2`] || 0,
+                    p?.[`offset_${prefix}_3`] || 0,
+                    p?.[`offset_${prefix}_4`] || 0
+                ];
 
                 let baseStart = p?.start_time_caccia || '08:00';
                 if (team.formula_partecipazione === 'Discovery') baseStart = p?.start_time_discovery || '09:00';
@@ -69,7 +76,14 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
                 const targets = {};
                 photoBaseOffsets.forEach((baseOffset, idx) => {
-                    const targetDate = new Date(depDate.getTime() + (baseOffset + cardOffset) * 60000);
+                    // Distribuzione: [1,2] -> Off1, [3,4,5] -> Off2, [6,7,8] -> Off3, [9,10] -> Off4
+                    let multiplier = 0;
+                    if (idx < 2) multiplier = offsets[0];
+                    else if (idx < 5) multiplier = offsets[1];
+                    else if (idx < 8) multiplier = offsets[2];
+                    else multiplier = offsets[3];
+
+                    const targetDate = new Date(depDate.getTime() + (baseOffset + multiplier) * 60000);
                     const timeStr = targetDate.toLocaleTimeString('it-IT', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     targets[`photo_${idx + 1}`] = timeStr;
                 });
@@ -222,34 +236,54 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                 </div>
             </div>
 
-            <div style={{ ...itemStyle, background: 'linear-gradient(135deg, rgba(255,68,68,0.05), rgba(0,0,0,0.2))', borderLeft: '10px solid #ff4444' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-                    <div>
-                        <label style={{ ...labelStyle, color: '#ff4444' }}>Offset ROSSA (Min)</label>
-                        <input
-                            type="number"
-                            value={settings.race_params?.offset_red || 0}
-                            onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, offset_red: parseInt(e.target.value) } })}
-                            style={inputStyle}
-                        />
+            <div style={{ ...itemStyle, background: 'linear-gradient(135deg, rgba(255,255,255,0.02), rgba(0,0,0,0.2))' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '30px' }}>
+                    {/* COLONNA ROSSA */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <label style={{ ...labelStyle, color: '#ff4444', textAlign: 'center' }}>SCHEDA ROSSA</label>
+                        {[1, 2, 3, 4].map(num => (
+                            <div key={`red_${num}`}>
+                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>OFFSET {num} (MIN)</label>
+                                <input
+                                    type="number"
+                                    value={settings.race_params?.[`offset_red_${num}`] || 0}
+                                    onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, [`offset_red_${num}`]: parseInt(e.target.value) } })}
+                                    style={{ ...inputStyle, borderColor: 'rgba(255,68,68,0.2)' }}
+                                />
+                            </div>
+                        ))}
                     </div>
-                    <div>
-                        <label style={{ ...labelStyle, color: '#FFCC00' }}>Offset GIALLA (Min)</label>
-                        <input
-                            type="number"
-                            value={settings.race_params?.offset_yellow || 2}
-                            onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, offset_yellow: parseInt(e.target.value) } })}
-                            style={inputStyle}
-                        />
+
+                    {/* COLONNA GIALLA */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <label style={{ ...labelStyle, color: '#FFCC00', textAlign: 'center' }}>SCHEDA GIALLA</label>
+                        {[1, 2, 3, 4].map(num => (
+                            <div key={`yellow_${num}`}>
+                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>OFFSET {num} (MIN)</label>
+                                <input
+                                    type="number"
+                                    value={settings.race_params?.[`offset_yellow_${num}`] || 0}
+                                    onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, [`offset_yellow_${num}`]: parseInt(e.target.value) } })}
+                                    style={{ ...inputStyle, borderColor: 'rgba(255,204,0,0.2)' }}
+                                />
+                            </div>
+                        ))}
                     </div>
-                    <div>
-                        <label style={{ ...labelStyle, color: '#E6007E' }}>Offset VIOLA (Min)</label>
-                        <input
-                            type="number"
-                            value={settings.race_params?.offset_purple || 4}
-                            onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, offset_purple: parseInt(e.target.value) } })}
-                            style={inputStyle}
-                        />
+
+                    {/* COLONNA VIOLA */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <label style={{ ...labelStyle, color: '#E6007E', textAlign: 'center' }}>SCHEDA VIOLA</label>
+                        {[1, 2, 3, 4].map(num => (
+                            <div key={`purple_${num}`}>
+                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>OFFSET {num} (MIN)</label>
+                                <input
+                                    type="number"
+                                    value={settings.race_params?.[`offset_purple_${num}`] || 0}
+                                    onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, [`offset_purple_${num}`]: parseInt(e.target.value) } })}
+                                    style={{ ...inputStyle, borderColor: 'rgba(230,0,126,0.2)' }}
+                                />
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
