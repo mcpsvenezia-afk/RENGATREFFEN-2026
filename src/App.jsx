@@ -432,29 +432,56 @@ function App() {
                                 <p><strong>Ospiti Pranzo:</strong> {stats.lunchGuests}</p>
                             </div>
                         ) : (
-                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                                 <thead>
-                                    <tr>
-                                        <th style={{ border: '1px solid #000', padding: '10px' }}>TEAM / PILOTA</th>
-                                        <th style={{ border: '1px solid #000', padding: '10px' }}>MOTO / VEICOLO</th>
-                                        <th style={{ border: '1px solid #000', padding: '10px' }}>STATO</th>
-                                        <th style={{ border: '1px solid #000', padding: '10px' }}>ORARIO</th>
+                                    <tr style={{ backgroundColor: '#f5f5f5' }}>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>
+                                            {(() => {
+                                                switch (sortType) {
+                                                    case 'TIME': return 'PARTENZA';
+                                                    case 'BIB': return '# GARA';
+                                                    case 'TEAM': return 'TEAM';
+                                                    case 'COGNOME': return 'PILOTA';
+                                                    case 'STAFF': return 'STAFF';
+                                                    case 'LUNCH': return 'OSPITI';
+                                                    default: return '# GARA';
+                                                }
+                                            })()}
+                                        </th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>TEAM / PILOTA</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>MOTO / VEICOLO</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>STATO</th>
+                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem' }}>FORMULA</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {getPreviewData().map(r => (
                                         <tr key={r.id}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold' }}>
+                                                {(() => {
+                                                    switch (sortType) {
+                                                        case 'TIME': return r.departure_time || '--:--';
+                                                        case 'BIB': return r.bib_number || '--';
+                                                        case 'TEAM': return r.team_name;
+                                                        case 'COGNOME': return r.cognome;
+                                                        case 'STAFF': return r.team_name;
+                                                        case 'LUNCH': return r.pranzo_accompagnatori || 0;
+                                                        default: return r.bib_number || '--';
+                                                    }
+                                                })()}
+                                            </td>
                                             <td style={{ border: '1px solid #000', padding: '10px' }}>
-                                                {r.team_name} - {r.nome} {r.cognome}
+                                                <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
+                                                <div style={{ fontSize: '0.8rem' }}>{r.nome} {r.cognome}</div>
                                             </td>
                                             <td style={{ border: '1px solid #000', padding: '10px' }}>
                                                 {r.moto_details || r.moto}
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px' }}>
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem' }}>
                                                 {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
                                             </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px' }}>
-                                                {r.departure_time || '--:--'}
+                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem' }}>
+                                                {r.formula_partecipazione?.replace('_', ' ')}
                                             </td>
                                         </tr>
                                     ))}
@@ -475,47 +502,34 @@ function App() {
 
                 @media print {
                     body { background: white !important; color: black !important; padding: 0 !important; }
+                    [data-dna="1000-DASHBOARD-ROOT"] > *:not([data-dna="2300-PDF-PREVIEW-MODAL"]) { display: none !important; }
                     [data-dna="1001-ADMIN-BAR"], 
                     [data-dna="1100-SECTION-NAV"], 
                     [data-dna="1190-FILTER-BAR"],
+                    [data-dna="1150-SUMMARY-STATS"],
                     .btn-delete, .btn-detail, .no-print, [data-dna="2300-PDF-PREVIEW-MODAL"] button, [data-dna="2300-PDF-PREVIEW-MODAL"] select { display: none !important; }
 
                     [data-dna="2300-PDF-PREVIEW-MODAL"] {
-                        position: relative !important;
-                        background: white !important;
-                        padding: 0 !important;
+                        position: absolute !important;
                         top: 0 !important;
                         left: 0 !important;
-                        right: 0 !important;
-                        bottom: 0 !important;
+                        width: 100% !important;
+                        background: white !important;
+                        padding: 0 !important;
                         display: block !important;
+                        z-index: 9999 !important;
                     }
                     
-                    [data-dna="1150-SUMMARY-STATS"] { 
-                        display: grid !important; 
-                        grid-template-columns: repeat(4, 1fr) !important;
-                        gap: 10px !important;
-                        margin-bottom: 20px !important;
-                        color: black !important;
-                    }
-                    [data-dna="1150-SUMMARY-STATS"] > div {
-                        background: #eee !important;
-                        border: 1px solid #ddd !important;
-                        padding: 10px !important;
-                        color: black !important;
-                    }
-                    [data-dna="1150-SUMMARY-STATS"] div { color: black !important; }
-
-                    [data-dna="SECTION-TABLE"] {
-                        background: white !important;
-                        box-shadow: none !important;
-                        border: none !important;
+                    #printable-area {
                         padding: 0 !important;
+                        margin: 0 !important;
+                        border: none !important;
                         width: 100% !important;
+                        background: white !important;
+                        color: black !important;
                     }
-                    table { color: black !important; border-collapse: collapse !important; width: 100% !important; }
-                    th, td { border: 1px solid #eee !important; color: black !important; padding: 8px !important; font-size: 0.8rem !important; }
-                    tr { background: transparent !important; }
+                    
+                    #printable-area * { color: black !important; border-color: black !important; }
                 }
             `}</style>
         </div>
