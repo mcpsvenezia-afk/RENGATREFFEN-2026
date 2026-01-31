@@ -116,37 +116,48 @@ function App() {
             let updates = [];
             let currentBib = 1;
 
+            // Fetch dynamic settings
+            const { data: settData } = await supabase.from('settings').select('value').eq('id', 'event_params').single();
+            const p = settData?.value?.race_params || {};
+
+            const parseTimeToMinutes = (timeStr) => {
+                const [h, m] = (timeStr || '08:00').split(':').map(Number);
+                return h * 60 + m;
+            };
+
             const formatTime = (totalMinutes) => {
                 const h = Math.floor(totalMinutes / 60);
                 const m = totalMinutes % 60;
                 return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
             };
 
-            // 1. 4x4: Starts 08:00, 1 min interval per group
-            let time4x4 = 8 * 60;
+            const interval = p.team_interval_minutes || 1;
+
+            // 1. 4x4
+            let time4x4 = parseTimeToMinutes(p.start_time_4x4 || '09:30');
             x4Groups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
                 const time = formatTime(time4x4);
                 group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
                 currentBib++;
-                time4x4 += 1;
+                time4x4 += interval;
             });
 
-            // 2. Caccia: Starts 08:30, 2 min interval per group
-            let timeCaccia = 8 * 60 + 30;
+            // 2. Caccia (starts after 4x4 or at its own time)
+            let timeCaccia = parseTimeToMinutes(p.start_time_caccia || '08:00');
             cacciaGroups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
                 const time = formatTime(timeCaccia);
                 group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
                 currentBib++;
-                timeCaccia += 2;
+                timeCaccia += interval;
             });
 
-            // 3. Discovery: Starts after Caccia + 20 min break, 1 min interval per group
-            let timeDiscovery = timeCaccia + 20;
+            // 3. Discovery (starts after Caccia or at its own time)
+            let timeDiscovery = parseTimeToMinutes(p.start_time_discovery || '09:00');
             discoveryGroups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
                 const time = formatTime(timeDiscovery);
                 group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
                 currentBib++;
-                timeDiscovery += 1;
+                timeDiscovery += interval;
             });
 
             // Save to DB

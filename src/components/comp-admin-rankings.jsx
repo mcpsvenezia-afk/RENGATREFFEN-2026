@@ -132,7 +132,7 @@ export function RankingsTab({ registrations, onRefresh }) {
                         {/* STATS */}
                         <div style={{ textAlign: 'center', padding: '0 30px', borderRight: '1px solid #222' }}>
                             <div style={{ color: '#666', fontSize: '0.65rem', fontWeight: 900, marginBottom: '5px' }}>FOTO LOGGATE</div>
-                            <div style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 900 }}>{team.photoCount} / 10</div>
+                            <div style={{ color: '#fff', fontSize: '1.2rem', fontWeight: 900 }}>{team.photoCount} / 4</div>
                         </div>
 
                         {/* TOTAL SCORE */}

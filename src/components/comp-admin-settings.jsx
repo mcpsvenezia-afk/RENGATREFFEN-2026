@@ -53,7 +53,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                 'VIOLA': p?.offset_purple || 0
             };
 
-            const photoBaseOffsets = [45, 90, 135, 180, 225, 270, 315, 360, 405, 450];
+            const photoBaseOffsets = [60, 120, 180, 240]; // 4 Checkpoints
 
             regs.forEach((team, index) => {
                 const color = cardColors[index % 3];
@@ -76,12 +76,8 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
                 const targets = {};
                 photoBaseOffsets.forEach((baseOffset, idx) => {
-                    // Distribuzione: [1,2] -> Off1, [3,4,5] -> Off2, [6,7,8] -> Off3, [9,10] -> Off4
-                    let multiplier = 0;
-                    if (idx < 2) multiplier = offsets[0];
-                    else if (idx < 5) multiplier = offsets[1];
-                    else if (idx < 8) multiplier = offsets[2];
-                    else multiplier = offsets[3];
+                    // 1:1 Mapping: Photo 1 -> Offset 1, Photo 2 -> Offset 2, etc.
+                    const multiplier = offsets[idx] || 0;
 
                     const targetDate = new Date(depDate.getTime() + (baseOffset + multiplier) * 60000);
                     const timeStr = targetDate.toLocaleTimeString('it-IT', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
