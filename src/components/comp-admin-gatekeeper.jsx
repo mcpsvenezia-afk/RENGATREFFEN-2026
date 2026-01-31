@@ -132,15 +132,15 @@ export function AdminGatekeeper({ children, isDevMode }) {
                 ) : (
                     <form onSubmit={handleVerifyOTP} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <div style={{ textAlign: 'left' }}>
-                            <label style={{ fontSize: '0.7rem', fontWeight: 900, color: '#888', marginBottom: '8px', display: 'block', textTransform: 'uppercase' }}>Inserisci Codice (6 cifre)</label>
+                            <label style={{ fontSize: '0.7rem', fontWeight: 900, color: '#888', marginBottom: '8px', display: 'block', textTransform: 'uppercase' }}>Inserisci Codice (8 cifre)</label>
                             <input
                                 type="text"
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value)}
-                                placeholder="000000"
-                                maxLength={6}
+                                placeholder="00000000"
+                                maxLength={8}
                                 required
-                                style={{ width: '100%', background: '#000', border: '1px solid #444', color: '#FFCC00', padding: '18px', borderRadius: '15px', fontSize: '2rem', textAlign: 'center', letterSpacing: '10px', outline: 'none', fontWeight: 900 }}
+                                style={{ width: '100%', background: '#000', border: '1px solid #444', color: '#FFCC00', padding: '18px', borderRadius: '15px', fontSize: '1.8rem', textAlign: 'center', letterSpacing: '5px', outline: 'none', fontWeight: 900 }}
                             />
                         </div>
                         <button
