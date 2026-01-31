@@ -74,18 +74,18 @@ export function RadarTab() {
 
     // Inizializzazione Mappa
     useEffect(() => {
-        if (!mapRef.current || leafletMap.current) return;
+        if (!mapRef.current || leafletMap.current || !window.L) return;
 
-        leafletMap.current = L.map(mapRef.current).setView([45.92, 13.12], 12); // Area Talmassons-Udine
+        leafletMap.current = window.L.map(mapRef.current).setView([45.92, 13.12], 12); // Area Talmassons-Udine
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(leafletMap.current);
     }, [mapRef]);
 
     // Aggiornamento Marker
     useEffect(() => {
-        if (!leafletMap.current || !tracking.length) return;
+        if (!leafletMap.current || !tracking.length || !window.L) return;
 
         tracking.forEach(item => {
             const team = item.registrations;
@@ -94,7 +94,7 @@ export function RadarTab() {
             if (markers.current[item.registration_id]) {
                 markers.current[item.registration_id].setLatLng([item.gps_lat, item.gps_lng]);
             } else {
-                const marker = L.circleMarker([item.gps_lat, item.gps_lng], {
+                const marker = window.L.circleMarker([item.gps_lat, item.gps_lng], {
                     radius: 8,
                     fillColor: color,
                     color: '#000',
@@ -147,7 +147,13 @@ export function RadarTab() {
                     <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.2rem' }}>🛰️ AMBROGIO RADAR <span style={{ color: '#FFCC00' }}>LIVE Tracking</span></h2>
                     <div style={{ fontSize: '0.8rem', color: '#666' }}>{tracking.length} Team tracciati</div>
                 </div>
-                <div ref={mapRef} style={{ flex: 1, borderRadius: '15px', background: '#000' }}></div>
+                {!window.L ? (
+                    <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>
+                        CARICAMENTO MOTORE MAPPA...
+                    </div>
+                ) : (
+                    <div ref={mapRef} style={{ flex: 1, borderRadius: '15px', background: '#000' }}></div>
+                )}
             </div>
 
             {/* STREAM FOTO & LOGS */}
