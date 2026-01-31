@@ -164,10 +164,7 @@ function App() {
     };
 
     const getPreviewData = () => {
-        let list = getProcessedRegistrations();
-        if (previewType === 'ONLY_4X4') return list.filter(r => r.formula_partecipazione === '4x4');
-        if (previewType === 'ONLY_PAID') return list.filter(r => r.is_paid === 'SI');
-        return list;
+        return getProcessedRegistrations();
     };
 
     const getTeamColor = (name) => {
@@ -420,17 +417,6 @@ function App() {
                         <h2 style={{ color: '#FFCC00', margin: 0 }}>ANTEPRIMA REPORT PDF</h2>
                         <div style={{ display: 'flex', gap: '20px' }}>
                             <select
-                                value={previewType}
-                                onChange={(e) => setPreviewType(e.target.value)}
-                                style={{ ...selectFilterStyle, padding: '10px 30px' }}
-                            >
-                                <option value="FULL">REPORT COMPLETO</option>
-                                <option value="ONLY_4X4">SOLO 4x4</option>
-                                <option value="ONLY_PAID">SOLO PAGATI</option>
-                                <option value="TOTALS">RIEPILOGO TOTALI</option>
-                            </select>
-
-                            <select
                                 value={printOrientation}
                                 onChange={(e) => setPrintOrientation(e.target.value)}
                                 style={{ ...selectFilterStyle, padding: '10px 30px' }}
@@ -473,74 +459,65 @@ function App() {
                     >
                         <div style={{ textAlign: 'center', marginBottom: '40px', borderBottom: '2px solid #000', paddingBottom: '20px' }}>
                             <h1 style={{ margin: 0, fontSize: '2.5rem' }}>RENGA TREFFEN 2026</h1>
-                            <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>LISTA ISCRITTI - VISTA: {previewType}</p>
+                            <p style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>REPORT ISCRIZIONI (Dati Filtrati)</p>
                             <p>Data Generazione: {new Date().toLocaleString()}</p>
                         </div>
 
-                        {previewType === 'TOTALS' ? (
-                            <div style={{ fontSize: '1.5rem', lineHeight: '2' }}>
-                                <p><strong>Totale Iscritti:</strong> {stats.total}</p>
-                                <p><strong>Pagati:</strong> {stats.paid}</p>
-                                <p><strong>MCPS:</strong> {stats.mcps}</p>
-                                <p><strong>Ospiti Pranzo:</strong> {stats.lunchGuests}</p>
-                            </div>
-                        ) : (
-                            <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                                <thead>
-                                    <tr style={{ backgroundColor: '#f5f5f5' }}>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>
+                        <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+                            <thead>
+                                <tr style={{ backgroundColor: '#f5f5f5' }}>
+                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>
+                                        {(() => {
+                                            switch (sortType) {
+                                                case 'TIME': return 'PARTENZA';
+                                                case 'BIB': return '# GARA';
+                                                case 'TEAM': return 'TEAM';
+                                                case 'COGNOME': return 'PILOTA';
+                                                case 'STAFF': return 'STAFF';
+                                                case 'LUNCH': return 'OSPITI';
+                                                default: return '# GARA';
+                                            }
+                                        })()}
+                                    </th>
+                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>TEAM / PILOTA</th>
+                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>MOTO / VEICOLO</th>
+                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>STATO</th>
+                                    <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>FORMULA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {getPreviewData().map(r => (
+                                    <tr key={r.id} style={{ backgroundColor: printMode === 'COLOR' ? getTeamColor(r.team_name) : 'transparent' }}>
+                                        <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>
                                             {(() => {
                                                 switch (sortType) {
-                                                    case 'TIME': return 'PARTENZA';
-                                                    case 'BIB': return '# GARA';
-                                                    case 'TEAM': return 'TEAM';
-                                                    case 'COGNOME': return 'PILOTA';
-                                                    case 'STAFF': return 'STAFF';
-                                                    case 'LUNCH': return 'OSPITI';
-                                                    default: return '# GARA';
+                                                    case 'TIME': return r.departure_time || '--:--';
+                                                    case 'BIB': return r.bib_number || '--';
+                                                    case 'TEAM': return r.team_name;
+                                                    case 'COGNOME': return r.cognome;
+                                                    case 'STAFF': return r.team_name;
+                                                    case 'LUNCH': return r.pranzo_accompagnatori || 0;
+                                                    default: return r.bib_number || '--';
                                                 }
                                             })()}
-                                        </th>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>TEAM / PILOTA</th>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>MOTO / VEICOLO</th>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>STATO</th>
-                                        <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>FORMULA</th>
+                                        </td>
+                                        <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
+                                            <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
+                                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{r.nome} {r.cognome}</div>
+                                        </td>
+                                        <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
+                                            {r.moto_details || r.moto}
+                                        </td>
+                                        <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
+                                            {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
+                                        </td>
+                                        <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
+                                            {r.formula_partecipazione?.replace('_', ' ')}
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {getPreviewData().map(r => (
-                                        <tr key={r.id} style={{ backgroundColor: printMode === 'COLOR' ? getTeamColor(r.team_name) : 'transparent' }}>
-                                            <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>
-                                                {(() => {
-                                                    switch (sortType) {
-                                                        case 'TIME': return r.departure_time || '--:--';
-                                                        case 'BIB': return r.bib_number || '--';
-                                                        case 'TEAM': return r.team_name;
-                                                        case 'COGNOME': return r.cognome;
-                                                        case 'STAFF': return r.team_name;
-                                                        case 'LUNCH': return r.pranzo_accompagnatori || 0;
-                                                        default: return r.bib_number || '--';
-                                                    }
-                                                })()}
-                                            </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
-                                                <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
-                                                <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{r.nome} {r.cognome}</div>
-                                            </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
-                                                {r.moto_details || r.moto}
-                                            </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
-                                                {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
-                                            </td>
-                                            <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
-                                                {r.formula_partecipazione?.replace('_', ' ')}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             )}
