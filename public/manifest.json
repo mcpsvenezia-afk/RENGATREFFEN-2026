@@ -1,0 +1,16 @@
+{
+    "name": "Renga Treffen Race App",
+    "short_name": "Renga Race",
+    "description": "App di regolarità per Renga Treffen 2026",
+    "start_url": "/race",
+    "display": "standalone",
+    "background_color": "#0c0c0e",
+    "theme_color": "#FFCC00",
+    "icons": [
+        {
+            "src": "/favicon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

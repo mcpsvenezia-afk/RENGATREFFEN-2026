@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Race App | Renga Treffen 2026</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -365,6 +368,17 @@
 
         // Prova a sincronizzare all'avvio
         syncOfflineData();
+
+        // 🛠️ SERVICE WORKER REGISTRATION (OFFLINE SUPPORT)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('[PWA] Service Worker registrato con successo.');
+                }).catch(err => {
+                    console.error('[PWA] Errore registrazione SW:', err);
+                });
+            });
+        }
     </script>
 </body>
 
