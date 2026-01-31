@@ -309,27 +309,23 @@ function App() {
                                 ))}
                             </div>
 
-                            {/* MAIN TABS BIG - TWO ROWS v7.7 */}
-                            <div data-dna="1100-SECTION-NAV" style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '60px' }}>
-                                <div style={{ display: 'flex', gap: '20px' }}>
-                                    <button data-dna="1101-TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={mainTabStyle(activeTab === 'registrations', 'registrations')}>
-                                        ISCRIZIONI ({registrations.length})
-                                    </button>
-                                    <button data-dna="1102-TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={mainTabStyle(activeTab === 'messages', 'messages')}>
-                                        MESSAGGI ({messages.length})
-                                    </button>
-                                </div>
-                                <div style={{ display: 'flex', gap: '20px' }}>
-                                    <button data-dna="1103-TAB-RANKINGS" onClick={() => setActiveTab('rankings')} style={mainTabStyle(activeTab === 'rankings', 'rankings')}>
-                                        CLASSIFICHE 🏆
-                                    </button>
-                                    <button data-dna="1105-TAB-RADAR" onClick={() => setActiveTab('radar')} style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff' }}>
-                                        RADAR 🛰️
-                                    </button>
-                                    <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={mainTabStyle(activeTab === 'settings', 'settings')}>
-                                        IMPOSTAZIONI ⚙️
-                                    </button>
-                                </div>
+                            {/* MAIN TABS BIG - SINGLE ROW v7.9.6 */}
+                            <div data-dna="1100-SECTION-NAV" style={{ display: 'flex', gap: '20px', marginBottom: '60px', flexWrap: 'wrap' }}>
+                                <button data-dna="1101-TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={{ ...mainTabStyle(activeTab === 'registrations', 'registrations'), flex: 1, minWidth: '200px' }}>
+                                    ISCRIZIONI ({registrations.length})
+                                </button>
+                                <button data-dna="1102-TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={{ ...mainTabStyle(activeTab === 'messages', 'messages'), flex: 1, minWidth: '200px' }}>
+                                    MESSAGGI ({messages.length})
+                                </button>
+                                <button data-dna="1103-TAB-RANKINGS" onClick={() => setActiveTab('rankings')} style={{ ...mainTabStyle(activeTab === 'rankings', 'rankings'), flex: 1, minWidth: '200px' }}>
+                                    CLASSIFICHE 🏆
+                                </button>
+                                <button data-dna="1105-TAB-RADAR" onClick={() => setActiveTab('radar')} style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff', flex: 1, minWidth: '200px' }}>
+                                    RADAR 🛰️
+                                </button>
+                                <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={{ ...mainTabStyle(activeTab === 'settings', 'settings'), flex: 1, minWidth: '200px' }}>
+                                    IMPOSTAZIONI ⚙️
+                                </button>
                             </div>
 
                             {/* 🔍 FILTER BAR */}
