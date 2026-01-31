@@ -218,12 +218,12 @@
 
 <body>
 
-    <div class="container">
+    <div class="container" data-dna="RACE-CONTAINER" data-component="RACE-APP">
         <header class="header">
             <div id="dev-pill" class="dev-pill">
                 <div class="dev-dot"></div> MODO DEV ATTIVO
             </div>
-            <h1>RENGATREFFEN <span style="color: #FFCC00">RACE</span></h1>
+            <h1 class="logo">RENGATREFFEN <span style="color: #FFCC00">RACE</span></h1>
         </header>
 
         <!-- PWA INSTALL BANNER (Solo se supportato) -->
@@ -233,7 +233,7 @@
         </div>
 
         <!-- AUTH SCREEN -->
-        <div id="auth-ui" class="auth-card">
+        <div id="auth-ui" class="auth-card" data-dna="AUTH-VIEW" data-component="LOGIN">
             <div class="input-group">
                 <label>Inserisci Numero Gara</label>
                 <input type="number" id="bib-number" class="bib-input" placeholder="000">
@@ -242,7 +242,7 @@
         </div>
 
         <!-- RACE SCREEN -->
-        <div id="race-ui" class="race-card">
+        <div id="race-ui" class="race-card" data-dna="RACE-CORE" data-component="RACE-ENGINE">
             <div class="team-info">
                 <div id="team-badge" class="card-badge">SCHEDA ...</div>
                 <div id="photo-display" class="photo-number">FOTO 1</div>
@@ -272,6 +272,7 @@
         </footer>
     </div>
 
+    <script src="/src/plugins/renga-dev-loader-v1.js"></script>
     <script type="module">
         import { supabase } from '/src/lib/supabaseClient.js';
 

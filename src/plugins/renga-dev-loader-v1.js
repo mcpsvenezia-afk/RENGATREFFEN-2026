@@ -459,6 +459,7 @@
         { t: 'DASHBOARD', act: () => location.href = '/dashboard.html' },
         { t: 'HOME PAGE', act: () => location.href = '/' },
         { t: 'TEAM LIST', act: () => location.href = '/team.html' },
+        { t: 'RACE APP', act: () => location.href = '/race' },
         { t: 'REGOLAMENTO', act: () => location.href = '/regolamento.html' }
     ];
 
