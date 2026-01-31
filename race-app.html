@@ -189,6 +189,30 @@
         #race-ui {
             display: none;
         }
+
+        .dev-pill {
+            display: none;
+            background: rgba(230, 0, 126, 0.1);
+            border: 1px solid #E6007E;
+            color: #E6007E;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 auto 20px auto;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dev-dot {
+            width: 8px;
+            height: 8px;
+            background: #E6007E;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #E6007E;
+        }
     </style>
 </head>
 
@@ -196,6 +220,9 @@
 
     <div class="container">
         <header class="header">
+            <div id="dev-pill" class="dev-pill">
+                <div class="dev-dot"></div> MODO DEV ATTIVO
+            </div>
             <h1>RENGATREFFEN <span style="color: #FFCC00">RACE</span></h1>
         </header>
 
@@ -234,14 +261,14 @@
                 Il ricalcolo orario è automatico e invisibile.<br>Calcola i tuoi tempi con cura.
             </p>
 
-            <button onclick="resetTestMode()"
-                style="background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:40px; cursor:pointer; font-size:0.7rem; font-weight:900;">
+            <button id="reset-btn" onclick="resetTestMode()"
+                style="display:none; background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:40px; cursor:pointer; font-size:0.7rem; font-weight:900;">
                 🧹 RESET GARA (SOLO TEST)
             </button>
         </div>
 
         <footer class="footer">
-            v7.8.3 THE SYNC ENGINE | powered by MotoReporter
+            v7.9.1 DEV-GUARD | powered by MotoReporter
         </footer>
     </div>
 
@@ -252,6 +279,17 @@
         let photoNumber = 1;
         let pendingLogs = JSON.parse(localStorage.getItem('RENGATREFFEN_PENDING_LOGS') || '[]');
         let deferredPrompt;
+        let isDevMode = false;
+
+        function checkDevMode() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('dev') === 'true' || localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true') {
+                isDevMode = true;
+                document.getElementById('dev-pill').style.display = 'inline-flex';
+                document.getElementById('reset-btn').style.display = 'inline-block';
+            }
+        }
+        checkDevMode();
 
         // 🌟 PWA INSTALL LOGIC
         window.addEventListener('beforeinstallprompt', (e) => {
