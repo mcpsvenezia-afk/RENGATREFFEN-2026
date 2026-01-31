@@ -200,6 +200,10 @@
             white-space: nowrap;
         }
 
+        /* DNA Visibility Control */
+        body.hide-dna .dna-visible-badge { display: none !important; }
+        body.hide-dna #renga-inspector-overlay { display: none !important; }
+
         /* 📑 CSS PRINT OVERHAUL v8.0 - NO CONTENT LEFT BEHIND */
         @media print {
             @page { size: A4 portrait; margin: 15mm; }
@@ -305,6 +309,13 @@
 
     // 🧬 VISIBLE BADGES ENGINE
     const refreshVisibleBadges = () => {
+        const showDna = localStorage.getItem('RENGATREFFEN_SHOW_DNA') !== 'false'; // Default to true if dev mode is active
+        if (!showDna) {
+            document.body.classList.add('hide-dna');
+        } else {
+            document.body.classList.remove('hide-dna');
+        }
+
         document.querySelectorAll('.dna-visible-badge').forEach(b => b.remove());
 
         // 1. Scan Comments (Legacy/Static)
@@ -458,6 +469,19 @@
         b.onclick = m.act;
         tray.appendChild(b);
     });
+
+    const dnaToggle = document.createElement('button');
+    dnaToggle.className = 'dev-btn';
+    dnaToggle.style.color = '#FFCC00';
+    const currentShowDna = localStorage.getItem('RENGATREFFEN_SHOW_DNA') !== 'false';
+    dnaToggle.innerText = currentShowDna ? '👁️ NASCONDI DNA' : '👁️ MOSTRA DNA';
+    dnaToggle.onclick = () => {
+        const isShowing = localStorage.getItem('RENGATREFFEN_SHOW_DNA') !== 'false';
+        localStorage.setItem('RENGATREFFEN_SHOW_DNA', !isShowing);
+        dnaToggle.innerText = !isShowing ? '👁️ NASCONDI DNA' : '👁️ MOSTRA DNA';
+        refreshVisibleBadges();
+    };
+    tray.appendChild(dnaToggle);
 
     // 📄 ADVANCED PDF EXPORT PANEL (v3.0)
     const isTutorials = window.location.pathname.includes('tutorials.html');

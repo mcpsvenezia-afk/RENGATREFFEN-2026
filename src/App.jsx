@@ -25,10 +25,13 @@ function App() {
     const [previewType, setPreviewType] = useState('FULL'); // FULL, ONLY_4X4, ONLY_PAID, TOTALS
     const [printOrientation, setPrintOrientation] = useState('PORTRAIT'); // PORTRAIT, LANDSCAPE
     const [printMode, setPrintMode] = useState('COLOR'); // COLOR, BW
+    const [showDna, setShowDna] = useState(true);
 
     useEffect(() => {
         const isStored = localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
+        const dnaStored = localStorage.getItem('RENGATREFFEN_SHOW_DNA') !== 'false';
         setIsDevMode(isStored);
+        setShowDna(dnaStored);
         fetchAllData();
     }, []);
 
@@ -198,6 +201,15 @@ function App() {
         window.location.reload();
     };
 
+    const toggleDna = () => {
+        const newState = !showDna;
+        localStorage.setItem('RENGATREFFEN_SHOW_DNA', newState ? 'true' : 'false');
+        setShowDna(newState);
+        // Force reload or trigger refresh in plugin if needed, but since plugin listens to storage/mutations it might work.
+        // For reliability, we trigger a refresh call if possible or just reload.
+        window.location.reload();
+    };
+
     async function fetchAllData() {
         setLoading(true);
         try {
@@ -259,6 +271,16 @@ function App() {
                         <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: isDevMode ? '#E6007E' : '#444', boxShadow: isDevMode ? '0 0 15px #E6007E' : 'none' }}></div>
                         <span style={{ fontSize: '0.8rem', fontWeight: 900, color: isDevMode ? '#E6007E' : '#666' }}>MODO DEV {isDevMode ? 'ATTIVO' : 'SPENTO'}</span>
                     </div>
+
+                    {isDevMode && (
+                        <div
+                            onClick={toggleDna}
+                            data-dna="DASHBOARD-DNA-TOGGLE"
+                            style={{ display: 'flex', alignItems: 'center', gap: '15px', cursor: 'pointer', background: showDna ? 'rgba(0,229,255,0.1)' : '#111', padding: '10px 25px', borderRadius: '100px', border: `1px solid ${showDna ? '#00E5FF' : '#333'}`, transition: '0.3s' }}>
+                            <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: showDna ? '#00E5FF' : '#444', boxShadow: showDna ? '0 0 15px #00E5FF' : 'none' }}></div>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 900, color: showDna ? '#00E5FF' : '#666' }}>{showDna ? 'DNA VISIBILE' : 'DNA NASCOSTO'}</span>
+                        </div>
+                    )}
                     <button onClick={fetchAllData} style={btnGhostStyle}>{loading ? '...' : '🔄 SINCRONIZZA SISTEMA'}</button>
                 </div>
             </div>
