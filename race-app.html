@@ -113,16 +113,6 @@
             color: #000;
         }
 
-        .btn-red {
-            background: var(--accent-red);
-            color: #fff;
-        }
-
-        .btn-purple {
-            background: var(--accent-purple);
-            color: #fff;
-        }
-
         .team-info {
             text-align: center;
             margin-bottom: 40px;
@@ -221,7 +211,7 @@
                 <div id="team-badge" class="card-badge">SCHEDA ...</div>
                 <div id="photo-display" class="photo-number">FOTO 1</div>
                 <div class="status-pill">
-                    <div class="dot"></div> GPS ATTIVO
+                    <div class="dot"></div> SISTEMA PRONTO
                 </div>
             </div>
 
@@ -232,7 +222,7 @@
         </div>
 
         <footer class="footer">
-            v7.8 THE SILENT ENGINE | powered by MotoReporter
+            v7.8.3 THE SYNC ENGINE | powered by MotoReporter
         </footer>
     </div>
 
@@ -241,6 +231,50 @@
 
         let currentTeam = null;
         let photoNumber = 1;
+        let pendingLogs = JSON.parse(localStorage.getItem('RENGATREFFEN_PENDING_LOGS') || '[]');
+
+        // 🔄 SYNC ENGINE
+        async function syncOfflineData() {
+            if (!navigator.onLine || pendingLogs.length === 0) {
+                updateSyncStatus();
+                return;
+            }
+
+            console.log(`[SYNC] Tentativo invio di ${pendingLogs.length} log pendenti...`);
+            const stillPending = [];
+
+            for (const log of pendingLogs) {
+                try {
+                    const { error } = await supabase.from('race_logs').insert([log]);
+                    if (error) throw error;
+                    console.log("[SYNC] Log inviato con successo!");
+                } catch (err) {
+                    console.error("[SYNC] Errore invio log:", err);
+                    stillPending.push(log);
+                }
+            }
+
+            pendingLogs = stillPending;
+            localStorage.setItem('RENGATREFFEN_PENDING_LOGS', JSON.stringify(pendingLogs));
+            updateSyncStatus();
+        }
+
+        // Batti il colpo ogni 30 secondi
+        setInterval(syncOfflineData, 30000);
+        window.addEventListener('online', syncOfflineData);
+
+        function updateSyncStatus() {
+            const pill = document.querySelector('.status-pill');
+            if (!pill) return;
+
+            if (pendingLogs.length > 0) {
+                pill.innerHTML = `<div class="dot" style="background:#FFCC00; box-shadow:0 0 10px #FFCC00"></div> ${pendingLogs.length} INVIO PENDENTE...`;
+                pill.style.color = '#FFCC00';
+            } else {
+                pill.innerHTML = `<div class="dot"></div> SISTEMA SINCRONIZZATO`;
+                pill.style.color = '#4CAF50';
+            }
+        }
 
         window.handleLogin = async function () {
             const bib = document.getElementById('bib-number').value;
@@ -259,14 +293,18 @@
 
             currentTeam = data;
 
-            // Check existing logs to determine photo number
+            // Recupera log dal server
             const { count } = await supabase
                 .from('race_logs')
                 .select('*', { count: 'exact', head: true })
                 .eq('registration_id', currentTeam.id);
 
-            photoNumber = (count || 0) + 1;
+            // Somma log locali pendenti per lo stesso team
+            const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id).length;
+
+            photoNumber = (count || 0) + localCountForTeam + 1;
             updateUI();
+            syncOfflineData();
         }
 
         function updateUI() {
@@ -278,51 +316,55 @@
             document.getElementById('photo-display').innerText = `FOTO ${photoNumber}`;
             document.getElementById('auth-ui').style.display = 'none';
             document.getElementById('race-ui').style.display = 'block';
+            updateSyncStatus();
         }
 
         window.handleShoot = async function () {
             const btn = document.getElementById('shoot-btn');
             btn.disabled = true;
-            btn.innerText = 'REGISTRAZIONE...';
+            btn.innerText = 'ACQUISIZIONE...';
 
-            // Get GPS
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                try {
-                    const { error } = await supabase
-                        .from('race_logs')
-                        .insert([{
-                            registration_id: currentTeam.id,
-                            photo_number: photoNumber,
-                            gps_lat: pos.coords.latitude,
-                            gps_lng: pos.coords.longitude,
-                            gps_alt: pos.coords.altitude,
-                            client_timestamp: new Date().toISOString()
-                        }]);
+            const saveLocally = (pos) => {
+                const newLog = {
+                    registration_id: currentTeam.id,
+                    photo_number: photoNumber,
+                    gps_lat: pos ? pos.coords.latitude : null,
+                    gps_lng: pos ? pos.coords.longitude : null,
+                    gps_alt: pos ? pos.coords.altitude : null,
+                    client_timestamp: new Date().toISOString()
+                };
 
-                    if (error) throw error;
+                pendingLogs.push(newLog);
+                localStorage.setItem('RENGATREFFEN_PENDING_LOGS', JSON.stringify(pendingLogs));
 
-                    Swal.fire({
-                        title: 'REGISTRATO!',
-                        text: `Foto ${photoNumber} acquisita con successo.`,
-                        icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
+                Swal.fire({
+                    title: 'ACQUISITO!',
+                    text: `Foto ${photoNumber} salvata localmente. Verrà inviata appena c'è campo.`,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
 
-                    photoNumber++;
-                    document.getElementById('photo-display').innerText = `FOTO ${photoNumber}`;
-                } catch (err) {
-                    Swal.fire('Errore', err.message, 'error');
-                } finally {
-                    btn.disabled = false;
-                    btn.innerText = 'SCATTA E REGISTRA';
-                }
-            }, (err) => {
-                Swal.fire('GPS Error', 'Assicurati di aver attivato il GPS.', 'error');
+                photoNumber++;
+                updateUI();
                 btn.disabled = false;
                 btn.innerText = 'SCATTA E REGISTRA';
-            }, { enableHighAccuracy: true });
+                syncOfflineData();
+            };
+
+            // Get GPS con timeout per non bloccare il pilota
+            navigator.geolocation.getCurrentPosition(
+                (pos) => saveLocally(pos),
+                (err) => {
+                    console.warn("GPS fallito, salvo solo timestamp:", err);
+                    saveLocally(null);
+                },
+                { enableHighAccuracy: true, timeout: 5000 }
+            );
         }
+
+        // Prova a sincronizzare all'avvio
+        syncOfflineData();
     </script>
 </body>
 
