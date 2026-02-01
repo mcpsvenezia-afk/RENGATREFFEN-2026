@@ -316,6 +316,20 @@ export function RadarTab({ isFullscreen = false }) {
                         }}>
                             🔄 REFRESH
                         </button>
+                        <button onClick={() => {
+                            if (!leafletMap.current) return;
+                            leafletMap.current.eachLayer(layer => {
+                                if (!layer._url) leafletMap.current.removeLayer(layer);
+                            });
+                            markers.current = {};
+                            leafletMap.current.invalidateSize();
+                            fetchInitialData();
+                        }} style={{
+                            background: '#FF4444', border: 'none', padding: '6px 15px',
+                            borderRadius: '10px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900, color: '#fff'
+                        }}>
+                            ⚠️ RESET MAPPA
+                        </button>
                         <button onClick={handleManualSave} style={{
                             background: '#00E5FF', border: 'none', padding: '6px 15px',
                             borderRadius: '10px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900, color: '#000'

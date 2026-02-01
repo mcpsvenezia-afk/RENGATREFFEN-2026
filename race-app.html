@@ -650,40 +650,88 @@
         // 📡 LIVE TRACKING ENGINE (Watch Position per Background)
         // 📡 LIVE TRACKING ENGINE (Watch Position per Background)
         // 📡 LIVE TRACKING ENGINE (Polled Interval per maggiore affidabilità su mobile)
+        let lastGpsUpdate = Date.now(); // Init to now to avoid immediate restart
+        let gpsInterval = null;
+
+        async function logTrackingDebug(type, payload) {
+            try {
+                await supabase.from('tracking_debug_logs').insert({
+                    registration_id: currentTeam.id,
+                    pilot_code: currentPilot,
+                    log_type: type,
+                    payload: payload
+                });
+            } catch (e) { console.warn("Debug Log Failed", e); }
+        }
+
+        // 📡 LIVE TRACKING ENGINE (Polled Interval + FORCE-GPS)
         function startLiveTracking() {
             if (!currentTeam) return;
-            if (watchId) clearInterval(watchId); // Clear any old watch
 
-            // USARE SETINTERVAL invece di WATCHPOSITION per compatibilità mobile migliore
-            watchId = setInterval(() => {
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    // 1. Invia la mia posizione (Se abilitato)
-                    if (appConfig.enable_live_tracking) {
-                        const { error } = await supabase.from('live_tracking').upsert({
-                            registration_id: currentTeam.id,
-                            pilot_code: currentPilot,
-                            gps_lat: pos.coords.latitude,
-                            gps_lng: pos.coords.longitude,
-                            last_seen: new Date().toISOString()
-                        }, { onConflict: 'registration_id,pilot_code' });
+            const startGpsEngine = () => {
+                if (gpsInterval) clearInterval(gpsInterval);
+                console.log("[GPS] Starting Engine...");
 
-                        if (error) console.error("[LIVE] Upsert error:", error);
-                        else {
-                            console.log("[LIVE] Posizione aggiornata per " + currentPilot);
-                            document.getElementById('wake-status').innerText = 'GPS: OK 🟢';
+                gpsInterval = setInterval(() => {
+                    navigator.geolocation.getCurrentPosition(async (pos) => {
+                        lastGpsUpdate = Date.now();
+
+                        // 1. Invia la mia posizione (Se abilitato)
+                        if (appConfig.enable_live_tracking) {
+                            const { error } = await supabase.from('live_tracking').upsert({
+                                registration_id: currentTeam.id,
+                                pilot_code: currentPilot,
+                                gps_lat: pos.coords.latitude,
+                                gps_lng: pos.coords.longitude,
+                                last_seen: new Date().toISOString()
+                            }, { onConflict: 'registration_id,pilot_code' });
+
+                            if (error) {
+                                console.error("[LIVE] Upsert error:", error);
+                                logTrackingDebug('DB_ERROR', { error });
+                            } else {
+                                console.log("[LIVE] Posizione aggiornata per " + currentPilot);
+                                document.getElementById('wake-status').innerText = 'GPS: OK 🟢';
+
+                                // HEARTBEAT LOG (Debug)
+                                logTrackingDebug('HEARTBEAT', {
+                                    lat: pos.coords.latitude,
+                                    lng: pos.coords.longitude,
+                                    acc: pos.coords.accuracy
+                                });
+                            }
                         }
-                    }
-                }, (err) => {
-                    console.warn("[LIVE] Errore GPS:", err);
-                    document.getElementById('wake-status').innerText = 'GPS: ERRORE 🔴';
-                }, {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
-                });
-            }, 5000); // Aggiorna ogni 5 secondi
+                    }, (err) => {
+                        console.warn("[LIVE] Errore GPS:", err);
+                        document.getElementById('wake-status').innerText = 'GPS: ERRORE 🔴';
+                        logTrackingDebug('GPS_ERROR', { code: err.code, msg: err.message });
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    });
+                }, 5000); // Aggiorna ogni 5 secondi
+            };
 
-            // 2. Controlla Partner (Separato per chiarezza e per girare indipendentemente dal fix GPS locale)
+            // Avvio iniziale
+            startGpsEngine();
+
+            // FORCE-GPS CHECK (Ogni 10s controlla se siamo in stallo da > 30s)
+            setInterval(() => {
+                const now = Date.now();
+                const delta = now - lastGpsUpdate;
+                if (delta > 30000) {
+                    console.warn(`⚠️ GPS STALL DETECTED (${Math.floor(delta / 1000)}s)! Restarting...`);
+                    document.getElementById('wake-status').innerText = 'GPS: STALLO ⚠️';
+                    logTrackingDebug('GPS_STALL', { last_update_ago_sec: Math.floor(delta / 1000) });
+
+                    // Tentativo di rianimazione
+                    startGpsEngine();
+                    requestWakeLock();
+                }
+            }, 10000);
+
+            // 2. Controlla Partner (Separato)
             setInterval(async () => {
                 const partnerCode = currentPilot === 'A' ? 'B' : 'A';
                 const { data: partner } = await supabase
@@ -695,14 +743,7 @@
 
                 if (partner) {
                     partnerLocation = { lat: partner.gps_lat, lng: partner.gps_lng };
-
-                    // Solo se ho la MIA posizione corrente posso calcolare la distanza
-                    // Usiamo cachedPos se vogliamo o recuperiamo al volo? 
-                    // Meglio recuperare l'ultima posizione nota inviata
-
-                    // ... (per semplificare, il controllo distanza si farà lato server o client se abbiamo i dati)
-                    // In questa versione semplificata, evitiamo il calcolo complesso inside the loop senza gps
-                    // Ci fidiamo del fatto che la posizione serve al Radar
+                    // Logica distanza rimossa per semplicità ora, ma i dati ci sono.
                 }
             }, 10000); // Check partner ogni 10s
         }
