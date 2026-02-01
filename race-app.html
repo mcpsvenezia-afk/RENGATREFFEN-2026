@@ -773,8 +773,15 @@
         }
 
         window.handleLogin = async function () {
-            const rawBib = document.getElementById('bib-number').value.trim().toUpperCase();
+            let rawBib = document.getElementById('bib-number').value.trim().toUpperCase();
             if (!rawBib) return;
+
+            // DNA-DEEP-CLEAN: Remove duplicate letters (e.g. 1AA -> 1A)
+            const cleanBib = rawBib.replace(/([A-Z])\1+/gi, '$1');
+            if (rawBib !== cleanBib) {
+                console.log(`[DNA-CLEAN] ID ORIGINALE: ${rawBib} -> ID PULITO: ${cleanBib}`);
+                rawBib = cleanBib;
+            }
 
             // Parsing: 1A -> bib=1, pilot=A
             const match = rawBib.match(/^(\d+)([AB])$/);
