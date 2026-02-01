@@ -30,6 +30,14 @@
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background 1s ease;
+        }
+
+        body.login-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url('moto_race_hero_bg_1769907365838.png');
         }
 
         .container {
@@ -56,14 +64,28 @@
         }
 
         .auth-card {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('moto_race_hero_bg_1769907365838.png');
-            background-size: cover;
-            background-position: center;
-            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 40px;
             padding: 40px;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+            margin-top: auto;
+            margin-bottom: 20px;
+            transform: translateY(0);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .race-card {
@@ -91,16 +113,17 @@
 
         .bib-input {
             width: 100%;
-            background: #000;
-            border: 2px solid #333;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             color: var(--accent-yellow);
-            font-size: 3rem;
+            font-size: 3.5rem;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             border-radius: 25px;
-            font-weight: 900;
+            font-weight: 950;
             outline: none;
             transition: 0.3s;
+            letter-spacing: 2px;
         }
 
         .bib-input:focus {
@@ -233,7 +256,12 @@
             <div id="dev-pill" class="dev-pill">
                 <div class="dev-dot"></div> MODO DEV ATTIVO
             </div>
-            <h1 class="logo">RENGATREFFEN <span style="color: #FFCC00">RACE</span></h1>
+            <div id="race-title-group">
+                <h1 style="font-size: 0.8rem; color: #FFCC00; letter-spacing: 8px; margin-bottom: 5px;">RENGA TREFFEN
+                    2026</h1>
+                <h1 class="logo" style="font-size: 2.2rem; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2))">TRACKER
+                    <span style="color: transparent; -webkit-text-stroke: 1px #fff;">PRO</span></h1>
+            </div>
             <div id="header-team"
                 style="display:none; font-size: 1.8rem; font-weight: 900; color: #FFCC00; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px;">
                 [NOME TEAM]</div>
@@ -247,6 +275,8 @@
             style="display:none; background: #FFCC00; color:#000; padding:15px; border-radius:15px; margin-bottom:20px; font-weight:900; cursor:pointer; text-transform:uppercase; font-size:0.8rem; text-align:center;">
             📲 AGGIUNGI ALLA HOME PER MASSIMA STABILITÀ
         </div>
+
+        <div style="flex: 1"></div>
 
         <!-- AUTH SCREEN -->
         <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:4000-AUTH] -->
@@ -316,6 +346,9 @@
 
     <script type="module">
         import { supabase } from '/src/lib/supabaseClient.js';
+
+        // Background Init
+        document.body.classList.add('login-bg');
 
         let currentTeam = null;
         let currentPilot = null; // 'A' o 'B'
@@ -522,6 +555,8 @@
             document.getElementById('photo-display').innerText = `FOTO ${photoNumber}`;
             document.getElementById('auth-ui').style.display = 'none';
             document.getElementById('race-ui').style.display = 'block';
+            document.getElementById('race-title-group').style.display = 'none';
+            document.body.classList.remove('login-bg');
             updateSyncStatus();
         }
 
@@ -624,6 +659,8 @@
 
         window.logout = function () {
             currentTeam = null;
+            document.body.classList.add('login-bg');
+            document.getElementById('race-title-group').style.display = 'block';
             document.getElementById('header-team').style.display = 'none';
             document.getElementById('pilot-greeting').style.display = 'none';
             document.getElementById('auth-ui').style.display = 'block';
