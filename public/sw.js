@@ -1,6 +1,5 @@
 const CACHE_NAME = 'renga-race-v1';
 const ASSETS_TO_CACHE = [
-    '/race',
     '/race-app.html',
     'https://cdn.jsdelivr.net/npm/sweetalert2@11',
     'https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap'
@@ -10,7 +9,12 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            return cache.addAll(ASSETS_TO_CACHE);
+            // Usiamo un approccio individuale invece di addAll() per evitare blocchi totali in caso di 404 su un singolo file (es. /race in dev)
+            return Promise.allSettled(
+                ASSETS_TO_CACHE.map(url =>
+                    cache.add(url).catch(err => console.warn(`[SW] Skip cache for: ${url}`, err))
+                )
+            );
         })
     );
     self.skipWaiting();
