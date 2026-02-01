@@ -37,7 +37,7 @@
         }
 
         body.login-bg {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.9)), url('moto_race_hero_bg_1769907365838.png');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6)), url('moto_race_cheerful_bg_1769908103828.png');
         }
 
         .container {
@@ -67,7 +67,7 @@
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 40px;
-            padding: 40px;
+            padding: 25px 40px;
             backdrop-filter: blur(15px);
             box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
             margin-top: auto;
@@ -116,10 +116,10 @@
             background: rgba(0, 0, 0, 0.6);
             border: 2px solid rgba(255, 255, 255, 0.1);
             color: var(--accent-yellow);
-            font-size: 3.5rem;
+            font-size: 2.2rem;
             text-align: center;
-            padding: 15px;
-            border-radius: 25px;
+            padding: 12px;
+            border-radius: 20px;
             font-weight: 950;
             outline: none;
             transition: 0.3s;
@@ -261,6 +261,9 @@
                     2026</h1>
                 <h1 class="logo" style="font-size: 2.2rem; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2))">TRACKER
                     <span style="color: transparent; -webkit-text-stroke: 1px #fff;">PRO</span></h1>
+                <h1
+                    style="font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 3px; margin-top: 5px; text-transform: uppercase;">
+                    Memorial Antonio Armellin</h1>
             </div>
             <div id="header-team"
                 style="display:none; font-size: 1.8rem; font-weight: 900; color: #FFCC00; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px;">
@@ -508,7 +511,7 @@
 
                 Swal.fire({
                     title: 'TEAM NON TROVATO',
-                    text: `Il numero gara "${bib}" non risulta assegnato nel database. Assicurati che il team sia CONFERMATO e che sia stato assegnato un numero gara nelle Impostazioni.`,
+                    text: `Il numero gara "${bib}" non risulta assegnato nel database. \n\nPROVA COSÌ:\n1. Vai nel pannello Admin > Impostazioni\n2. Clicca su "RIGENERA TEMPI E NUMERI GARA"\n3. Assicurati che lo stato sia "Confermata".`,
                     icon: 'error',
                     background: '#111',
                     color: '#fff'
