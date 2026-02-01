@@ -233,20 +233,27 @@
         </div>
 
         <!-- AUTH SCREEN -->
-        <div id="auth-ui" class="auth-card" data-dna="AUTH-VIEW" data-component="LOGIN">
+        <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:4000-AUTH] -->
+        <div id="auth-ui" class="auth-card" data-dna="4000-AUTH" data-component="LOGIN">
             <div class="input-group">
                 <label>Inserisci Numero Gara</label>
-                <input type="number" id="bib-number" class="bib-input" placeholder="000">
+                <!-- DNA: [ID:4001-BIB-INPUT] -->
+                <input type="number" id="bib-number" class="bib-input" placeholder="000" data-dna="4001-BIB-INPUT">
             </div>
-            <button onclick="handleLogin()" class="btn-main btn-yellow">ACCEDI ALLA GARA</button>
+            <!-- DNA: [ID:4002-LOGIN-BTN] -->
+            <button onclick="handleLogin()" class="btn-main btn-yellow" data-dna="4002-LOGIN-BTN">ACCEDI ALLA
+                GARA</button>
         </div>
 
         <!-- RACE SCREEN -->
-        <div id="race-ui" class="race-card" data-dna="RACE-CORE" data-component="RACE-ENGINE">
+        <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
+        <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE">
             <div class="team-info">
-                <div id="team-badge" class="card-badge">SCHEDA ...</div>
-                <div id="photo-display" class="photo-number">FOTO 1</div>
-                <div class="status-pill">
+                <!-- DNA: [ID:5001-BADGE] -->
+                <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA ...</div>
+                <!-- DNA: [ID:5002-PHOTO-NUM] -->
+                <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">FOTO 1</div>
+                <div class="status-pill" data-dna="SYSTEM-STATUS">
                     <div class="dot"></div> SISTEMA PRONTO
                 </div>
             </div>
@@ -255,7 +262,19 @@
             <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
                 onchange="processCameraSelection(event)">
 
-            <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot">📸 SCATTA E REGISTRA</button>
+            <!-- DNA: [ID:5003-SHOOT] -->
+            <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot" data-dna="5003-SHOOT">📸 SCATTA E
+                REGISTRA</button>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                <!-- DNA: [ID:5004-SYNC] -->
+                <button onclick="syncOfflineData()" class="btn-main btn-yellow"
+                    style="font-size: 0.7rem; padding: 10px;" data-dna="5004-SYNC">🔄 SINCRONIZZA ORA</button>
+                <!-- DNA: [ID:5005-LOGOUT] -->
+                <button onclick="logout()" class="btn-main"
+                    style="font-size: 0.7rem; color: #666; background: #333; padding: 10px;"
+                    data-dna="5005-LOGOUT">CHIUDI SESSIONE</button>
+            </div>
 
             <p style="text-align: center; font-size: 0.7rem; color: #555; margin-top: 20px;">
                 Il ricalcolo orario è automatico e invisibile.<br>Calcola i tuoi tempi con cura.
@@ -272,7 +291,6 @@
         </footer>
     </div>
 
-    <script src="/src/plugins/renga-dev-loader-v1.js"></script>
     <script type="module">
         import { supabase } from '/src/lib/supabaseClient.js';
 
@@ -528,6 +546,7 @@
             });
         }
     </script>
+    <script type="module" src="/src/plugins/renga-dev-loader-v1.js"></script>
 </body>
 
 </html>

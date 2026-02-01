@@ -24,7 +24,7 @@ function App() {
     // Filters & Sorting v7.2.7
     const [filterFormula, setFilterFormula] = useState('ALL');
     const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PAID, NOT_PAID, WAITING, REJECTED
-    const [sortType, setSortType] = useState('DEFAULT'); // DEFAULT, TIME, BIB, TEAM, COGNOME, STAFF, LUNCH
+    const [sortType, setSortType] = useState('BIB'); // DEFAULT, TIME, BIB, TEAM, COGNOME, STAFF, LUNCH
     const [showPDFPreview, setShowPDFPreview] = useState(false);
     const [previewType, setPreviewType] = useState('FULL'); // FULL, ONLY_4X4, ONLY_PAID, TOTALS
     const [printOrientation, setPrintOrientation] = useState('PORTRAIT'); // PORTRAIT, LANDSCAPE
@@ -127,7 +127,6 @@ function App() {
             const discoveryGroups = groupByTeam(currentList.filter(r => r.formula_partecipazione === 'Discovery'));
 
             let updates = [];
-            let currentBib = 1;
 
             // Fetch dynamic settings
             const { data: settData } = await supabase.from('settings').select('value').eq('id', 'event_params').single();
@@ -146,37 +145,36 @@ function App() {
 
             const interval = p.team_interval_minutes || 1;
 
+            // Sort helper: by bib_number (ASC)
+            const sortByBib = (a, b) => (parseInt(a[0].bib_number) || 999) - (parseInt(b[0].bib_number) || 999);
+
             // 1. 4x4
             let time4x4 = parseTimeToMinutes(p.start_time_4x4 || '09:30');
-            x4Groups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
+            x4Groups.sort(sortByBib).forEach(group => {
                 const time = formatTime(time4x4);
-                group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
-                currentBib++;
+                group.forEach(r => updates.push({ id: r.id, departure_time: time }));
                 time4x4 += interval;
             });
 
-            // 2. Caccia (starts after 4x4 or at its own time)
+            // 2. Caccia
             let timeCaccia = parseTimeToMinutes(p.start_time_caccia || '08:00');
-            cacciaGroups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
+            cacciaGroups.sort(sortByBib).forEach(group => {
                 const time = formatTime(timeCaccia);
-                group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
-                currentBib++;
+                group.forEach(r => updates.push({ id: r.id, departure_time: time }));
                 timeCaccia += interval;
             });
 
-            // 3. Discovery (starts after Caccia or at its own time)
+            // 3. Discovery
             let timeDiscovery = parseTimeToMinutes(p.start_time_discovery || '09:00');
-            discoveryGroups.sort((a, b) => (a[0].team_name || '').localeCompare(b[0].team_name || '')).forEach(group => {
+            discoveryGroups.sort(sortByBib).forEach(group => {
                 const time = formatTime(timeDiscovery);
-                group.forEach(r => updates.push({ id: r.id, bib_number: currentBib, departure_time: time }));
-                currentBib++;
+                group.forEach(r => updates.push({ id: r.id, departure_time: time }));
                 timeDiscovery += interval;
             });
 
             // Save to DB
             for (const upd of updates) {
                 await supabase.from('registrations').update({
-                    bib_number: upd.bib_number,
                     departure_time: upd.departure_time
                 }).eq('id', upd.id);
             }
