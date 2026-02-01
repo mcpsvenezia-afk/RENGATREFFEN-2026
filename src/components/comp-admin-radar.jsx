@@ -103,15 +103,15 @@ export function RadarTab({ isFullscreen = false }) {
     useEffect(() => {
         fetchInitialData();
 
-        // POLL ogni 10s per posizioni
-        const interval = setInterval(fetchInitialData, 10000);
+        // FALLBACK POLLING (Safety Net) every 15s
+        const interval = setInterval(fetchInitialData, 15000);
 
-        // Realtime Subscription (Channel)
+        // REALTIME SUBSCRIPTION
         const channel = supabase
             .channel('radar-updates')
+            // 1. Listen for new Logs (Photos/Checks)
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'race_logs' }, (payload) => {
                 const newLog = payload.new;
-                // Fetch details per il log
                 supabase.from('registrations').select('*').eq('id', newLog.registration_id).single()
                     .then(({ data: reg }) => {
                         if (reg) {
@@ -120,8 +120,48 @@ export function RadarTab({ isFullscreen = false }) {
                         }
                     });
             })
-            // Iscrizione Tracking (Opzionale: se usiamo poll, realtime gps può essere troppo oneroso. Teniamo poll ogni 10s per stabilità)
-            .subscribe();
+            // 2. Listen for Realtime Tracking (Movements)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'live_tracking' }, (payload) => {
+                if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                    const updatedTrack = payload.new;
+
+                    setTracking(prev => {
+                        const exists = prev.find(t =>
+                            t.registration_id === updatedTrack.registration_id &&
+                            t.pilot_code === updatedTrack.pilot_code
+                        );
+
+                        if (exists) {
+                            // Update existing without full refetch if possible
+                            // Note: we preserve the '.registrations' join data from the existing object
+                            return prev.map(t => {
+                                if (t.registration_id === updatedTrack.registration_id && t.pilot_code === updatedTrack.pilot_code) {
+                                    return { ...t, ...updatedTrack, registrations: t.registrations };
+                                }
+                                return t;
+                            });
+                        } else {
+                            // New pilot appearing? We need registration info provided by join
+                            // Realtime doesn't send joins. Trigger a refresh or fetch single
+                            // For simplicity/robustness on "New Appearance", we can trigger a refresh 
+                            // or just fetch this single team details.
+                            // Let's trigger a single fetch to be efficient
+                            supabase.from('registrations').select('team_name, bib_number, card_color, formula_partecipazione')
+                                .eq('id', updatedTrack.registration_id)
+                                .single()
+                                .then(({ data: regData }) => {
+                                    if (regData) {
+                                        setTracking(curr => [...curr, { ...updatedTrack, registrations: regData }]);
+                                    }
+                                });
+                            return prev; // Return current until async fetch completes
+                        }
+                    });
+                }
+            })
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') console.log('✅ Realtime Radar Connected & Listening...');
+            });
 
         return () => {
             clearInterval(interval);
