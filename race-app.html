@@ -234,14 +234,29 @@
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #ff4444;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            transition: 0.3s;
+        }
+
+        .mute-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--accent-yellow);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
             transition: 0.3s;
         }
 
@@ -327,12 +342,17 @@
                         <div id="header-pilot-name" style="font-size: 0.9rem; color: #aaa; margin-top: 2px;">Ciao
                             [Pilota]</div>
                     </div>
-                    <div onclick="logout()" class="power-btn" title="Esci">
-                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-                            <line x1="12" y1="2" x2="12" y2="12"></line>
-                        </svg>
+                    <div style="display: flex; gap: 10px;">
+                        <div id="mute-btn" onclick="toggleMute()" class="mute-btn" title="Silenzia Allarme">
+                            <span id="mute-icon">🔔</span>
+                        </div>
+                        <div onclick="logout()" class="power-btn" title="Esci">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                <line x1="12" y1="2" x2="12" y2="12"></line>
+                            </svg>
+                        </div>
                     </div>
                 </div>
                 <!-- Status Row in Header -->
@@ -347,6 +367,10 @@
                         <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
                             <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
                         </svg> GPS LIVE
+                    </div>
+                    <div id="penalty-status"
+                        style="font-size: 0.6rem; color: #ffbc00; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px;">
+                        ⚠️ SEPARATI: <span id="penalty-timer">00:00</span>
                     </div>
                 </div>
             </div>
@@ -458,6 +482,9 @@
         let partnerLocation = null;
         let alarmTimeout = null;
         let lastAlarmTime = 0;
+        let isMuted = localStorage.getItem('RENGATREFFEN_MUTED') === 'true';
+        let lastSeparationCheck = null;
+        let separationSeconds = 0;
 
         // Background Init
         document.body.classList.add('login-bg');
@@ -579,12 +606,20 @@
         }
 
         function triggerProximityAlarm() {
+            if (isMuted) return;
             let count = 0;
             const interval = setInterval(() => {
                 playBeep(440, 0.4);
                 count++;
                 if (count >= 5) clearInterval(interval);
             }, 800);
+        }
+
+        window.toggleMute = function () {
+            isMuted = !isMuted;
+            localStorage.setItem('RENGATREFFEN_MUTED', isMuted);
+            document.getElementById('mute-icon').innerText = isMuted ? '🔕' : '🔔';
+            if (!isMuted && audioCtx.state === 'suspended') audioCtx.resume();
         }
 
         // 📡 LIVE TRACKING ENGINE (Watch Position per Background)
@@ -619,9 +654,26 @@
                         const dist = getDistance(pos.coords.latitude, pos.coords.longitude, partner.gps_lat, partner.gps_lng);
                         console.log(`[PROXIMITY] Distanza partner: ${dist.toFixed(1)}m`);
 
-                        // Allarme > 200m
+                        // ⏱️ PENALTY TRACKING: Conteggio secondi separati (> 200m)
                         if (dist > 200) {
                             const now = Date.now();
+                            if (lastSeparationCheck) {
+                                let delta = Math.floor((now - lastSeparationCheck) / 1000);
+                                if (delta > 0 && delta < 60) { // Protezione se app riaperta dopo ore
+                                    separationSeconds += delta;
+                                    // Solo Pilota A scrive il totale centrale per evitare duplicati se entrambi online
+                                    if (currentPilot === 'A') {
+                                        supabase.rpc('increment_separation_seconds', {
+                                            team_id: currentTeam.id,
+                                            seconds: delta
+                                        }).then(({ error }) => { if (error) console.error("Penalty error:", error) });
+                                    }
+                                }
+                            }
+                            lastSeparationCheck = now;
+                            updateUI(); // Per aggiornare il timer penalty
+
+                            // Allarme > 200m
                             if (now - lastAlarmTime > 60000) { // Max uno al minuto
                                 triggerProximityAlarm();
                                 lastAlarmTime = now;
@@ -637,6 +689,8 @@
                                     timer: 5000
                                 });
                             }
+                        } else {
+                            lastSeparationCheck = null;
                         }
                     }
                 }
@@ -758,16 +812,33 @@
             document.getElementById('pilot-badge').innerText = `PILOTA: ${currentPilot === 'A' ? 'CAPITANO (A)' : 'PARTNER (B)'}`;
             document.getElementById('pilot-badge').style.color = '#888';
 
+            // Penalty Timer Update
+            const pMin = Math.floor(separationSeconds / 60);
+            const pSec = separationSeconds % 60;
+            document.getElementById('penalty-timer').innerText = `${pMin.toString().padStart(2, '0')}:${pSec.toString().padStart(2, '0')}`;
+            document.getElementById('penalty-status').style.display = separationSeconds > 0 ? 'flex' : 'none';
+
             document.getElementById('photo-display').innerText = photoNumber;
             document.getElementById('auth-ui').style.display = 'none';
             document.getElementById('race-ui').style.display = 'block';
             document.body.classList.remove('login-bg');
             updateSyncStatus();
+
+            // Icona Muto corretta
+            document.getElementById('mute-icon').innerText = isMuted ? '🔕' : '🔔';
         }
 
         // Restore Session on Startup
         async function checkAutoLogin() {
             if (currentTeam) {
+                const { data: teamData } = await supabase
+                    .from('registrations')
+                    .select('separation_seconds')
+                    .eq('id', currentTeam.id)
+                    .single();
+
+                if (teamData) separationSeconds = teamData.separation_seconds || 0;
+
                 const { count } = await supabase
                     .from('race_logs')
                     .select('*', { count: 'exact', head: true })

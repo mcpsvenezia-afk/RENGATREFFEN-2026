@@ -159,7 +159,8 @@ export function RadarTab() {
                     registrations (
                         team_name,
                         bib_number,
-                        card_color
+                        card_color,
+                        separation_seconds
                     )
                 `)
                 .order('recorded_at', { ascending: false })
