@@ -54,6 +54,9 @@ export function RadarTab({ isFullscreen = false }) {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Reset input so same file can be selected again
+        e.target.value = '';
+
         const reader = new FileReader();
         reader.onload = (event) => {
             const parser = new DOMParser();
@@ -328,6 +331,7 @@ export function RadarTab({ isFullscreen = false }) {
                                 leafletMap.current = null;
                             }
                             markers.current = {};
+                            polylineLayers.current = {}; // FIX: Clear GPX layers ref too!
                             setMapReady(false);
 
                             // Re-init after brutal clear
