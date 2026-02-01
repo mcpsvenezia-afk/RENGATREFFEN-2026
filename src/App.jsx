@@ -91,7 +91,20 @@ function App() {
     };
 
     const handleAutoAssign = async () => {
-        if (!window.confirm("Attenzione: gli orari e i numeri di partenza verranno ricalcolati per tutti gli iscritti confermati. Procedere?")) return;
+        const result = await Swal.fire({
+            title: 'Sei sicuro?',
+            text: "Gli orari e i numeri di partenza verranno ricalcolati per tutti gli iscritti confermati.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#FFCC00',
+            cancelButtonColor: '#333',
+            confirmButtonText: 'SÌ, PROCEDI',
+            cancelButtonText: 'ANNULLA',
+            background: '#111',
+            color: '#fff'
+        });
+
+        if (!result.isConfirmed) return;
 
         setLoading(true);
         try {
@@ -169,10 +182,24 @@ function App() {
             }
 
             await fetchAllData();
-            alert("Assegnazione automatica completata!");
+            Swal.fire({
+                title: 'SUCCESSO!',
+                text: "Assegnazione automatica completata.",
+                icon: 'success',
+                background: '#111',
+                color: '#fff',
+                confirmButtonColor: '#FFCC00'
+            });
         } catch (err) {
             console.error(err);
-            alert("Errore durante l'assegnazione: " + err.message);
+            Swal.fire({
+                title: 'ERRORE',
+                text: "Errore durante l'assegnazione: " + err.message,
+                icon: 'error',
+                background: '#111',
+                color: '#fff',
+                confirmButtonColor: '#E6007E'
+            });
         } finally {
             setLoading(false);
         }
@@ -259,8 +286,15 @@ function App() {
             if (error) throw error;
             setRegistrations(prev => prev.filter(r => r.id !== id));
         } catch (err) {
-            console.error('Error deleting registration:', err);
-            alert('Errore durante l\'eliminazione: ' + err.message);
+            console.error(err);
+            Swal.fire({
+                title: 'ERRORE',
+                text: 'Errore durante l\'eliminazione: ' + err.message,
+                icon: 'error',
+                background: '#111',
+                color: '#fff',
+                confirmButtonColor: '#E6007E'
+            });
         } finally {
             setLoading(false);
         }

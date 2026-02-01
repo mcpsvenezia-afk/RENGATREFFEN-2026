@@ -14,8 +14,18 @@ export function AdminLogin({ onLogin }) {
         e.preventDefault();
         setLoading(true);
         const { error } = await onLogin(email);
-        if (!error) setSent(true);
-        else alert(error.message);
+        if (!error) {
+            setSent(true);
+        } else {
+            Swal.fire({
+                title: 'ERRORE LOGIN',
+                text: error.message,
+                icon: 'error',
+                background: '#111',
+                color: '#fff',
+                confirmButtonColor: '#E6007E'
+            });
+        }
         setLoading(false);
     };
 

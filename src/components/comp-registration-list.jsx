@@ -64,9 +64,21 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                             >
                                 <td className="no-print" style={{ ...tdStyle, textAlign: 'center', width: '60px' }}>
                                     <button
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                             e.stopPropagation();
-                                            if (window.confirm(`Eliminare l'iscrizione di ${reg.nome} ${reg.cognome}?`)) onDelete(reg.id);
+                                            const result = await Swal.fire({
+                                                title: 'ELIMINA ISCRIZIONE?',
+                                                text: `Sei sicuro di voler eliminare ${reg.nome} ${reg.cognome}?`,
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                confirmButtonColor: '#E6007E',
+                                                cancelButtonColor: '#333',
+                                                confirmButtonText: 'SÌ, ELIMINA',
+                                                cancelButtonText: 'ANNULLA',
+                                                background: '#111',
+                                                color: '#fff'
+                                            });
+                                            if (result.isConfirmed) onDelete(reg.id);
                                         }}
                                         style={{
                                             border: 'none',

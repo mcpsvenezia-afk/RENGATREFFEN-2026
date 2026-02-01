@@ -89,7 +89,14 @@ const RegistrationForm = () => {
             if (navigator.share) {
                 await navigator.share(shareData);
             } else {
-                alert('La condivisione non è supportata su questo browser. Copia il link: https://www.rengatreffen.it');
+                window.Swal.fire({
+                    title: 'CONDIVISIONE',
+                    text: 'La condivisione non è supportata su questo browser. Copia il link: https://www.rengatreffen.it',
+                    icon: 'info',
+                    background: '#111',
+                    color: '#fff',
+                    confirmButtonColor: '#FFCC00'
+                });
             }
         } catch (err) {
             console.error('Error sharing:', err);

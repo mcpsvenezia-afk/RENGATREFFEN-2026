@@ -64,7 +64,14 @@ export function RadarTab() {
             ]);
 
             if (points.length === 0) {
-                alert("File GPX non valido o senza punti traccia.");
+                Swal.fire({
+                    title: 'GPX NON VALIDO',
+                    text: "File GPX non valido o senza punti traccia.",
+                    icon: 'error',
+                    background: '#111',
+                    color: '#fff',
+                    confirmButtonColor: '#E6007E'
+                });
                 return;
             }
 

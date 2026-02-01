@@ -33,7 +33,21 @@ export function SettingsTab({ isDevMode, onRefresh }) {
     }
 
     async function regenerateRaceTimes() {
-        if (!window.confirm("Attenzione: questa operazione sovrascriverà i tempi obiettivo di tutti i team confermati. Continuare?")) return;
+        const result = await Swal.fire({
+            title: 'RIGENERA TEMPI?',
+            text: "Questa operazione sovrascriverà i tempi obiettivo di tutti i team confermati.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#00E5FF',
+            cancelButtonColor: '#333',
+            confirmButtonText: 'SÌ, RIGENERA',
+            cancelButtonText: 'ANNULLA',
+            background: '#111',
+            color: '#fff'
+        });
+
+        if (!result.isConfirmed) return;
+
         setLoading(true);
         try {
             const { data: regs, error: errRegs } = await supabase
@@ -99,10 +113,24 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             }
 
             if (onRefresh) onRefresh();
-            alert(`GARA v7.8: Configurazione completata per ${updates.length} team.`);
+            Swal.fire({
+                title: 'SUCCESSO!',
+                text: `GARA v7.9.7: Configurazione completata per ${updates.length} team.`,
+                icon: 'success',
+                background: '#111',
+                color: '#fff',
+                confirmButtonColor: '#00E5FF'
+            });
         } catch (err) {
             console.error(err);
-            alert("Errore durante la rigenerazione: " + err.message);
+            Swal.fire({
+                title: 'ERRORE',
+                text: "Errore durante la rigenerazione: " + err.message,
+                icon: 'error',
+                background: '#111',
+                color: '#fff',
+                confirmButtonColor: '#E6007E'
+            });
         } finally {
             setLoading(false);
         }
@@ -121,7 +149,14 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             setTimeout(() => setSuccess(false), 3000);
         } catch (err) {
             console.error('Error saving settings:', err);
-            alert('Errore durante il salvataggio: ' + err.message);
+            Swal.fire({
+                title: 'ERRORE',
+                text: 'Errore durante il salvataggio: ' + err.message,
+                icon: 'error',
+                background: '#111',
+                color: '#fff',
+                confirmButtonColor: '#E6007E'
+            });
         } finally {
             setLoading(false);
         }
