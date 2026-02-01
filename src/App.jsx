@@ -303,10 +303,10 @@ function App() {
     return (
         <AdminGatekeeper isDevMode={isDevMode}>
             <div data-component="DashboardApp" data-dna="1000-DASHBOARD-ROOT" style={{ minHeight: '100vh', backgroundColor: '#0c0c0e', color: '#fff', fontFamily: "'Outfit', sans-serif" }}>
-                {/* TOP BAR PREMIUM */}
-                <div data-dna="1001-ADMIN-BAR" style={{ padding: '30px 60px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0c0c0e', position: 'sticky', top: 0, zIndex: 100 }}>
+                {/* TOP BAR COMPACT */}
+                <div data-dna="1001-ADMIN-BAR" style={{ padding: '15px 30px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0c0c0e', position: 'sticky', top: 0, zIndex: 100 }}>
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '1.8rem', fontWeight: 900, letterSpacing: '4px', color: '#fff' }}>
+                        <h1 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, letterSpacing: '2px', color: '#fff' }}>
                             RENGATREFFEN <span style={{ color: '#FFCC00' }}>CMS</span>
                         </h1>
                     </div>
@@ -337,7 +337,7 @@ function App() {
                     {!selectedItem ? (
                         <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
                             {/* 📊 SUMMARY CARDS */}
-                            <div data-dna="1150-SUMMARY-STATS" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+                            <div data-dna="1150-SUMMARY-STATS" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '20px' }}>
                                 {[
                                     { label: 'TOTALE ISCRITTI', value: stats.total, color: '#fff' },
                                     { label: 'PAGATI', value: stats.paid, color: '#4CAF50' },
@@ -347,31 +347,31 @@ function App() {
                                     { label: 'DISCOVERY', value: stats.discovery, color: '#FF9100' },
                                     { label: '4x4', value: stats.x4, color: '#FF6D00' }
                                 ].map(s => (
-                                    <div key={s.label} style={{ background: '#111', padding: '20px', borderRadius: '20px', border: '1px solid #222', textAlign: 'center' }}>
-                                        <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#666', marginBottom: '10px' }}>{s.label}</div>
-                                        <div style={{ fontSize: '1.8rem', fontWeight: 900, color: s.color }}>{s.value}</div>
+                                    <div key={s.label} style={{ background: '#111', padding: '10px', borderRadius: '12px', border: '1px solid #222', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#666', marginBottom: '5px' }}>{s.label}</div>
+                                        <div style={{ fontSize: '1.2rem', fontWeight: 900, color: s.color }}>{s.value}</div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* MAIN TABS BIG - SINGLE ROW v7.9.6 */}
-                            <div data-dna="1100-SECTION-NAV" style={{ display: 'flex', gap: '20px', marginBottom: '60px', flexWrap: 'wrap' }}>
-                                <button data-dna="1101-TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={{ ...mainTabStyle(activeTab === 'registrations', 'registrations'), flex: 1, minWidth: '200px' }}>
+                            {/* MAIN TABS COMPACT */}
+                            <div data-dna="1100-SECTION-NAV" style={{ display: 'flex', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
+                                <button data-dna="1101-TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={{ ...mainTabStyle(activeTab === 'registrations', 'registrations'), flex: 1, minWidth: '120px' }}>
                                     ISCRIZIONI ({registrations.length})
                                 </button>
-                                <button data-dna="1102-TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={{ ...mainTabStyle(activeTab === 'messages', 'messages'), flex: 1, minWidth: '200px' }}>
+                                <button data-dna="1102-TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={{ ...mainTabStyle(activeTab === 'messages', 'messages'), flex: 1, minWidth: '120px' }}>
                                     MESSAGGI ({messages.length})
                                 </button>
-                                <button data-dna="1103-TAB-RANKINGS" onClick={() => setActiveTab('rankings')} style={{ ...mainTabStyle(activeTab === 'rankings', 'rankings'), flex: 1, minWidth: '200px' }}>
+                                <button data-dna="1103-TAB-RANKINGS" onClick={() => setActiveTab('rankings')} style={{ ...mainTabStyle(activeTab === 'rankings', 'rankings'), flex: 1, minWidth: '120px' }}>
                                     CLASSIFICHE 🏆
                                 </button>
-                                <button data-dna="1105-TAB-RADAR" onClick={() => setActiveTab('radar')} style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff', flex: 1, minWidth: '200px' }}>
+                                <button data-dna="1105-TAB-RADAR" onClick={() => setActiveTab('radar')} style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff', flex: 1, minWidth: '120px' }}>
                                     RADAR 🛰️
                                 </button>
-                                <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={{ ...mainTabStyle(activeTab === 'settings', 'settings'), flex: 1, minWidth: '200px' }}>
+                                <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={{ ...mainTabStyle(activeTab === 'settings', 'settings'), flex: 1, minWidth: '120px' }}>
                                     IMPOSTAZIONI ⚙️
                                 </button>
-                                <button data-dna="1106-TAB-APP" onClick={() => setActiveTab('app_config')} style={{ ...mainTabStyle(activeTab === 'app_config', 'app_config'), flex: 1, minWidth: '200px' }}>
+                                <button data-dna="1106-TAB-APP" onClick={() => setActiveTab('app_config')} style={{ ...mainTabStyle(activeTab === 'app_config', 'app_config'), flex: 1, minWidth: '120px' }}>
                                     APP 📱
                                 </button>
                             </div>
@@ -696,16 +696,16 @@ const mainTabStyle = (active, type) => {
     if (type === 'app_config') shadowColor = 'rgba(0,229,255,0.2)';
 
     return {
-        padding: '25px 50px',
+        padding: '12px 20px',
         backgroundColor: active ? activeColor : '#1a1a1f',
         color: active ? '#000' : '#888',
         border: 'none',
-        borderRadius: '24px',
+        borderRadius: '12px',
         cursor: 'pointer',
-        fontWeight: 900,
-        fontSize: '1.2rem',
+        fontWeight: 800,
+        fontSize: '0.9rem',
         transition: '0.3s',
-        boxShadow: active ? `0 20px 40px ${shadowColor}` : 'none'
+        boxShadow: active ? `0 10px 20px ${shadowColor}` : 'none'
     };
 };
 
