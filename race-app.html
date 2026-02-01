@@ -165,10 +165,11 @@
         }
 
         .photo-number {
-            font-size: 5rem;
+            font-size: 3.5rem;
             font-weight: 950;
-            margin: 20px 0;
+            margin: 10px 0;
             line-height: 1;
+            color: #fff;
         }
 
         .status-pill {
@@ -192,21 +193,47 @@
         }
 
         .btn-shoot {
-            flex: 1;
-            margin-top: 40px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
             background: #fff;
             color: #000;
-            height: 120px;
-            border-radius: 60px;
-            border: none;
+            border: 8px solid rgba(255, 255, 255, 0.1);
             font-weight: 950;
-            font-size: 1.5rem;
-            box-shadow: 0 20px 50px rgba(255, 255, 255, 0.1);
+            font-size: 1.2rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.1);
             cursor: pointer;
+            margin: 40px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .btn-shoot:active {
-            transform: scale(0.95);
+            transform: scale(0.9) translateY(5px);
+            background: var(--accent-yellow);
+        }
+
+        .power-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ff4444;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: 0.3s;
+        }
+
+        .power-btn:hover {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff2222;
         }
 
         .footer {
@@ -252,10 +279,12 @@
 <body>
 
     <div class="container" data-dna="RACE-CONTAINER" data-component="RACE-APP">
-        <header class="header">
+        <header class="header" style="padding-bottom: 20px;">
             <div id="dev-pill" class="dev-pill">
                 <div class="dev-dot"></div> MODO DEV ATTIVO
             </div>
+
+            <!-- AUTH HEADER (Titolo Evento) -->
             <div id="race-title-group">
                 <h1
                     style="font-size: 0.9rem; color: #FFCC00; letter-spacing: 8px; margin-bottom: 5px; font-weight: 900;">
@@ -267,12 +296,40 @@
                     style="font-size: 0.8rem; color: #fff; letter-spacing: 4px; margin-top: 5px; text-transform: uppercase; font-weight: 400; opacity: 0.8;">
                     Memorial Antonio Armellin</h1>
             </div>
-            <div id="header-team"
-                style="display:none; font-size: 1.8rem; font-weight: 900; color: #FFCC00; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px;">
-                [NOME TEAM]</div>
-            <div id="pilot-greeting"
-                style="display:none; font-size: 1.1rem; font-weight: 400; color: #aaa; margin-top: 5px;">
-                Ciao [Nome Pilota]</div>
+
+            <!-- RACE HEADER (Info Team-Pilota) -->
+            <div id="race-header-info" style="display:none; text-align: left; padding: 0 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div id="header-team-name"
+                            style="font-size: 1.6rem; font-weight: 900; color: #FFCC00; text-transform: uppercase;">
+                            [TEAM NAME]</div>
+                        <div id="header-pilot-name" style="font-size: 0.9rem; color: #aaa; margin-top: 2px;">Ciao
+                            [Pilota]</div>
+                    </div>
+                    <div onclick="logout()" class="power-btn" title="Esci">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Status Row in Header -->
+                <div
+                    style="display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
+                    <div class="status-pill" data-dna="SYSTEM-STATUS"
+                        style="font-size: 0.6rem; background: transparent; padding: 0;">
+                        <div class="dot"></div> PRONTO
+                    </div>
+                    <div id="wake-status"
+                        style="font-size: 0.6rem; color: #4CAF50; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px;">
+                        <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+                        </svg> GPS LIVE
+                    </div>
+                </div>
+            </div>
         </header>
 
         <!-- PWA INSTALL BANNER (Solo se supportato) -->
@@ -315,37 +372,42 @@
         <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
         <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE">
             <div class="team-info">
-                <!-- DNA: [ID:5001-BADGE] -->
-                <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA ...</div>
-                <!-- DNA: [ID:5002-PHOTO-NUM] -->
-                <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">FOTO 1</div>
-                <div id="pilot-badge" style="font-size: 0.8rem; font-weight: 900; color: #888; margin-bottom: 10px;">
-                    PILOTA ...</div>
-                <div class="status-pill" data-dna="SYSTEM-STATUS">
-                    <div class="dot"></div> SISTEMA PRONTO
-                </div>
-                <div id="wake-status"
-                    style="font-size: 0.6rem; color: #444; margin-top: 5px; text-transform: uppercase; font-weight: 800;">
-                    STANDBY: ATTIVO
-                </div>
+                <!-- Badge Colorato -->
+                <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA DI CACCIA ...</div>
+
+                <div id="photo-display-label"
+                    style="font-size: 0.8rem; color: #666; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
+                    Foto da scattare</div>
+                <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">1</div>
+
+                <div id="pilot-badge"
+                    style="font-size: 0.75rem; font-weight: 900; color: #888; margin: 10px 0; letter-spacing: 1px; text-transform: uppercase;">
+                    PILOTA: ...</div>
             </div>
 
             <!-- CAMERA INPUT NASCOSTO -->
             <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
                 onchange="processCameraSelection(event)">
 
-            <!-- DNA: [ID:5003-SHOOT] -->
-            <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot" data-dna="5003-SHOOT">📸 SCATTA E
-                REGISTRA</button>
+            <!-- Pulsante Scatta Circolare -->
+            <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot" data-dna="5003-SHOOT">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                    <path fill-rule="evenodd"
+                        d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
-                <!-- DNA: [ID:5004-SYNC] -->
+            <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: center;">
                 <button onclick="syncOfflineData()" class="btn-main btn-yellow"
-                    style="font-size: 0.7rem; padding: 10px;" data-dna="5004-SYNC">🔄 SINCRONIZZA ORA</button>
-                <!-- DNA: [ID:5005-LOGOUT] -->
-                <button onclick="logout()" class="btn-main"
-                    style="font-size: 0.7rem; color: #666; background: #333; padding: 10px;"
-                    data-dna="5005-LOGOUT">CHIUDI SESSIONE</button>
+                    style="font-size: 0.65rem; padding: 12px 25px; width: auto;" data-dna="5004-SYNC">🔄 SINCRONIZZA
+                    DATI</button>
+            </div>
+
+            <div
+                style="text-align: center; color: #444; font-size: 0.6rem; margin-top: 20px; font-weight: 800; text-transform: uppercase;">
+                L'invio delle foto è automatico e invisibile.
             </div>
 
             <p style="text-align: center; font-size: 0.7rem; color: #555; margin-top: 20px;">
@@ -369,19 +431,20 @@
         // Background Init
         document.body.classList.add('login-bg');
 
-        let currentTeam = null;
-        let currentPilot = null; // 'A' o 'B'
-        let photoNumber = 1;
-        let pendingLogs = JSON.parse(localStorage.getItem('RENGATREFFEN_PENDING_LOGS') || '[]');
-        let watchId = null;
-        let wakeLock = null;
+        // 🛡️ SESSION PERSISTENCE
+        let sessionData = JSON.parse(localStorage.getItem('RENGATREFFEN_SESSION'));
+        if (sessionData) {
+            currentTeam = sessionData.team;
+            currentPilot = sessionData.pilot;
+            // Esegui restore UI dopo load supabase (gestito sotto)
+        }
 
         // 🛡️ WAKE LOCK ENGINE
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
-                    document.getElementById('wake-status').innerText = 'STANDBY: DISABILITATO (MODALITÀ GARA)';
+                    document.getElementById('wake-status').innerText = 'GPS LIVE';
                     document.getElementById('wake-status').style.color = '#4CAF50';
                     wakeLock.addEventListener('release', () => {
                         console.log('Wake Lock rilasciato');
@@ -481,14 +544,14 @@
         window.addEventListener('online', syncOfflineData);
 
         function updateSyncStatus() {
-            const pill = document.querySelector('.status-pill');
+            const pill = document.querySelector('#race-header-info .status-pill');
             if (!pill) return;
 
             if (pendingLogs.length > 0) {
-                pill.innerHTML = `<div class="dot" style="background:#FFCC00; box-shadow:0 0 10px #FFCC00"></div> ${pendingLogs.length} INVIO PENDENTE...`;
+                pill.innerHTML = `<div class="dot" style="background:#FFCC00; box-shadow:0 0 10px #FFCC00"></div> ${pendingLogs.length} PENDENTE`;
                 pill.style.color = '#FFCC00';
             } else {
-                pill.innerHTML = `<div class="dot"></div> SISTEMA SINCRONIZZATO`;
+                pill.innerHTML = `<div class="dot"></div> PRONTO`;
                 pill.style.color = '#4CAF50';
             }
         }
@@ -543,6 +606,12 @@
 
             currentTeam = data[0];
 
+            // Save Session
+            localStorage.setItem('RENGATREFFEN_SESSION', JSON.stringify({
+                team: currentTeam,
+                pilot: currentPilot
+            }));
+
             const { count } = await supabase
                 .from('race_logs')
                 .select('*', { count: 'exact', head: true })
@@ -558,9 +627,11 @@
         }
 
         function updateUI() {
+            if (!currentTeam) return;
+
             const color = currentTeam.card_color || 'ROSSA';
             const badge = document.getElementById('team-badge');
-            badge.innerText = `TEAM ${currentTeam.bib_number} - ${color}`;
+            badge.innerText = `SCHEDA DI CACCIA ${color}`;
             badge.style.color = color === 'ROSSA' ? '#ff4444' : (color === 'GIALLA' ? '#FFCC00' : '#E6007E');
 
             // Header Updates
@@ -568,22 +639,39 @@
                 ? `${currentTeam.nome || ''} ${currentTeam.cognome || ''}`.trim()
                 : `${currentTeam.secondo_nome || ''} ${currentTeam.secondo_cognome || ''}`.trim();
 
-            document.getElementById('header-team').innerText = (currentTeam.team_name || 'SENZA NOME').toUpperCase();
-            document.getElementById('pilot-greeting').innerText = `Ciao ${pilotName || 'Pilota'}`;
+            document.getElementById('header-team-name').innerText = (currentTeam.team_name || 'SENZA NOME').toUpperCase();
+            document.getElementById('header-pilot-name').innerText = `Ciao ${pilotName || 'Pilota'}`;
 
-            document.getElementById('header-team').style.display = 'block';
-            document.getElementById('pilot-greeting').style.display = 'block';
+            document.getElementById('race-header-info').style.display = 'block';
+            document.getElementById('race-title-group').style.display = 'none';
 
             document.getElementById('pilot-badge').innerText = `PILOTA: ${currentPilot === 'A' ? 'CAPITANO (A)' : 'PARTNER (B)'}`;
-            document.getElementById('pilot-badge').style.color = '#FFCC00';
+            document.getElementById('pilot-badge').style.color = '#888';
 
-            document.getElementById('photo-display').innerText = `FOTO ${photoNumber}`;
+            document.getElementById('photo-display').innerText = photoNumber;
             document.getElementById('auth-ui').style.display = 'none';
             document.getElementById('race-ui').style.display = 'block';
-            document.getElementById('race-title-group').style.display = 'none';
             document.body.classList.remove('login-bg');
             updateSyncStatus();
         }
+
+        // Restore Session on Startup
+        async function checkAutoLogin() {
+            if (currentTeam) {
+                const { count } = await supabase
+                    .from('race_logs')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('registration_id', currentTeam.id);
+
+                const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id).length;
+                photoNumber = (count || 0) + localCountForTeam + 1;
+
+                updateUI();
+                startLiveTracking();
+                requestWakeLock();
+            }
+        }
+        checkAutoLogin();
 
         // 📸 LOGICA FOTOCAMERA
         window.triggerCamera = function () {
@@ -683,11 +771,12 @@
         }
 
         window.logout = function () {
+            if (!confirm("VUOI USCIRE DALLA SESSIONE DI GARA?")) return;
+            localStorage.removeItem('RENGATREFFEN_SESSION');
             currentTeam = null;
             document.body.classList.add('login-bg');
             document.getElementById('race-title-group').style.display = 'block';
-            document.getElementById('header-team').style.display = 'none';
-            document.getElementById('pilot-greeting').style.display = 'none';
+            document.getElementById('race-header-info').style.display = 'none';
             document.getElementById('auth-ui').style.display = 'block';
             document.getElementById('race-ui').style.display = 'none';
         }
