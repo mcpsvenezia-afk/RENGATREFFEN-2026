@@ -4,13 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Race App | Renga Treffen 2026</title>
+    <title>GEOPOINT PRO - Race Tracking</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
         :root {
             --bg-dark: #0c0c0e;
             --accent-red: #ff4444;
@@ -279,6 +293,12 @@
 <body>
 
     <div class="container" data-dna="RACE-CONTAINER" data-component="RACE-APP">
+        <!-- ALERT SINCRONIZZAZIONE PENDENTE -->
+        <div id="sync-alert"
+            style="display:none; background: #ff4444; color:#fff; padding:10px; text-align:center; font-weight:950; font-size:0.7rem; letter-spacing:1px; animation: pulse 1s infinite; position: sticky; top:0; z-index:9999;">
+            ⚠️ ATTENZIONE: FOTO IN CODA! SINCRONIZZA PRIMA DI SPEGNERE.
+        </div>
+
         <header class="header" style="padding-bottom: 20px;">
             <div id="dev-pill" class="dev-pill">
                 <div class="dev-dot"></div> MODO DEV ATTIVO
@@ -291,7 +311,7 @@
                     RENGA TREFFEN 2026</h1>
                 <h1 class="logo"
                     style="font-size: 3rem; filter: drop-shadow(0 0 20px rgba(255,255,255,0.4)); margin: 10px 0;">
-                    TRACKER <span style="color: transparent; -webkit-text-stroke: 1px #fff;">PRO</span></h1>
+                    GEOPOINT <span style="color: transparent; -webkit-text-stroke: 1px #fff;">PRO</span></h1>
                 <h1
                     style="font-size: 0.8rem; color: #fff; letter-spacing: 4px; margin-top: 5px; text-transform: uppercase; font-weight: 400; opacity: 0.8;">
                     Memorial Antonio Armellin</h1>
@@ -428,6 +448,17 @@
     <script type="module">
         import { supabase } from '/src/lib/supabaseClient.js';
 
+        // 🛡️ SESSIO VARIABLES
+        let currentTeam = null;
+        let currentPilot = null; // 'A' o 'B'
+        let photoNumber = 1;
+        let pendingLogs = JSON.parse(localStorage.getItem('RENGATREFFEN_PENDING_LOGS') || '[]');
+        let watchId = null;
+        let wakeLock = null;
+        let partnerLocation = null;
+        let alarmTimeout = null;
+        let lastAlarmTime = 0;
+
         // Background Init
         document.body.classList.add('login-bg');
 
@@ -512,6 +543,48 @@
             pendingLogs = stillPending;
             localStorage.setItem('RENGATREFFEN_PENDING_LOGS', JSON.stringify(pendingLogs));
             updateSyncStatus();
+
+            if (pendingLogs.length > 0) {
+                document.getElementById('sync-alert')?.style.display = 'block';
+            } else {
+                document.getElementById('sync-alert')?.style.display = 'none';
+            }
+        }
+
+        // 📏 DISTANCE CALC (Haversine)
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // 🔊 AUDIO ALARM
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playBeep(freq = 880, duration = 0.2) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function triggerProximityAlarm() {
+            let count = 0;
+            const interval = setInterval(() => {
+                playBeep(440, 0.4);
+                count++;
+                if (count >= 5) clearInterval(interval);
+            }, 800);
         }
 
         // 📡 LIVE TRACKING ENGINE (Watch Position per Background)
@@ -529,7 +602,44 @@
                 }, { onConflict: 'registration_id,pilot_code' });
 
                 if (error) console.error("[LIVE] Upsert error:", error);
-                else console.log("[LIVE] Posizione aggiornata per " + currentPilot);
+                else {
+                    console.log("[LIVE] Posizione aggiornata per " + currentPilot);
+
+                    // Controlla Partner
+                    const partnerCode = currentPilot === 'A' ? 'B' : 'A';
+                    const { data: partner } = await supabase
+                        .from('live_tracking')
+                        .select('gps_lat, gps_lng, last_seen')
+                        .eq('registration_id', currentTeam.id)
+                        .eq('pilot_code', partnerCode)
+                        .single();
+
+                    if (partner) {
+                        partnerLocation = { lat: partner.gps_lat, lng: partner.gps_lng };
+                        const dist = getDistance(pos.coords.latitude, pos.coords.longitude, partner.gps_lat, partner.gps_lng);
+                        console.log(`[PROXIMITY] Distanza partner: ${dist.toFixed(1)}m`);
+
+                        // Allarme > 200m
+                        if (dist > 200) {
+                            const now = Date.now();
+                            if (now - lastAlarmTime > 60000) { // Max uno al minuto
+                                triggerProximityAlarm();
+                                lastAlarmTime = now;
+                                Swal.fire({
+                                    title: '⚠️ PARTNER LONTANO!',
+                                    text: 'Siete a più di 200 metri di distanza! Avvicinatevi.',
+                                    toast: true,
+                                    position: 'top',
+                                    icon: 'warning',
+                                    background: '#ff4444',
+                                    color: '#fff',
+                                    showConfirmButton: false,
+                                    timer: 5000
+                                });
+                            }
+                        }
+                    }
+                }
             }, (err) => {
                 console.error("[LIVE] GPS Error:", err);
             }, {
@@ -675,7 +785,34 @@
 
         // 📸 LOGICA FOTOCAMERA
         window.triggerCamera = function () {
-            document.getElementById('camera-input').click();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            // Check proximity (se partnerLocation disponibile)
+            if (partnerLocation) {
+                // Get current cached pos if possible, o aspetta?
+                // Per ora usiamo l'ultima nota dal watchPosition o chiediamo nuova
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const dist = getDistance(pos.coords.latitude, pos.coords.longitude, partnerLocation.lat, partnerLocation.lng);
+                    if (dist > 20) {
+                        Swal.fire({
+                            title: '⛔ TROPPO LONTANI',
+                            text: `Per scattare dovete essere a max 20m. Distanza attuale: ${dist.toFixed(0)}m`,
+                            icon: 'error',
+                            background: '#111',
+                            color: '#fff'
+                        });
+                        return;
+                    }
+                    document.getElementById('camera-input').click();
+                }, () => {
+                    // Se GPS fallisce nel check veloce, permettiamo comunque? 
+                    // No, per regolamento serve GPS.
+                    Swal.fire({ title: 'ERRORE GPS', text: 'Impossibile verificare distanza dal partner.', icon: 'error' });
+                }, { enableHighAccuracy: true, timeout: 5000 });
+            } else {
+                // Se non c'è mai stato un segnale partner, permettiamo? 
+                // Meglio di sì o rischiamo blocchi se l'altro pilota non ha segnale.
+                document.getElementById('camera-input').click();
+            }
         }
 
         window.processCameraSelection = function (event) {

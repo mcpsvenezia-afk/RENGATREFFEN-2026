@@ -173,7 +173,11 @@ export function RadarTab() {
                     registrations (
                         team_name,
                         bib_number,
-                        card_color
+                        card_color,
+                        nome,
+                        cognome,
+                        secondo_nome,
+                        secondo_cognome
                     )
                 `);
 
@@ -228,7 +232,8 @@ export function RadarTab() {
                     fillOpacity: 0.8
                 }).addTo(leafletMap.current);
 
-                marker.bindPopup(`<b>${team.bib_number}${item.pilot_code || ''} - ${team.team_name}</b><br>Ultimo segnale: ${new Date(item.last_seen).toLocaleTimeString()}`);
+                const surname = item.pilot_code === 'A' ? team.cognome : team.secondo_cognome;
+                marker.bindPopup(`<b>${team.team_name} - ${surname || ''}</b><br>Ultimo segnale: ${new Date(item.last_seen).toLocaleTimeString()}`);
                 markers.current[markerKey] = marker;
             }
         });
@@ -269,7 +274,7 @@ export function RadarTab() {
             {/* MAPPA CENTRALE */}
             <div style={cardStyle}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
-                    <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.2rem' }}>🛰️ AMBROGIO RADAR <span style={{ color: '#FFCC00' }}>LIVE Tracking</span></h2>
+                    <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.2rem' }}>🛰️ GEOPOINT <span style={{ color: '#FFCC00' }}>PRO RADAR</span></h2>
 
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                         <button onClick={handleManualSave} style={{
@@ -333,7 +338,7 @@ export function RadarTab() {
                                 }}></div>
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontWeight: 900 }}>Team {team.bib_number}{log.pilot_code}</div>
-                                    <div style={{ fontSize: '0.7rem', color: '#888' }}>{team.team_name}</div>
+                                    <div style={{ fontSize: '0.7rem', color: '#888' }}>{team.team_name} - {log.pilot_code === 'A' ? team.cognome : team.secondo_cognome}</div>
                                     <div style={{ fontSize: '0.8rem', color: '#FFCC00', marginTop: '4px' }}>FOTO {log.photo_number}</div>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
