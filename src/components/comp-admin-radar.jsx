@@ -285,6 +285,14 @@ export function RadarTab({ isFullscreen = false }) {
             if (markers.current[id]) {
                 markers.current[id].setLatLng([lat, lng]);
                 markers.current[id].setIcon(icon);
+                markers.current[id].setPopupContent(`
+                        <div style="color: #000">
+                            <b>Team ${t.registrations?.bib_number}</b><br/>
+                            ${t.registrations?.team_name}<br/>
+                            Pilota ${t.pilot_code}<br/>
+                            Last seen: ${new Date(t.last_seen).toLocaleTimeString()}
+                        </div>
+                    `);
             } else {
                 const m = window.L.marker([lat, lng], { icon }).addTo(leafletMap.current)
                     .bindPopup(`
