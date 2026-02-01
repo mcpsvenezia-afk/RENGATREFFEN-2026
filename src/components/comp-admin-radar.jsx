@@ -146,7 +146,7 @@ export function RadarTab({ isFullscreen = false }) {
                             // For simplicity/robustness on "New Appearance", we can trigger a refresh 
                             // or just fetch this single team details.
                             // Let's trigger a single fetch to be efficient
-                            supabase.from('registrations').select('team_name, bib_number, card_color, formula_partecipazione')
+                            supabase.from('registrations').select('team_name, bib_number, card_color, formula_partecipazione, cognome, secondo_cognome')
                                 .eq('id', updatedTrack.registration_id)
                                 .single()
                                 .then(({ data: regData }) => {
@@ -187,7 +187,7 @@ export function RadarTab({ isFullscreen = false }) {
         // Fetch Live Tracking
         const { data: trackingData, error: trackingError } = await supabase
             .from('live_tracking')
-            .select('*, registrations!fk_live_tracking_registration(team_name, bib_number, card_color, formula_partecipazione)');
+            .select('*, registrations!fk_live_tracking_registration(team_name, bib_number, card_color, formula_partecipazione, cognome, secondo_cognome)');
 
         console.log('📍 Tracking Query Result:', {
             count: trackingData?.length || 0,
@@ -302,23 +302,27 @@ export function RadarTab({ isFullscreen = false }) {
             });
 
             if (markers.current[id]) {
+                const pilotSurname = t.pilot_code === 'A' ? t.registrations?.cognome : t.registrations?.secondo_cognome;
+
                 markers.current[id].setLatLng([lat, lng]);
                 markers.current[id].setIcon(icon);
                 markers.current[id].setPopupContent(`
                         <div style="color: #000">
-                            <b>Team ${t.registrations?.bib_number}</b><br/>
-                            ${t.registrations?.team_name}<br/>
-                            Pilota ${t.pilot_code}<br/>
+                            <b>${pilotSurname || 'Pilota'}</b><br/>
+                            Numero Gara: ${t.registrations?.bib_number}<br/>
+                            Team: ${t.registrations?.team_name}<br/>
                             Last seen: ${new Date(t.last_seen).toLocaleTimeString()}
                         </div>
                     `);
             } else {
+                const pilotSurname = t.pilot_code === 'A' ? t.registrations?.cognome : t.registrations?.secondo_cognome;
+
                 const m = window.L.marker([lat, lng], { icon }).addTo(leafletMap.current)
                     .bindPopup(`
                         <div style="color: #000">
-                            <b>Team ${t.registrations?.bib_number}</b><br/>
-                            ${t.registrations?.team_name}<br/>
-                            Pilota ${t.pilot_code}<br/>
+                            <b>${pilotSurname || 'Pilota'}</b><br/>
+                            Numero Gara: ${t.registrations?.bib_number}<br/>
+                            Team: ${t.registrations?.team_name}<br/>
                             Last seen: ${new Date(t.last_seen).toLocaleTimeString()}
                         </div>
                     `);
