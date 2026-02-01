@@ -79,3 +79,24 @@ export async function sendRejectionEmail(userData) {
         return { success: false, error: err.message };
     }
 }
+
+export async function notifyStaffNewRegistration(userData) {
+    try {
+        const response = await fetch('/api/notify-staff', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userData }),
+        });
+        const result = await response.json();
+        if (!response.ok) {
+            console.warn('[STAFF-NOTIFY] Failed to send but not blocking:', result.error);
+            return { success: false, error: result.error };
+        }
+        console.log('[STAFF-NOTIFY] Admin notificato con successo');
+        return { success: true, data: result.data };
+    } catch (err) {
+        console.warn('[STAFF-NOTIFY] Error but not blocking registration:', err);
+        return { success: false, error: err.message };
+    }
+}
+

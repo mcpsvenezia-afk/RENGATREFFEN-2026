@@ -65,7 +65,7 @@ export function renderDynamicForm(schema, outletId, onSubmitCallback) {
             .field-wrapper {
                 display: flex;
                 flex-direction: column;
-                gap: 0.8rem;
+                gap: 0.3rem;
                 position: relative;
             }
             .field-wrapper label {

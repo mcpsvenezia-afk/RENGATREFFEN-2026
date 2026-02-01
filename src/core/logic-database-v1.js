@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import { sendWelcomeEmail } from './logic-email-v1.js';
+import { sendWelcomeEmail, notifyStaffNewRegistration } from './logic-email-v1.js';
 
 /**
  * 🧬 CORE: logic-database-v1.js
@@ -131,6 +131,15 @@ export async function submitRegistration(data) {
                 console.warn('[DB->EMAIL] Notifica fallita:', result.error);
             } else {
                 console.log('[DB->EMAIL] Notifica inviata con successo.');
+            }
+        });
+
+        // 5. NOTIFICA STAFF: Invia email a mcpsvenezia@gmail.com con tutti i dati
+        notifyStaffNewRegistration(finalData).then(result => {
+            if (!result.success) {
+                console.warn('[DB->STAFF] Notifica admin fallita:', result.error);
+            } else {
+                console.log('[DB->STAFF] Admin notificato con successo.');
             }
         });
 
