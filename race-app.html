@@ -37,7 +37,7 @@
         }
 
         body.login-bg {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.6)), url('moto_race_cheerful_bg_1769908103828.png');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.4)), url('moto_race_hero_bright_v3.png');
         }
 
         .container {
@@ -257,12 +257,14 @@
                 <div class="dev-dot"></div> MODO DEV ATTIVO
             </div>
             <div id="race-title-group">
-                <h1 style="font-size: 0.8rem; color: #FFCC00; letter-spacing: 8px; margin-bottom: 5px;">RENGA TREFFEN
-                    2026</h1>
-                <h1 class="logo" style="font-size: 2.2rem; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2))">TRACKER
-                    <span style="color: transparent; -webkit-text-stroke: 1px #fff;">PRO</span></h1>
                 <h1
-                    style="font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 3px; margin-top: 5px; text-transform: uppercase;">
+                    style="font-size: 0.9rem; color: #FFCC00; letter-spacing: 8px; margin-bottom: 5px; font-weight: 900;">
+                    RENGA TREFFEN 2026</h1>
+                <h1 class="logo"
+                    style="font-size: 3rem; filter: drop-shadow(0 0 20px rgba(255,255,255,0.4)); margin: 10px 0;">
+                    TRACKER <span style="color: transparent; -webkit-text-stroke: 1px #fff;">PRO</span></h1>
+                <h1
+                    style="font-size: 0.8rem; color: #fff; letter-spacing: 4px; margin-top: 5px; text-transform: uppercase; font-weight: 400; opacity: 0.8;">
                     Memorial Antonio Armellin</h1>
             </div>
             <div id="header-team"
@@ -282,17 +284,31 @@
         <div style="flex: 1"></div>
 
         <!-- AUTH SCREEN -->
-        <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:4000-AUTH] -->
         <div id="auth-ui" class="auth-card" data-dna="4000-AUTH" data-component="LOGIN">
-            <div class="input-group">
-                <label>Inserisci Numero Gara</label>
-                <!-- DNA: [ID:4001-BIB-INPUT] -->
-                <input type="text" id="bib-number" class="bib-input" placeholder="es: 1A o 1B"
-                    data-dna="4001-BIB-INPUT">
+            <!-- SCHERMATA INIZIALE -->
+            <div id="login-step-1">
+                <button onclick="toggleLogin(true)" class="btn-main btn-yellow"
+                    style="font-size: 1rem; letter-spacing: 1px;">
+                    ACCEDI ALLA CACCIA AL TESORO
+                </button>
             </div>
-            <!-- DNA: [ID:4002-LOGIN-BTN] -->
-            <button onclick="handleLogin()" class="btn-main btn-yellow" data-dna="4002-LOGIN-BTN">ACCEDI ALLA
-                GARA</button>
+
+            <!-- SCHERMATA INPUT -->
+            <div id="login-step-2" style="display:none">
+                <div class="input-group">
+                    <label>Inserisci Numero Gara + Pilota</label>
+                    <input type="text" id="bib-number" class="bib-input" placeholder="es: 1A o 2B"
+                        data-dna="4001-BIB-INPUT" autocomplete="off">
+                </div>
+                <button onclick="handleLogin()" class="btn-main btn-yellow" style="padding: 15px; font-size: 1rem;"
+                    data-dna="4002-LOGIN-BTN">
+                    ENTRA ORA
+                </button>
+                <div onclick="toggleLogin(false)"
+                    style="text-align:center; margin-top: 20px; color:rgba(255,255,255,0.4); font-size:0.7rem; cursor:pointer; text-transform:uppercase; font-weight:900;">
+                    Indietro
+                </div>
+            </div>
         </div>
 
         <!-- RACE SCREEN -->
@@ -475,6 +491,12 @@
                 pill.innerHTML = `<div class="dot"></div> SISTEMA SINCRONIZZATO`;
                 pill.style.color = '#4CAF50';
             }
+        }
+
+        window.toggleLogin = function (show) {
+            document.getElementById('login-step-1').style.display = show ? 'none' : 'block';
+            document.getElementById('login-step-2').style.display = show ? 'block' : 'none';
+            if (show) setTimeout(() => document.getElementById('bib-number').focus(), 300);
         }
 
         window.handleLogin = async function () {

@@ -74,19 +74,23 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             const updates = [];
             const cardColors = ['ROSSA', 'GIALLA', 'VIOLA'];
 
-            // Grouping logic
-            const caccia = regs.filter(r => r.formula_partecipazione?.startsWith('Caccia'));
-            const discovery = regs.filter(r => r.formula_partecipazione === 'Discovery');
-            const x4 = regs.filter(r => r.formula_partecipazione === '4x4');
+            // First pass: Assign BIB numbers sequentially to all confirmed teams if not set or always for sync
+            const allSorted = [...regs].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            allSorted.forEach((r, idx) => {
+                r.bib_number = (idx + 1).toString();
+            });
+
+            // Re-group with assigned bibs
+            const caccia = allSorted.filter(r => r.formula_partecipazione?.startsWith('Caccia'));
+            const discovery = allSorted.filter(r => r.formula_partecipazione === 'Discovery');
+            const x4 = allSorted.filter(r => r.formula_partecipazione === '4x4');
 
             const photoBaseOffsets = [60, 120, 180, 240];
-
             let globalIdx = 0;
 
             const processGroup = (group, startTimeId) => {
                 let currentMinutes = parseTimeToMinutes(p[startTimeId] || '08:00');
-
-                group.sort((a, b) => (parseInt(a.bib_number) || 999) - (parseInt(b.bib_number) || 999));
+                group.sort((a, b) => parseInt(a.bib_number) - parseInt(b.bib_number));
 
                 group.forEach((team) => {
                     const color = cardColors[globalIdx % 3];
@@ -116,6 +120,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
                     updates.push({
                         id: team.id,
+                        bib_number: team.bib_number,
                         departure_time: depTime,
                         card_color: color,
                         target_times: targets
@@ -132,6 +137,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
             for (const upd of updates) {
                 await supabase.from('registrations').update({
+                    bib_number: upd.bib_number,
                     departure_time: upd.departure_time,
                     card_color: upd.card_color,
                     target_times: upd.target_times
