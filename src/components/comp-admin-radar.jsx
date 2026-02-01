@@ -317,13 +317,24 @@ export function RadarTab({ isFullscreen = false }) {
                             🔄 REFRESH
                         </button>
                         <button onClick={() => {
-                            if (!leafletMap.current) return;
-                            leafletMap.current.eachLayer(layer => {
-                                if (!layer._url) leafletMap.current.removeLayer(layer);
-                            });
+                            console.log("⚠️ RESETTING MAP...");
+                            setTracking([]);
+                            setLogs([]);
+
+                            // Hard Reset Leaflet
+                            if (leafletMap.current) {
+                                leafletMap.current.off();
+                                leafletMap.current.remove();
+                                leafletMap.current = null;
+                            }
                             markers.current = {};
-                            leafletMap.current.invalidateSize();
-                            fetchInitialData();
+                            setMapReady(false);
+
+                            // Re-init after brutal clear
+                            setTimeout(() => {
+                                initMap();
+                                fetchInitialData();
+                            }, 500);
                         }} style={{
                             background: '#FF4444', border: 'none', padding: '6px 15px',
                             borderRadius: '10px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900, color: '#fff'
