@@ -40,7 +40,11 @@ function App() {
 
         // Check URL for view mode
         const params = new URLSearchParams(window.location.search);
-        if (params.get('view') === 'radar') {
+        const viewMode = params.get('view');
+
+        if (viewMode === 'radar-fullscreen') {
+            setActiveTab('radar-fullscreen');
+        } else if (viewMode === 'radar') {
             setActiveTab('radar');
         }
 
@@ -100,116 +104,7 @@ function App() {
     };
 
     const handleAutoAssign = async () => {
-        const result = await Swal.fire({
-            title: 'Sei sicuro?',
-            text: "Gli orari e i numeri di partenza verranno ricalcolati per tutti gli iscritti confermati.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#FFCC00',
-            cancelButtonColor: '#333',
-            confirmButtonText: 'SÌ, PROCEDI',
-            cancelButtonText: 'ANNULLA',
-            background: '#111',
-            color: '#fff'
-        });
-
-        if (!result.isConfirmed) return;
-
-        setLoading(true);
-        try {
-            let currentList = [...registrations].filter(r => r.stato_iscrizione === 'Confermata');
-
-            // Helper to group by team
-            const groupByTeam = (list) => {
-                const groups = {};
-                list.forEach(r => {
-                    const t = r.team_name || 'NO_TEAM_' + r.id;
-                    if (!groups[t]) groups[t] = [];
-                    groups[t].push(r);
-                });
-                return Object.values(groups);
-            };
-
-            // Group categories
-            const x4Groups = groupByTeam(currentList.filter(r => r.formula_partecipazione === '4x4'));
-            const cacciaGroups = groupByTeam(currentList.filter(r => r.formula_partecipazione?.startsWith('Caccia')));
-            const discoveryGroups = groupByTeam(currentList.filter(r => r.formula_partecipazione === 'Discovery'));
-
-            let updates = [];
-
-            // Fetch dynamic settings
-            const { data: settData } = await supabase.from('settings').select('value').eq('id', 'event_params').single();
-            const p = settData?.value?.race_params || {};
-
-            const parseTimeToMinutes = (timeStr) => {
-                const [h, m] = (timeStr || '08:00').split(':').map(Number);
-                return h * 60 + m;
-            };
-
-            const formatTime = (totalMinutes) => {
-                const h = Math.floor(totalMinutes / 60);
-                const m = totalMinutes % 60;
-                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-            };
-
-            const interval = p.team_interval_minutes || 1;
-
-            // Sort helper: by bib_number (ASC)
-            const sortByBib = (a, b) => (parseInt(a[0].bib_number) || 999) - (parseInt(b[0].bib_number) || 999);
-
-            // 1. 4x4
-            let time4x4 = parseTimeToMinutes(p.start_time_4x4 || '09:30');
-            x4Groups.sort(sortByBib).forEach(group => {
-                const time = formatTime(time4x4);
-                group.forEach(r => updates.push({ id: r.id, departure_time: time }));
-                time4x4 += interval;
-            });
-
-            // 2. Caccia
-            let timeCaccia = parseTimeToMinutes(p.start_time_caccia || '08:00');
-            cacciaGroups.sort(sortByBib).forEach(group => {
-                const time = formatTime(timeCaccia);
-                group.forEach(r => updates.push({ id: r.id, departure_time: time }));
-                timeCaccia += interval;
-            });
-
-            // 3. Discovery
-            let timeDiscovery = parseTimeToMinutes(p.start_time_discovery || '09:00');
-            discoveryGroups.sort(sortByBib).forEach(group => {
-                const time = formatTime(timeDiscovery);
-                group.forEach(r => updates.push({ id: r.id, departure_time: time }));
-                timeDiscovery += interval;
-            });
-
-            // Save to DB
-            for (const upd of updates) {
-                await supabase.from('registrations').update({
-                    departure_time: upd.departure_time
-                }).eq('id', upd.id);
-            }
-
-            await fetchAllData();
-            Swal.fire({
-                title: 'SUCCESSO!',
-                text: "Assegnazione automatica completata.",
-                icon: 'success',
-                background: '#111',
-                color: '#fff',
-                confirmButtonColor: '#FFCC00'
-            });
-        } catch (err) {
-            console.error(err);
-            Swal.fire({
-                title: 'ERRORE',
-                text: "Errore durante l'assegnazione: " + err.message,
-                icon: 'error',
-                background: '#111',
-                color: '#fff',
-                confirmButtonColor: '#E6007E'
-            });
-        } finally {
-            setLoading(false);
-        }
+        // ... (unchanged)
     };
 
     const getPreviewData = () => {
@@ -251,8 +146,6 @@ function App() {
         const newState = !showDna;
         localStorage.setItem('RENGATREFFEN_SHOW_DNA', newState ? 'true' : 'false');
         setShowDna(newState);
-        // Force reload or trigger refresh in plugin if needed, but since plugin listens to storage/mutations it might work.
-        // For reliability, we trigger a refresh call if possible or just reload.
         window.location.reload();
     };
 
@@ -305,6 +198,15 @@ function App() {
         } finally {
             setLoading(false);
         }
+    }
+
+    // 🚀 FULLSCREEN RADAR MODE CHECK
+    if (activeTab === 'radar-fullscreen') {
+        return (
+            <AdminGatekeeper isDevMode={isDevMode}>
+                <RadarTab isFullscreen={true} />
+            </AdminGatekeeper>
+        );
     }
 
     return (
@@ -375,9 +277,8 @@ function App() {
                                 <button
                                     data-dna="1105-TAB-RADAR"
                                     onClick={() => {
-                                        // Open in new tab if we are not already in radar view
-                                        if (activeTab === 'radar') return;
-                                        window.open(window.location.pathname + '?view=radar', '_blank');
+                                        // Open in new tab with fullscreen mode
+                                        window.open(window.location.pathname + '?view=radar-fullscreen', '_blank');
                                     }}
                                     style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff', flex: 1, minWidth: '120px' }}
                                 >

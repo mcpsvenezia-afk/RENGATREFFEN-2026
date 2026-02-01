@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-export function RadarTab() {
+export function RadarTab({ isFullscreen = false }) {
     const [logs, setLogs] = useState([]);
     const [tracking, setTracking] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -41,12 +41,11 @@ export function RadarTab() {
                     weight: track.weight
                 });
             } else {
-                const layer = window.L.polyline(track.points, {
+                const polyline = window.L.polyline(track.points, {
                     color: track.color,
-                    weight: track.weight,
-                    opacity: 0.8
+                    weight: track.weight
                 }).addTo(leafletMap.current);
-                polylineLayers.current[track.id] = layer;
+                polylineLayers.current[track.id] = polyline;
             }
         });
     };
@@ -58,49 +57,30 @@ export function RadarTab() {
         const reader = new FileReader();
         reader.onload = (event) => {
             const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(event.target.result, 'text/xml');
-            const points = Array.from(xmlDoc.querySelectorAll('trkpt')).map(pt => [
-                parseFloat(pt.getAttribute('lat')),
-                parseFloat(pt.getAttribute('lon'))
-            ]);
+            const xmlDoc = parser.parseFromString(event.target.result, "text/xml");
+            const trkpts = xmlDoc.getElementsByTagName("trkpt");
+            const points = [];
 
-            if (points.length === 0) {
-                Swal.fire({
-                    title: 'GPX NON VALIDO',
-                    text: "File GPX non valido o senza punti traccia.",
-                    icon: 'error',
-                    background: '#111',
-                    color: '#fff',
-                    confirmButtonColor: '#E6007E'
-                });
-                return;
+            for (let i = 0; i < trkpts.length; i++) {
+                const lat = parseFloat(trkpts[i].getAttribute("lat"));
+                const lon = parseFloat(trkpts[i].getAttribute("lon"));
+                points.push([lat, lon]);
             }
 
-            const newTrack = {
-                id: `gpx_${Date.now()}`,
-                name: file.name,
-                points: points,
-                color: '#FFCC00',
-                weight: 4
-            };
-
-            setGpxTracks(prev => [...prev, newTrack]);
-            if (leafletMap.current) {
-                leafletMap.current.fitBounds(points);
+            if (points.length > 0) {
+                const newTrack = {
+                    id: Date.now().toString(),
+                    name: file.name,
+                    color: '#FF0000', // Default Red
+                    weight: 3,
+                    points: points
+                };
+                setGpxTracks(prev => [...prev, newTrack]);
+            } else {
+                alert("Nessun punto traccia trovato nel GPX.");
             }
-
-            Swal.fire({
-                title: 'GPX CARICATO',
-                text: `Traccia "${file.name}" importata con successo.`,
-                icon: 'success',
-                timer: 2000,
-                showConfirmButton: false,
-                background: '#111',
-                color: '#fff'
-            });
         };
         reader.readAsText(file);
-        e.target.value = ""; // Reset
     };
 
     const updateTrackProp = (id, prop, value) => {
@@ -113,134 +93,156 @@ export function RadarTab() {
 
     const handleManualSave = () => {
         localStorage.setItem('RENGATREFFEN_RADAR_GPX', JSON.stringify(gpxTracks));
-        Swal.fire({
-            title: 'CONFIGURAZIONE SALVATA',
-            text: "Le tracce GPX e le loro proprietà sono state salvate localmente.",
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false,
-            background: '#111',
-            color: '#fff'
-        });
+        alert("Configurazione salvata nel browser!");
     };
+
 
     useEffect(() => {
         fetchInitialData();
-        const logsSub = supabase
-            .channel('radar-logs')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'race_logs' }, payload => {
-                fetchInitialData(); // Refresh on new log
-            })
-            .subscribe();
 
-        const trackSub = supabase
-            .channel('radar-tracking')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'live_tracking' }, payload => {
-                fetchInitialData(); // Refresh on tracking update
-            })
-            .subscribe();
+        // POLL ogni 10s per posizioni
+        const interval = setInterval(fetchInitialData, 10000);
 
-        const interval = setInterval(fetchInitialData, 10000); // Polling più frequente (10s)
+        // Realtime Subscription (Channel)
+        const channel = supabase
+            .channel('radar-updates')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'race_logs' }, (payload) => {
+                const newLog = payload.new;
+                // Fetch details per il log
+                supabase.from('registrations').select('*').eq('id', newLog.registration_id).single()
+                    .then(({ data: reg }) => {
+                        if (reg) {
+                            newLog.registrations = reg;
+                            setLogs(prev => [newLog, ...prev]);
+                        }
+                    });
+            })
+            // Iscrizione Tracking (Opzionale: se usiamo poll, realtime gps può essere troppo oneroso. Teniamo poll ogni 10s per stabilità)
+            .subscribe();
 
         return () => {
-            supabase.removeChannel(logsSub);
-            supabase.removeChannel(trackSub);
             clearInterval(interval);
+            supabase.removeChannel(channel);
         };
     }, []);
 
     const fetchInitialData = async () => {
-        try {
-            // Fetch logs with team info
-            const { data: logData } = await supabase
-                .from('race_logs')
-                .select(`
-                    *,
-                    registrations (
-                        team_name,
-                        bib_number,
-                        card_color,
-                        separation_seconds
-                    )
-                `)
-                .order('recorded_at', { ascending: false })
-                .limit(50);
+        setLoading(true);
+        // Fetch Logs with Joins
+        const { data: logsData } = await supabase
+            .from('race_logs')
+            .select('*, registrations(*)')
+            .order('recorded_at', { ascending: false })
+            .limit(50);
 
-            // Fetch tracking with team info
-            const { data: trackData } = await supabase
-                .from('live_tracking')
-                .select(`
-                    *,
-                    registrations (
-                        team_name,
-                        bib_number,
-                        card_color,
-                        nome,
-                        cognome,
-                        secondo_nome,
-                        secondo_cognome
-                    )
-                `);
+        if (logsData) setLogs(logsData);
 
-            if (logData) setLogs(logData);
-            if (trackData) setTracking(trackData);
-        } catch (err) {
-            console.error("Radar Fetch Error:", err);
-        } finally {
-            setLoading(false);
-        }
+        // Fetch Live Tracking
+        const { data: trackingData } = await supabase
+            .from('live_tracking')
+            .select('*, registrations(team_name, bib_number, card_color, formula_partecipazione)');
+
+        if (trackingData) setTracking(trackingData);
+        setLoading(false);
     };
 
-    // Inizializzazione Mappa
+    // SETUP LEAFLET
     useEffect(() => {
-        if (!mapRef.current || leafletMap.current || !window.L) return;
+        if (!mapRef.current) return;
+        if (leafletMap.current) return; // Già inizializzato
 
-        leafletMap.current = window.L.map(mapRef.current).setView([45.92, 13.12], 12); // Area Talmassons-Udine
+        // Dynamically load Leaflet CSS/JS logic is assumed done in index.html or here we check window.L
+        // Ma per sicurezza controlliamo window.L
+        const checkL = setInterval(() => {
+            if (window.L) {
+                clearInterval(checkL);
+                initMap();
+            }
+        }, 100);
 
-        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
+        return () => clearInterval(checkL);
+    }, []);
+
+    const initMap = () => {
+        leafletMap.current = window.L.map(mapRef.current).setView([45.95, 12.5], 9); // Friuli Center approx
+
+        window.L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 20
         }).addTo(leafletMap.current);
 
         setMapReady(true);
+    };
 
-        // Zoom out to see all tracks if present
-        if (gpxTracks.length > 0) {
-            const allPoints = gpxTracks.flatMap(t => t.points);
-            if (allPoints.length > 0) {
-                leafletMap.current.fitBounds(allPoints);
-            }
-        }
-    }, [mapRef, window.L]);
-
-    // Aggiornamento Marker
+    // UPDATE MARKERS
     useEffect(() => {
-        if (!leafletMap.current || !tracking.length || !window.L) return;
+        if (!leafletMap.current || !window.L) return;
 
-        tracking.forEach(item => {
-            const team = item.registrations;
-            const color = team.card_color === 'ROSSA' ? '#ff4444' : (team.card_color === 'GIALLA' ? '#FFCC00' : '#E6007E');
-            const markerKey = `${item.registration_id}_${item.pilot_code || 'X'}`;
+        // Clear markers not in tracking
+        // (Semplificazione: Rimuoviamo e ricreiamo o aggiorniamo. Per evitare flickering aggiorniamo pos)
 
-            if (markers.current[markerKey]) {
-                markers.current[markerKey].setLatLng([item.gps_lat, item.gps_lng]);
+        tracking.forEach(t => {
+            const id = `${t.registration_id}_${t.pilot_code}`;
+            const lat = parseFloat(t.gps_lat);
+            const lng = parseFloat(t.gps_lng);
+
+            if (!lat || !lng) return;
+
+            // Icona personalizzata
+            const color = t.registrations?.card_color === 'ROSSA' ? 'red' : (t.registrations?.card_color === 'GIALLA' ? 'gold' : 'magenta');
+
+            const iconHtml = `
+                <div style="
+                    background-color: ${color};
+                    width: 14px; height: 14px;
+                    border-radius: 50%;
+                    border: 2px solid white;
+                    box-shadow: 0 0 10px ${color};
+                "></div>
+                <div style="
+                    position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+                    background: #000; color: ${color}; padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 10px;
+                    white-space: nowrap;
+                ">
+                    ${t.registrations?.bib_number || '?'}${t.pilot_code}
+                </div>
+            `;
+
+            const icon = window.L.divIcon({
+                className: 'custom-pin',
+                html: iconHtml,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            if (markers.current[id]) {
+                markers.current[id].setLatLng([lat, lng]);
+                markers.current[id].setIcon(icon);
             } else {
-                const marker = window.L.circleMarker([item.gps_lat, item.gps_lng], {
-                    radius: 8,
-                    fillColor: color,
-                    color: '#000',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                }).addTo(leafletMap.current);
-
-                const surname = item.pilot_code === 'A' ? team.cognome : team.secondo_cognome;
-                marker.bindPopup(`<b>${team.team_name} - ${surname || ''}</b><br>Ultimo segnale: ${new Date(item.last_seen).toLocaleTimeString()}`);
-                markers.current[markerKey] = marker;
+                const m = window.L.marker([lat, lng], { icon }).addTo(leafletMap.current)
+                    .bindPopup(`
+                        <div style="color: #000">
+                            <b>Team ${t.registrations?.bib_number}</b><br/>
+                            ${t.registrations?.team_name}<br/>
+                            Pilota ${t.pilot_code}<br/>
+                            Last seen: ${new Date(t.last_seen).toLocaleTimeString()}
+                        </div>
+                    `);
+                markers.current[id] = m;
             }
         });
+
     }, [tracking]);
 
-    const containerStyle = {
+    const containerStyle = isFullscreen ? {
+        padding: 0,
+        height: '100vh',
+        width: '100vw',
+        display: 'flex',
+        flexDirection: 'column',
+        background: '#0c0c0e'
+    } : {
         padding: '30px',
         display: 'grid',
         gridTemplateColumns: '1fr 400px',
@@ -260,6 +262,13 @@ export function RadarTab() {
         backdropFilter: 'blur(10px)'
     };
 
+    const mapContainerStyle = isFullscreen ? {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative'
+    } : cardStyle;
+
     const logItemStyle = {
         padding: '15px',
         borderBottom: '1px solid rgba(255,255,255,0.05)',
@@ -273,8 +282,8 @@ export function RadarTab() {
     return (
         <div style={containerStyle}>
             {/* MAPPA CENTRALE */}
-            <div style={cardStyle}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center' }}>
+            <div style={mapContainerStyle}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', alignItems: 'center', padding: isFullscreen ? '20px' : 0 }}>
                     <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.2rem' }}>🛰️ GEOPOINT <span style={{ color: '#FFCC00' }}>PRO RADAR</span></h2>
 
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -303,7 +312,7 @@ export function RadarTab() {
 
                 {/* LISTA TRACCE GPX CARICATE */}
                 {gpxTracks.length > 0 && (
-                    <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginBottom: '15px', paddingBottom: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginBottom: '15px', paddingBottom: '10px', paddingLeft: isFullscreen ? '20px' : 0, paddingRight: isFullscreen ? '20px' : 0 }}>
                         {gpxTracks.map(track => (
                             <div key={track.id} style={{
                                 background: '#111', border: '1px solid #333', padding: '8px 12px',
@@ -322,42 +331,44 @@ export function RadarTab() {
                         CARICAMENTO MOTORE MAPPA...
                     </div>
                 ) : (
-                    <div ref={mapRef} style={{ flex: 1, borderRadius: '15px', background: '#000' }}></div>
+                    <div ref={mapRef} style={{ flex: 1, borderRadius: isFullscreen ? 0 : '15px', background: '#000' }}></div>
                 )}
             </div>
 
-            {/* STREAM FOTO & LOGS */}
-            <div style={cardStyle}>
-                <h2 style={{ margin: '0 0 20px 0', fontWeight: 900, fontSize: '1.2rem' }}>📸 PHOTO STREAM</h2>
-                <div style={{ flex: 1, overflowY: 'auto' }}>
-                    {logs.map(log => {
-                        const team = log.registrations;
-                        const badgeColor = team.card_color === 'ROSSA' ? '#ff4444' : (team.card_color === 'GIALLA' ? '#FFCC00' : '#E6007E');
+            {/* STREAM FOTO & LOGS - NASCOSTO SE FULLSCREEN */}
+            {!isFullscreen && (
+                <div style={cardStyle}>
+                    <h2 style={{ margin: '0 0 20px 0', fontWeight: 900, fontSize: '1.2rem' }}>📸 PHOTO STREAM</h2>
+                    <div style={{ flex: 1, overflowY: 'auto' }}>
+                        {logs.map(log => {
+                            const team = log.registrations;
+                            const badgeColor = team.card_color === 'ROSSA' ? '#ff4444' : (team.card_color === 'GIALLA' ? '#FFCC00' : '#E6007E');
 
-                        return (
-                            <div key={log.id} style={logItemStyle} onClick={() => setSelectedPhoto(log)}>
-                                <div style={{
-                                    width: '60px',
-                                    height: '60px',
-                                    borderRadius: '10px',
-                                    background: log.photo_url ? `url(${log.photo_url}) center/cover` : '#222',
-                                    border: `2px solid ${badgeColor}`
-                                }}></div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 900 }}>Team {team.bib_number}{log.pilot_code}</div>
-                                    <div style={{ fontSize: '0.7rem', color: '#888' }}>{team.team_name} - {log.pilot_code === 'A' ? team.cognome : team.secondo_cognome}</div>
-                                    <div style={{ fontSize: '0.8rem', color: '#FFCC00', marginTop: '4px' }}>FOTO {log.photo_number}</div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontSize: '0.7rem', color: '#555' }}>
-                                        {new Date(log.recorded_at).toLocaleTimeString()}
+                            return (
+                                <div key={log.id} style={logItemStyle} onClick={() => setSelectedPhoto(log)}>
+                                    <div style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        borderRadius: '10px',
+                                        background: log.photo_url ? `url(${log.photo_url}) center/cover` : '#222',
+                                        border: `2px solid ${badgeColor}`
+                                    }}></div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontWeight: 900 }}>Team {team.bib_number}{log.pilot_code}</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#888' }}>{team.team_name} - {log.pilot_code === 'A' ? team.cognome : team.secondo_cognome}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#FFCC00', marginTop: '4px' }}>FOTO {log.photo_number}</div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '0.7rem', color: '#555' }}>
+                                            {new Date(log.recorded_at).toLocaleTimeString()}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* MODALE VALIDAZIONE FOTO */}
             {selectedPhoto && (
