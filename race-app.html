@@ -739,7 +739,7 @@
                     .select('gps_lat, gps_lng, last_seen')
                     .eq('registration_id', currentTeam.id)
                     .eq('pilot_code', partnerCode)
-                    .single();
+                    .maybeSingle();
 
                 if (partner) {
                     partnerLocation = { lat: partner.gps_lat, lng: partner.gps_lng };
