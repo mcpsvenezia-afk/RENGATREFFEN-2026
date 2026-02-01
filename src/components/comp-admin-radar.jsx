@@ -6,6 +6,7 @@ export function RadarTab() {
     const [tracking, setTracking] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPhoto, setSelectedPhoto] = useState(null);
+    const [mapReady, setMapReady] = useState(false);
     const [gpxTracks, setGpxTracks] = useState(() => {
         const saved = localStorage.getItem('RENGATREFFEN_RADAR_GPX');
         return saved ? JSON.parse(saved) : [];
@@ -18,8 +19,8 @@ export function RadarTab() {
 
     useEffect(() => {
         localStorage.setItem('RENGATREFFEN_RADAR_GPX', JSON.stringify(gpxTracks));
-        renderGpxTracks();
-    }, [gpxTracks]);
+        if (mapReady) renderGpxTracks();
+    }, [gpxTracks, mapReady]);
 
     const renderGpxTracks = () => {
         if (!leafletMap.current || !window.L) return;
@@ -87,6 +88,16 @@ export function RadarTab() {
             if (leafletMap.current) {
                 leafletMap.current.fitBounds(points);
             }
+
+            Swal.fire({
+                title: 'GPX CARICATO',
+                text: `Traccia "${file.name}" importata con successo.`,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#111',
+                color: '#fff'
+            });
         };
         reader.readAsText(file);
         e.target.value = ""; // Reset
@@ -100,9 +111,21 @@ export function RadarTab() {
         setGpxTracks(prev => prev.filter(t => t.id !== id));
     };
 
+    const handleManualSave = () => {
+        localStorage.setItem('RENGATREFFEN_RADAR_GPX', JSON.stringify(gpxTracks));
+        Swal.fire({
+            title: 'CONFIGURAZIONE SALVATA',
+            text: "Le tracce GPX e le loro proprietà sono state salvate localmente.",
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false,
+            background: '#111',
+            color: '#fff'
+        });
+    };
+
     useEffect(() => {
         fetchInitialData();
-        // ... (rest of search/logic exactly as before)
         const logsSub = supabase
             .channel('radar-logs')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'race_logs' }, payload => {
@@ -172,7 +195,17 @@ export function RadarTab() {
         window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap'
         }).addTo(leafletMap.current);
-    }, [mapRef]);
+
+        setMapReady(true);
+
+        // Zoom out to see all tracks if present
+        if (gpxTracks.length > 0) {
+            const allPoints = gpxTracks.flatMap(t => t.points);
+            if (allPoints.length > 0) {
+                leafletMap.current.fitBounds(allPoints);
+            }
+        }
+    }, [mapRef, window.L]);
 
     // Aggiornamento Marker
     useEffect(() => {
@@ -238,6 +271,12 @@ export function RadarTab() {
                     <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.2rem' }}>🛰️ AMBROGIO RADAR <span style={{ color: '#FFCC00' }}>LIVE Tracking</span></h2>
 
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <button onClick={handleManualSave} style={{
+                            background: '#00E5FF', border: 'none', padding: '6px 15px',
+                            borderRadius: '10px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900, color: '#000'
+                        }}>
+                            💾 SALVA CONFIGURAZIONE
+                        </button>
                         <label style={{
                             background: '#111', border: '1px solid #333', padding: '6px 15px',
                             borderRadius: '10px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900
