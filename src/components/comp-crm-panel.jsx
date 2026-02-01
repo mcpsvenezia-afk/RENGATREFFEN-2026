@@ -274,6 +274,8 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             data-dna={`2000-CRM-PANEL-${type.toUpperCase()}`}
             style={{ maxWidth: '1300px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative' }}
         >
+            {/* DEEP DNA TRACKING */}
+            <div style={{ display: 'none' }} data-deep-dna="DNA-CRM-SYNC-v1.1"></div>
 
             {status.visible && <div style={toastStyle(status.type === 'success' ? '#4CAF50' : '#E6007E')}>{status.message}</div>}
 
