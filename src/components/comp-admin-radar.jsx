@@ -171,6 +171,9 @@ export function RadarTab({ isFullscreen = false }) {
 
     const fetchInitialData = async () => {
         setLoading(true);
+
+        console.group('🗺️ RADAR FETCH DATA');
+
         // Fetch Logs with Joins
         const { data: logsData } = await supabase
             .from('race_logs')
@@ -179,13 +182,27 @@ export function RadarTab({ isFullscreen = false }) {
             .limit(50);
 
         if (logsData) setLogs(logsData);
+        console.log('📸 Logs fetched:', logsData?.length || 0);
 
         // Fetch Live Tracking
-        const { data: trackingData } = await supabase
+        const { data: trackingData, error: trackingError } = await supabase
             .from('live_tracking')
             .select('*, registrations(team_name, bib_number, card_color, formula_partecipazione)');
 
-        if (trackingData) setTracking(trackingData);
+        console.log('📍 Tracking Query Result:', {
+            count: trackingData?.length || 0,
+            data: trackingData,
+            error: trackingError
+        });
+
+        if (trackingData) {
+            setTracking(trackingData);
+            console.log('✅ Tracking state updated with', trackingData.length, 'pilots');
+        } else {
+            console.warn('⚠️ No tracking data or error:', trackingError);
+        }
+
+        console.groupEnd();
         setLoading(false);
     };
 
@@ -244,6 +261,8 @@ export function RadarTab({ isFullscreen = false }) {
     // UPDATE MARKERS
     useEffect(() => {
         if (!leafletMap.current || !window.L) return;
+
+        console.log('🎯 Updating markers for', tracking.length, 'pilots');
 
         // Clear markers not in tracking
         // (Semplificazione: Rimuoviamo e ricreiamo o aggiorniamo. Per evitare flickering aggiorniamo pos)
