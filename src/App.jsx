@@ -9,6 +9,7 @@ import { RegistrationList } from './components/comp-registration-list';
 import { MessageList } from './components/comp-message-list';
 import { CRMDetail } from './components/comp-crm-panel';
 import { SettingsTab } from './components/comp-admin-settings';
+import { AppConfigTab } from './components/comp-admin-app-config';
 import { RankingsTab } from './components/comp-admin-rankings';
 import { RadarTab } from './components/comp-admin-radar';
 import { AdminGatekeeper } from './components/comp-admin-gatekeeper';
@@ -370,6 +371,9 @@ function App() {
                                 <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={{ ...mainTabStyle(activeTab === 'settings', 'settings'), flex: 1, minWidth: '200px' }}>
                                     IMPOSTAZIONI ⚙️
                                 </button>
+                                <button data-dna="1106-TAB-APP" onClick={() => setActiveTab('app_config')} style={{ ...mainTabStyle(activeTab === 'app_config', 'app_config'), flex: 1, minWidth: '200px' }}>
+                                    APP 📱
+                                </button>
                             </div>
 
                             {/* 🔍 FILTER BAR */}
@@ -443,6 +447,11 @@ function App() {
                                     />
                                 ) : activeTab === 'radar' ? (
                                     <RadarTab />
+                                ) : activeTab === 'app_config' ? (
+                                    <AppConfigTab
+                                        isDevMode={isDevMode}
+                                        onRefresh={fetchAllData}
+                                    />
                                 ) : (
                                     <SettingsTab
                                         isDevMode={isDevMode}
@@ -679,10 +688,12 @@ const mainTabStyle = (active, type) => {
     if (type === 'messages') activeColor = '#00E5FF';
     if (type === 'rankings') activeColor = '#00E5FF';
     if (type === 'settings') activeColor = '#fff';
+    if (type === 'app_config') activeColor = '#00E5FF';
 
     let shadowColor = 'rgba(255,204,0,0.2)';
     if (type === 'messages' || type === 'rankings') shadowColor = 'rgba(0,229,255,0.2)';
     if (type === 'settings') shadowColor = 'rgba(255,255,255,0.1)';
+    if (type === 'app_config') shadowColor = 'rgba(0,229,255,0.2)';
 
     return {
         padding: '25px 50px',

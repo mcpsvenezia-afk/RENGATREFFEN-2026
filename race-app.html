@@ -517,14 +517,39 @@
         let deferredPrompt;
         let isDevMode = false;
 
+        let appConfig = {
+            enable_proximity_audio: true,
+            enable_photo_distance_check: true,
+            enable_penalty_tracking: true,
+            enable_live_tracking: true,
+            enable_offline_sync: true,
+            force_dev_mode_features: false
+        };
+
+        async function fetchAppConfig() {
+            const { data } = await supabase.from('settings').select('value').eq('id', 'app_config').single();
+            if (data?.value) {
+                appConfig = { ...appConfig, ...data.value };
+                console.log("[CONFIG] Features caricati:", appConfig);
+                if (appConfig.force_dev_mode_features) {
+                    isDevMode = true; // Override globale
+                }
+            }
+        }
+
         function checkDevMode() {
             const params = new URLSearchParams(window.location.search);
             if (params.get('dev') === 'true' || localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true') {
                 isDevMode = true;
+            }
+            // UI Update delayed to after config fetch if possible, but safe here too
+            if (isDevMode) {
                 document.getElementById('dev-pill').style.display = 'inline-flex';
                 document.getElementById('reset-btn').style.display = 'inline-block';
             }
         }
+
+        // Call immediately but let fetches happen in parallel logic
         checkDevMode();
 
         // 🌟 PWA INSTALL LOGIC
@@ -548,6 +573,7 @@
 
         // 🔄 SYNC ENGINE
         async function syncOfflineData() {
+            if (!appConfig.enable_offline_sync) return;
             if (!navigator.onLine || pendingLogs.length === 0) {
                 updateSyncStatus();
                 return;
@@ -605,7 +631,7 @@
         }
 
         function triggerProximityAlarm() {
-            if (isMuted) return;
+            if (isMuted || !appConfig.enable_proximity_audio) return;
             let count = 0;
             const interval = setInterval(() => {
                 playBeep(440, 0.4);
@@ -622,77 +648,81 @@
         }
 
         // 📡 LIVE TRACKING ENGINE (Watch Position per Background)
+        // 📡 LIVE TRACKING ENGINE (Watch Position per Background)
         function startLiveTracking() {
             if (!currentTeam) return;
             if (watchId) navigator.geolocation.clearWatch(watchId);
 
             watchId = navigator.geolocation.watchPosition(async (pos) => {
-                const { error } = await supabase.from('live_tracking').upsert({
-                    registration_id: currentTeam.id,
-                    pilot_code: currentPilot,
-                    gps_lat: pos.coords.latitude,
-                    gps_lng: pos.coords.longitude,
-                    last_seen: new Date().toISOString()
-                }, { onConflict: 'registration_id,pilot_code' });
+                // 1. Invia la mia posizione (Se abilitato)
+                if (appConfig.enable_live_tracking) {
+                    const { error } = await supabase.from('live_tracking').upsert({
+                        registration_id: currentTeam.id,
+                        pilot_code: currentPilot,
+                        gps_lat: pos.coords.latitude,
+                        gps_lng: pos.coords.longitude,
+                        last_seen: new Date().toISOString()
+                    }, { onConflict: 'registration_id,pilot_code' });
 
-                if (error) console.error("[LIVE] Upsert error:", error);
-                else {
-                    console.log("[LIVE] Posizione aggiornata per " + currentPilot);
+                    if (error) console.error("[LIVE] Upsert error:", error);
+                    else console.log("[LIVE] Posizione aggiornata per " + currentPilot);
+                }
 
-                    // Controlla Partner
-                    const partnerCode = currentPilot === 'A' ? 'B' : 'A';
-                    const { data: partner } = await supabase
-                        .from('live_tracking')
-                        .select('gps_lat, gps_lng, last_seen')
-                        .eq('registration_id', currentTeam.id)
-                        .eq('pilot_code', partnerCode)
-                        .single();
+                // 2. Controlla Partner (Sempre, per la sicurezza/alarm, a meno che non ci siano blocchi specifici)
+                // Se live tracking è disabilitato globalmente, è probabile che anche il partner non aggiorni, 
+                // ma proviamo a leggere lo stesso per vedere se ci sono dati recenti.
+                const partnerCode = currentPilot === 'A' ? 'B' : 'A';
+                const { data: partner } = await supabase
+                    .from('live_tracking')
+                    .select('gps_lat, gps_lng, last_seen')
+                    .eq('registration_id', currentTeam.id)
+                    .eq('pilot_code', partnerCode)
+                    .single();
 
-                    if (partner) {
-                        partnerLocation = { lat: partner.gps_lat, lng: partner.gps_lng };
-                        const dist = getDistance(pos.coords.latitude, pos.coords.longitude, partner.gps_lat, partner.gps_lng);
-                        console.log(`[PROXIMITY] Distanza partner: ${dist.toFixed(1)}m`);
+                if (partner) {
+                    partnerLocation = { lat: partner.gps_lat, lng: partner.gps_lng };
+                    const dist = getDistance(pos.coords.latitude, pos.coords.longitude, partner.gps_lat, partner.gps_lng);
 
-                        // ⏱️ PENALTY TRACKING: Conteggio secondi separati (> 200m)
-                        if (dist > 200) {
-                            const now = Date.now();
-                            if (lastSeparationCheck) {
-                                let delta = Math.floor((now - lastSeparationCheck) / 1000);
-                                if (delta > 0 && delta < 60) { // Protezione se app riaperta dopo ore
-                                    separationSeconds += delta;
-                                    // Solo Pilota A scrive il totale centrale per evitare duplicati se entrambi online
-                                    if (currentPilot === 'A') {
-                                        supabase.rpc('increment_separation_seconds', {
-                                            team_id: currentTeam.id,
-                                            seconds: delta
-                                        }).then(({ error }) => { if (error) console.error("Penalty error:", error) });
-                                    }
+                    // ⏱️ PENALTY TRACKING: Conteggio secondi separati (> 200m)
+                    if (dist > 200) {
+                        const now = Date.now();
+                        if (lastSeparationCheck) {
+                            let delta = Math.floor((now - lastSeparationCheck) / 1000);
+                            if (delta > 0 && delta < 60 && appConfig.enable_penalty_tracking) { // Config Check
+                                separationSeconds += delta;
+                                // Solo Pilota A scrive il totale centrale per evitare duplicati se entrambi online
+                                if (currentPilot === 'A') {
+                                    supabase.rpc('increment_separation_seconds', {
+                                        team_id: currentTeam.id,
+                                        seconds: delta
+                                    }).then(({ error }) => { if (error) console.error("Penalty error:", error) });
                                 }
                             }
-                            lastSeparationCheck = now;
-                            updateUI(); // Per aggiornare il timer penalty
-
-                            // Allarme > 200m
-                            if (now - lastAlarmTime > 60000) { // Max uno al minuto
-                                triggerProximityAlarm();
-                                lastAlarmTime = now;
-                                Swal.fire({
-                                    title: '⚠️ PARTNER LONTANO!',
-                                    text: 'Siete a più di 200 metri di distanza! Avvicinatevi.',
-                                    toast: true,
-                                    position: 'top',
-                                    icon: 'warning',
-                                    background: '#ff4444',
-                                    color: '#fff',
-                                    showConfirmButton: false,
-                                    timer: 5000
-                                });
-                            }
-                        } else {
-                            lastSeparationCheck = null;
                         }
+                        lastSeparationCheck = now;
+                        updateUI(); // Per aggiornare il timer penalty
+
+                        // Allarme > 200m
+                        if (now - lastAlarmTime > 60000) { // Max uno al minuto
+                            triggerProximityAlarm(); // Config check is inside the function
+                            lastAlarmTime = now;
+                            Swal.fire({
+                                title: '⚠️ PARTNER LONTANO!',
+                                text: 'Siete a più di 200 metri di distanza! Avvicinatevi.',
+                                toast: true,
+                                position: 'top',
+                                icon: 'warning',
+                                background: '#ff4444',
+                                color: '#fff',
+                                showConfirmButton: false,
+                                timer: 5000
+                            });
+                        }
+                    } else {
+                        lastSeparationCheck = null;
                     }
                 }
+
             }, (err) => {
                 console.error("[LIVE] GPS Error:", err);
             }, {
@@ -845,13 +875,18 @@
 
                 const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id).length;
                 photoNumber = (count || 0) + localCountForTeam + 1;
-
                 updateUI();
                 startLiveTracking();
                 requestWakeLock();
             }
         }
-        checkAutoLogin();
+        async function initApp() {
+            await fetchAppConfig(); // Load features first
+            checkAutoLogin();
+        }
+
+        // Init
+        setTimeout(initApp, 500);
 
         // 📸 LOGICA FOTOCAMERA
         window.triggerCamera = function () {
@@ -861,16 +896,21 @@
                 // Get current cached pos if possible, o aspetta?
                 // Per ora usiamo l'ultima nota dal watchPosition o chiediamo nuova
                 navigator.geolocation.getCurrentPosition((pos) => {
-                    const dist = getDistance(pos.coords.latitude, pos.coords.longitude, partnerLocation.lat, partnerLocation.lng);
-                    if (dist > 20) {
-                        Swal.fire({
-                            title: '⛔ TROPPO LONTANI',
-                            text: `Per scattare dovete essere a max 20m. Distanza attuale: ${dist.toFixed(0)}m`,
-                            icon: 'error',
-                            background: '#111',
-                            color: '#fff'
-                        });
-                        return;
+                    // Se controllo disabilitato remotamente o dev mode locale/remoto -> bypass
+                    if (!appConfig.enable_photo_distance_check || isDevMode) {
+                        // Bypass Check
+                    } else {
+                        const dist = getDistance(pos.coords.latitude, pos.coords.longitude, partnerLocation.lat, partnerLocation.lng);
+                        if (dist > 20) {
+                            Swal.fire({
+                                title: '⛔ TROPPO LONTANI',
+                                text: `Per scattare dovete essere a max 20m. Distanza attuale: ${dist.toFixed(0)}m\n(DEV MODE bypass disponibile)`,
+                                icon: 'error',
+                                background: '#111',
+                                color: '#fff'
+                            });
+                            return;
+                        }
                     }
                     document.getElementById('camera-input').click();
                 }, () => {
