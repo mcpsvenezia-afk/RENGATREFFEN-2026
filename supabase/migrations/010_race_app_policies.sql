@@ -18,6 +18,10 @@ CREATE POLICY "Allow public insert for Race App" ON race_logs
 FOR INSERT WITH CHECK (true);
 
 -- Allow public upsert to live_tracking
+-- Aggiungiamo vincolo unico per gestire piloti A/B separati
+ALTER TABLE live_tracking DROP CONSTRAINT IF EXISTS live_tracking_pkey;
+ALTER TABLE live_tracking ADD PRIMARY KEY (registration_id, pilot_code);
+
 ALTER TABLE live_tracking ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public upsert for Race App" ON live_tracking;
 CREATE POLICY "Allow public upsert for Race App" ON live_tracking 

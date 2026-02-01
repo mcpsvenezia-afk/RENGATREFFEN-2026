@@ -55,7 +55,17 @@
             font-weight: 900;
         }
 
-        .auth-card,
+        .auth-card {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), url('moto_race_hero_bg_1769907365838.png');
+            background-size: cover;
+            background-position: center;
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 40px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+        }
+
         .race-card {
             background: var(--glass);
             border: 1px solid var(--border);
@@ -265,6 +275,10 @@
                 <div class="status-pill" data-dna="SYSTEM-STATUS">
                     <div class="dot"></div> SISTEMA PRONTO
                 </div>
+                <div id="wake-status"
+                    style="font-size: 0.6rem; color: #444; margin-top: 5px; text-transform: uppercase; font-weight: 800;">
+                    STANDBY: ATTIVO
+                </div>
             </div>
 
             <!-- CAMERA INPUT NASCOSTO -->
@@ -307,6 +321,26 @@
         let currentPilot = null; // 'A' o 'B'
         let photoNumber = 1;
         let pendingLogs = JSON.parse(localStorage.getItem('RENGATREFFEN_PENDING_LOGS') || '[]');
+        let watchId = null;
+        let wakeLock = null;
+
+        // 🛡️ WAKE LOCK ENGINE
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    document.getElementById('wake-status').innerText = 'STANDBY: DISABILITATO (MODALITÀ GARA)';
+                    document.getElementById('wake-status').style.color = '#4CAF50';
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock rilasciato');
+                        document.getElementById('wake-status').innerText = 'STANDBY: ATTIVO';
+                        document.getElementById('wake-status').style.color = '#444';
+                    });
+                }
+            } catch (err) {
+                console.warn('Wake Lock failed:', err);
+            }
+        }
         let deferredPrompt;
         let isDevMode = false;
 
@@ -365,21 +399,30 @@
             updateSyncStatus();
         }
 
-        // 📡 LIVE TRACKING ENGINE (Ogni 5 minuti)
-        async function updateLiveTracking() {
-            if (!currentTeam || !navigator.onLine) return;
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                await supabase.from('live_tracking').upsert({
+        // 📡 LIVE TRACKING ENGINE (Watch Position per Background)
+        function startLiveTracking() {
+            if (!currentTeam) return;
+            if (watchId) navigator.geolocation.clearWatch(watchId);
+
+            watchId = navigator.geolocation.watchPosition(async (pos) => {
+                const { error } = await supabase.from('live_tracking').upsert({
                     registration_id: currentTeam.id,
                     pilot_code: currentPilot,
                     gps_lat: pos.coords.latitude,
                     gps_lng: pos.coords.longitude,
                     last_seen: new Date().toISOString()
-                }, { onConflict: 'registration_id' }); // Overwrites based on team ID for now
-                console.log("[LIVE] Posizione aggiornata per Ambrogio Eye.");
-            }, null, { enableHighAccuracy: true });
+                }, { onConflict: 'registration_id,pilot_code' });
+
+                if (error) console.error("[LIVE] Upsert error:", error);
+                else console.log("[LIVE] Posizione aggiornata per " + currentPilot);
+            }, (err) => {
+                console.error("[LIVE] GPS Error:", err);
+            }, {
+                enableHighAccuracy: true,
+                maximumAge: 30000,
+                timeout: 27000
+            });
         }
-        setInterval(updateLiveTracking, 300000); // 5 minuti
 
         // Batti il colpo ogni 30 secondi
         setInterval(syncOfflineData, 30000);
@@ -425,10 +468,14 @@
                 .limit(1);
 
             if (error || !data || data.length === 0) {
-                console.error("Login Error:", error);
+                console.group("❌ Login Failed");
+                console.log("Input Bib:", bib);
+                console.log("Supabase Error:", error);
+                console.groupEnd();
+
                 Swal.fire({
-                    title: 'ERRORE',
-                    text: 'Team non trovato con numero ' + bib + (error ? ' (' + error.hint + ')' : ''),
+                    title: 'TEAM NON TROVATO',
+                    text: `Il numero gara "${bib}" non risulta assegnato nel database. Assicurati che il team sia CONFERMATO e che sia stato assegnato un numero gara nelle Impostazioni.`,
                     icon: 'error',
                     background: '#111',
                     color: '#fff'
@@ -447,7 +494,8 @@
 
             photoNumber = (count || 0) + localCountForTeam + 1;
             updateUI();
-            updateLiveTracking();
+            startLiveTracking();
+            requestWakeLock();
             syncOfflineData();
         }
 
