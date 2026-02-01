@@ -160,6 +160,10 @@ const RegistrationForm = () => {
                     title = 'IN VALUTAZIONE';
                     statusText = 'La tua iscrizione è in fase di valutazione (manca il partner). Ti contatteremo a breve.';
                     icon = 'info';
+                } else if (result.stato === 'Verifica_In_Corso') {
+                    title = 'ISCRIZIONE RICEVUTA';
+                    statusText = 'La tua richiesta è in fase di verifica. Riceverai a breve una mail con le istruzioni.';
+                    icon = 'success';
                 }
 
                 window.Swal.fire({

@@ -306,6 +306,20 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                 </div>
                             </div>
                             <div style={{ marginTop: '15px' }}>
+                                {localItem.stato_iscrizione === 'Verifica_In_Corso' && (
+                                    <span style={{
+                                        color: '#E6007E',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 900,
+                                        letterSpacing: '2px',
+                                        background: 'rgba(230,0,126,0.1)',
+                                        padding: '8px 20px',
+                                        borderRadius: '50px',
+                                        border: '2px solid #E6007E',
+                                        display: 'inline-block',
+                                        marginRight: '15px'
+                                    }}>🔍 VERIFICA IN CORSO</span>
+                                )}
                                 {localItem.is_duplicate && (
                                     <span style={{
                                         color: '#ff4444',
@@ -537,6 +551,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                         <option value="">--</option>
                                         {k === 'stato_iscrizione' ? (
                                             <>
+                                                <option value="Verifica_In_Corso">Verifica in corso</option>
                                                 <option value="Confermata">Confermata</option>
                                                 <option value="In_Valutazione">In Valutazione (Scandaglio)</option>
                                                 <option value="Lista_Attesa">Lista d'attesa</option>

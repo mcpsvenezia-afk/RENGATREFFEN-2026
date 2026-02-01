@@ -32,7 +32,7 @@ export async function submitRegistration(data) {
     }
 
     try {
-        let stato_iscrizione = 'Confermata';
+        let stato_iscrizione = 'Verifica_In_Corso';
         // 1. Fetch Dynamic Settings
         let maxMoto = 30;
         let max4x4 = 10;

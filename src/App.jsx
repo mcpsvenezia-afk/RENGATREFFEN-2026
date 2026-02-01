@@ -23,7 +23,7 @@ function App() {
 
     // Filters & Sorting v7.2.7
     const [filterFormula, setFilterFormula] = useState('ALL');
-    const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PAID, NOT_PAID, WAITING, REJECTED
+    const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PAID, NOT_PAID, WAITING, REJECTED, VERIFY
     const [sortType, setSortType] = useState('BIB'); // DEFAULT, TIME, BIB, TEAM, COGNOME, STAFF, LUNCH
     const [showPDFPreview, setShowPDFPreview] = useState(false);
     const [previewType, setPreviewType] = useState('FULL'); // FULL, ONLY_4X4, ONLY_PAID, TOTALS
@@ -58,6 +58,7 @@ function App() {
             else if (filterStatus === 'NOT_PAID') list = list.filter(r => r.is_paid !== 'SI');
             else if (filterStatus === 'WAITING') list = list.filter(r => r.stato_iscrizione === 'Lista_Attesa');
             else if (filterStatus === 'REJECTED') list = list.filter(r => r.stato_iscrizione === 'Rifiutata');
+            else if (filterStatus === 'VERIFY') list = list.filter(r => r.stato_iscrizione === 'Verifica_In_Corso');
         }
 
         // 3. Advanced Sorting
@@ -391,8 +392,9 @@ function App() {
                                             <option value="ALL">TUTTI</option>
                                             <option value="PAID">PAGATI</option>
                                             <option value="NOT_PAID">NON PAGATI</option>
-                                            <option value="WAITING">LISTA D'ATTESA</option>
-                                            <option value="REJECTED">RIFIUTATI</option>
+                                            <option value="WAITING">SOLO LISTA ATTESA</option>
+                                            <option value="REJECTED">SOLO RIFIUTATI</option>
+                                            <option value="VERIFY">IN VERIFICA</option>
                                         </select>
                                     </div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
