@@ -87,7 +87,19 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
 
         try {
             const table = isMsg ? 'messages' : 'registrations';
-            const { error } = await supabase.from(table).update(localItem).eq('id', item.id);
+
+            // 🧬 DNA-DEBUG: Log pre-save state
+            console.group('🔄 CRM SAVE OPERATION');
+            console.log('Table:', table);
+            console.log('Item ID:', item.id);
+            console.log('Data to save:', localItem);
+            console.log('bib_number specifically:', localItem.bib_number);
+
+            const { data, error } = await supabase.from(table).update(localItem).eq('id', item.id).select();
+
+            console.log('Supabase Response:', { data, error });
+            console.groupEnd();
+
             if (error) throw error;
 
             setSaveStatus('saved');
@@ -97,6 +109,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             // Reset "saved" status after 3 seconds
             setTimeout(() => setSaveStatus(prev => prev === 'saved' ? 'idle' : prev), 3000);
         } catch (err) {
+            console.error('❌ CRM SAVE ERROR:', err);
             setSaveStatus('error');
             showToast('error', err.message);
         } finally {
