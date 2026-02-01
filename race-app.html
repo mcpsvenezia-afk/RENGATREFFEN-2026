@@ -885,14 +885,24 @@
             }
 
             if (currentTeam) {
-                const { data: teamData } = await supabase
-                    .from('registrations')
-                    .select('separation_seconds')
-                    .eq('id', currentTeam.id)
-                    .maybeSingle();
+                // Try fetching extra team data (like penalty seconds)
+                try {
+                    const { data: teamData, error: teamError } = await supabase
+                        .from('registrations')
+                        .select('separation_seconds')
+                        .eq('id', currentTeam.id)
+                        .maybeSingle();
 
-                if (teamData) separationSeconds = teamData.separation_seconds || 0;
+                    if (teamError) {
+                        console.warn("[SESSION] Error fetching team details (RLS?):", teamError.code);
+                    } else if (teamData) {
+                        separationSeconds = teamData.separation_seconds || 0;
+                    }
+                } catch (e) {
+                    console.warn("[SESSION] Critical fetch error:", e);
+                }
 
+                // Continue with logs fetching regardless of team detail success
                 const { count } = await supabase
                     .from('race_logs')
                     .select('*', { count: 'exact', head: true })
