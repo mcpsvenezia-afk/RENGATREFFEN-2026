@@ -176,15 +176,22 @@ export function RadarTab({ isFullscreen = false }) {
     };
 
     // Auto-center map on first load of trackers
+    // Auto-center map on first load of trackers
     useEffect(() => {
         if (mapReady && tracking.length > 0 && leafletMap.current) {
-            const first = tracking[0];
-            if (first.gps_lat && first.gps_lng) {
-                // Determine bounds if multiple
-                if (tracking.length > 1) {
-                    const bounds = tracking.map(t => [t.gps_lat, t.gps_lng]);
-                    leafletMap.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+            // Filter only valid points with actual coordinates
+            const validPoints = tracking.filter(t => t.gps_lat && t.gps_lng);
+
+            if (validPoints.length > 0) {
+                if (validPoints.length > 1) {
+                    const bounds = validPoints.map(t => [t.gps_lat, t.gps_lng]);
+                    try {
+                        leafletMap.current.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+                    } catch (e) {
+                        console.warn("FitBounds failed", e);
+                    }
                 } else {
+                    const first = validPoints[0];
                     leafletMap.current.setView([first.gps_lat, first.gps_lng], 13);
                 }
             }
