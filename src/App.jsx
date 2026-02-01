@@ -88,7 +88,7 @@ function App() {
                 case 'TIME':
                     return (a.departure_time || '99:99').localeCompare(b.departure_time || '99:99');
                 case 'BIB':
-                    return (parseInt(a.bib_number) || 999) - (parseInt(b.bib_number) || 999);
+                    return (a.bib_number || '').localeCompare(b.bib_number || '', undefined, { numeric: true, sensitivity: 'base' });
                 case 'TEAM':
                     return (a.team_name || '').localeCompare(b.team_name || '');
                 case 'COGNOME':
