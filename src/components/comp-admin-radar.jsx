@@ -187,7 +187,7 @@ export function RadarTab({ isFullscreen = false }) {
         // Fetch Live Tracking
         const { data: trackingData, error: trackingError } = await supabase
             .from('live_tracking')
-            .select('*, registrations(team_name, bib_number, card_color, formula_partecipazione)');
+            .select('*, registrations!fk_live_tracking_registration(team_name, bib_number, card_color, formula_partecipazione)');
 
         console.log('📍 Tracking Query Result:', {
             count: trackingData?.length || 0,
