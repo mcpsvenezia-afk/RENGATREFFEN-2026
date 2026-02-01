@@ -271,7 +271,7 @@ export function RadarTab({ isFullscreen = false }) {
                     background: #000; color: ${color}; padding: 2px 5px; border-radius: 4px; font-weight: bold; font-size: 10px;
                     white-space: nowrap;
                 ">
-                    ${t.registrations?.bib_number || '?'}${t.pilot_code}
+                    ${t.registrations?.bib_number || 'P-' + t.registration_id.slice(0, 4)} ${t.pilot_code}
                 </div>
             `;
 
