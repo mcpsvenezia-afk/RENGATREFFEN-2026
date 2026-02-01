@@ -691,7 +691,7 @@
                                 console.error("[LIVE] Upsert error:", error);
                                 logTrackingDebug('DB_ERROR', { error });
                             } else {
-                                console.log("[LIVE] Posizione aggiornata per " + (currentTeam.bib_number || '?') + currentPilot);
+                                console.log("[LIVE] Posizione aggiornata per " + (currentTeam.bib_number || '?'));
                                 document.getElementById('wake-status').innerText = 'GPS: OK 🟢';
 
                                 // HEARTBEAT LOG (Debug)
