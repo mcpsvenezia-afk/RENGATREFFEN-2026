@@ -775,21 +775,22 @@
             const bib = match[1];
             currentPilot = match[2];
 
+            // FIX: Ora cerchiamo il numero COMPLETO (es: "1A") perché nel DB sono salvati così
             const { data, error } = await supabase
                 .from('registrations')
                 .select('*')
-                .eq('bib_number', bib)
+                .eq('bib_number', rawBib) // Use rawBib (e.g. "1A") instead of bib ("1")
                 .limit(1);
 
             if (error || !data || data.length === 0) {
                 console.group("❌ Login Failed");
-                console.log("Input Bib:", bib);
+                console.log("Input Bib:", rawBib);
                 console.log("Supabase Error:", error);
                 console.groupEnd();
 
                 Swal.fire({
                     title: 'TEAM NON TROVATO',
-                    text: `Il numero gara "${bib}" non risulta assegnato nel database. \n\nPROVA COSÌ:\n1. Vai nel pannello Admin > Impostazioni\n2. Clicca su "RIGENERA TEMPI E NUMERI GARA"\n3. Assicurati che lo stato sia "Confermata".`,
+                    text: `Il numero gara "${rawBib}" non risulta assegnato nel database. \n\nPROVA COSÌ:\n1. Vai nel pannello Admin > Impostazioni\n2. Clicca su "🚀 ASSEGNA PETTORALI"\n3. Assicurati che lo stato sia "Confermata" o "Verifica".`,
                     icon: 'error',
                     background: '#111',
                     color: '#fff'
