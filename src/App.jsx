@@ -409,12 +409,6 @@ function App() {
                                     </div>
                                     <div style={{ flex: 1 }}></div>
                                     <button
-                                        onClick={handleAutoAssign}
-                                        style={{ ...filterBtnStyle, backgroundColor: '#E6007E', border: 'none', color: '#fff' }}
-                                    >
-                                        ⚡ AUTO-TIME
-                                    </button>
-                                    <button
                                         onClick={() => setShowPDFPreview(true)}
                                         style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', border: 'none', color: '#000' }}
                                     >

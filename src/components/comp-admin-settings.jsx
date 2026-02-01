@@ -32,15 +32,26 @@ export function SettingsTab({ isDevMode, onRefresh }) {
         }
     }
 
+    const parseTimeToMinutes = (timeStr) => {
+        const [h, m] = (timeStr || '08:00').split(':').map(Number);
+        return h * 60 + m;
+    };
+
+    const formatTime = (totalMinutes) => {
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    };
+
     async function regenerateRaceTimes() {
         const result = await Swal.fire({
-            title: 'RIGENERA TEMPI?',
-            text: "Questa operazione sovrascriverà i tempi obiettivo di tutti i team confermati.",
+            title: 'SINCRONIZZA MOTORE GARA?',
+            text: "Questa operazione ricalcolerà PARTENZE, COLORI SCHEDE e TEMPI OBIETTIVO per tutti i team. Proseguire?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#00E5FF',
             cancelButtonColor: '#333',
-            confirmButtonText: 'SÌ, RIGENERA',
+            confirmButtonText: 'SÌ, SINCRONIZZA TUTTO',
             cancelButtonText: 'ANNULLA',
             background: '#111',
             color: '#fff'
@@ -58,55 +69,70 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
             if (errRegs) throw errRegs;
 
-            const p = settings.race_params;
+            const p = settings.race_params || {};
+            const interval = p.team_interval_minutes || 1;
             const updates = [];
             const cardColors = ['ROSSA', 'GIALLA', 'VIOLA'];
-            const cardOffsets = {
-                'ROSSA': p?.offset_red || 0,
-                'GIALLA': p?.offset_yellow || 0,
-                'VIOLA': p?.offset_purple || 0
+
+            // Grouping logic
+            const caccia = regs.filter(r => r.formula_partecipazione?.startsWith('Caccia'));
+            const discovery = regs.filter(r => r.formula_partecipazione === 'Discovery');
+            const x4 = regs.filter(r => r.formula_partecipazione === '4x4');
+
+            const photoBaseOffsets = [60, 120, 180, 240];
+
+            let globalIdx = 0;
+
+            const processGroup = (group, startTimeId) => {
+                let currentMinutes = parseTimeToMinutes(p[startTimeId] || '08:00');
+
+                group.sort((a, b) => (parseInt(a.bib_number) || 999) - (parseInt(b.bib_number) || 999));
+
+                group.forEach((team) => {
+                    const color = cardColors[globalIdx % 3];
+                    const prefix = color.toLowerCase();
+                    const depTime = formatTime(currentMinutes);
+
+                    const offsets = [
+                        p?.[`offset_${prefix}_1`] || 0,
+                        p?.[`offset_${prefix}_2`] || 0,
+                        p?.[`offset_${prefix}_3`] || 0,
+                        p?.[`offset_${prefix}_4`] || 0
+                    ];
+
+                    const [h, m] = depTime.split(':').map(Number);
+                    const depDate = new Date();
+                    depDate.setHours(h, m, 0, 0);
+
+                    const targets = {};
+                    photoBaseOffsets.forEach((baseOffset, idx) => {
+                        const multiplier = offsets[idx] || 0;
+                        const targetDate = new Date(depDate.getTime() + (baseOffset + multiplier) * 60000);
+                        const timeStr = targetDate.toLocaleTimeString('it-IT', {
+                            hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+                        });
+                        targets[`photo_${idx + 1}`] = timeStr;
+                    });
+
+                    updates.push({
+                        id: team.id,
+                        departure_time: depTime,
+                        card_color: color,
+                        target_times: targets
+                    });
+
+                    currentMinutes += interval;
+                    globalIdx++;
+                });
             };
 
-            const photoBaseOffsets = [60, 120, 180, 240]; // 4 Checkpoints
-
-            regs.forEach((team, index) => {
-                const color = cardColors[index % 3];
-                const prefix = color.toLowerCase();
-
-                const offsets = [
-                    p?.[`offset_${prefix}_1`] || 0,
-                    p?.[`offset_${prefix}_2`] || 0,
-                    p?.[`offset_${prefix}_3`] || 0,
-                    p?.[`offset_${prefix}_4`] || 0
-                ];
-
-                let baseStart = p?.start_time_caccia || '08:00';
-                if (team.formula_partecipazione === 'Discovery') baseStart = p?.start_time_discovery || '09:00';
-                if (team.formula_partecipazione === '4x4') baseStart = p?.start_time_4x4 || '09:30';
-
-                const [h, m] = (team.departure_time || baseStart).split(':').map(Number);
-                const depDate = new Date();
-                depDate.setHours(h, m, 0, 0);
-
-                const targets = {};
-                photoBaseOffsets.forEach((baseOffset, idx) => {
-                    // 1:1 Mapping: Photo 1 -> Offset 1, Photo 2 -> Offset 2, etc.
-                    const multiplier = offsets[idx] || 0;
-
-                    const targetDate = new Date(depDate.getTime() + (baseOffset + multiplier) * 60000);
-                    const timeStr = targetDate.toLocaleTimeString('it-IT', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    targets[`photo_${idx + 1}`] = timeStr;
-                });
-
-                updates.push({
-                    id: team.id,
-                    card_color: color,
-                    target_times: targets
-                });
-            });
+            processGroup(caccia, 'start_time_caccia');
+            processGroup(discovery, 'start_time_discovery');
+            processGroup(x4, 'start_time_4x4');
 
             for (const upd of updates) {
                 await supabase.from('registrations').update({
+                    departure_time: upd.departure_time,
                     card_color: upd.card_color,
                     target_times: upd.target_times
                 }).eq('id', upd.id);
@@ -114,8 +140,8 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
             if (onRefresh) onRefresh();
             Swal.fire({
-                title: 'SUCCESSO!',
-                text: `GARA v7.9.7: Configurazione completata per ${updates.length} team.`,
+                title: 'GARA SINCRONIZZATA!',
+                text: `Configurazione completata per ${updates.length} team. Partenze, Colori e Checkpoint aggiornati.`,
                 icon: 'success',
                 background: '#111',
                 color: '#fff',
@@ -124,8 +150,8 @@ export function SettingsTab({ isDevMode, onRefresh }) {
         } catch (err) {
             console.error(err);
             Swal.fire({
-                title: 'ERRORE',
-                text: "Errore durante la rigenerazione: " + err.message,
+                title: 'ERRORE SISTEMA',
+                text: "Errore durante la sincronizzazione: " + err.message,
                 icon: 'error',
                 background: '#111',
                 color: '#fff',
