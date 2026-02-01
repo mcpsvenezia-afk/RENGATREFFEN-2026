@@ -15,7 +15,8 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             offset_red: 0,
             offset_yellow: 2,
             offset_purple: 4,
-            penalty_skipped_photo: 1000
+            penalty_skipped_photo: 1000,
+            penalty_separation_per_minute: 60
         }
     });
     const [loading, setLoading] = useState(false);
@@ -357,6 +358,17 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     type="number"
                     value={settings.race_params?.penalty_skipped_photo || 1000}
                     onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, penalty_skipped_photo: parseInt(e.target.value) } })}
+                    style={inputStyle}
+                />
+            </div>
+
+            <div style={itemStyle}>
+                <label style={labelStyle}>Penalità Separazione Team (Secondi per Minuto)</label>
+                <p style={{ fontSize: '0.7rem', color: '#666', marginBottom: '10px' }}>Secondi di penalità aggiunti per ogni minuto che i piloti rimangono separati oltre 200m.</p>
+                <input
+                    type="number"
+                    value={settings.race_params?.penalty_separation_per_minute || 60}
+                    onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, penalty_separation_per_minute: parseInt(e.target.value) } })}
                     style={inputStyle}
                 />
             </div>
