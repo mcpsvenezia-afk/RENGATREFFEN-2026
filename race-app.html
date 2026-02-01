@@ -321,136 +321,145 @@
             </div>
 
             <!-- AUTH HEADER (Titolo Evento) -->
-            <div id="race-title-group">
-                <h1
-                    style="font-size: 0.9rem; color: #FFCC00; letter-spacing: 8px; margin-bottom: 5px; font-weight: 900;">
-                    RENGA TREFFEN 2026</h1>
-                <h1 class="logo"
-                    style="font-size: 3rem; filter: drop-shadow(0 0 20px rgba(255,255,255,0.4)); margin: 10px 0;">
-                    GEOPOINT <span style="color: transparent; -webkit-text-stroke: 1px #fff;">PRO</span></h1>
-                <h1
-                    style="font-size: 0.8rem; color: #fff; letter-spacing: 4px; margin-top: 5px; text-transform: uppercase; font-weight: 400; opacity: 0.8;">
-                    Memorial Antonio Armellin</h1>
+            <div id="race-title-group" style="display: flex; align-items: center; gap: 15px;">
+                <div
+                    style="width: 45px; height: 45px; background: var(--accent-yellow); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);">
+                    RT</div>
+                <div>
+                    <div style="font-size: 0.9rem; font-weight: 900; color: #fff; letter-spacing: 1px;">RENGA
+                        TREFFEN 2026
+                    </div>
+                    <div id="wake-status"
+                        style="font-size: 0.6rem; color: #4CAF50; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px; margin-top: 3px;">
+                        <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+                        </svg> GPS PRONTO
+                    </div>
+                </div>
             </div>
 
-            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-            <line x1="12" y1="2" x2="12" y2="12"></line>
-            </svg>
-    </div>
-    </div>
-    </div>
-    <!-- Status Row in Header -->
-    <div
-        style="display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;">
-        <div class="status-pill" data-dna="SYSTEM-STATUS"
-            style="font-size: 0.6rem; background: transparent; padding: 0;">
-            <div class="dot"></div> PRONTO
-        </div>
-        <div id="wake-status"
-            style="font-size: 0.6rem; color: #4CAF50; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px;">
-            <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
-                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-            </svg> GPS LIVE
-        </div>
-        <div id="penalty-status"
-            style="font-size: 0.6rem; color: #ffbc00; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px;">
-            ⚠️ SEPARATI: <span id="penalty-timer">00:00</span>
-        </div>
-    </div>
-    </div>
-    </header>
+            <!-- INFO GARA ATTIVA (Visualizzate dopo Login) -->
+            <div id="race-header-info"
+                style="display:none; flex: 1; align-items:center; justify-content: space-between; margin-left: 20px;">
+                <div style="flex:1;">
+                    <div id="header-team-name"
+                        style="font-size: 1rem; font-weight: 900; color: var(--accent-yellow); text-transform: uppercase;">
+                        TEAM</div>
+                    <div id="header-pilot-name" style="font-size: 0.75rem; color: #888; margin-top: 2px;">Pilota</div>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
+                        <div class="status-pill" data-dna="SYSTEM-STATUS"
+                            style="font-size: 0.6rem; background: transparent; padding: 0; color: #4CAF50; display: flex; align-items: center; gap: 5px;">
+                            <div class="dot" style="width: 6px; height: 6px; background: #4CAF50; border-radius: 50%;">
+                            </div> PRONTO
+                        </div>
+                        <div id="penalty-status"
+                            style="font-size: 0.6rem; color: #ffbc00; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px;">
+                            ⚠️ SEPARATI: <span id="penalty-timer">00:00</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="mute-btn" onclick="toggleMute()" title="Silenzia Allarme"
+                        style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #FFCC00; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">
+                        <span id="mute-icon">🔊</span>
+                    </button>
+                    <button onclick="confirmLogout()" title="Esci e Spegni GPS"
+                        style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(230,0,126,0.3); background: rgba(230,0,126,0.1); color: #E6007E; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; outline: none;">
+                        🚪
+                    </button>
+                </div>
+            </div>
+        </header>
 
-    <!-- PWA INSTALL BANNER (Solo se supportato) -->
-    <div id="install-banner"
-        style="display:none; background: #FFCC00; color:#000; padding:15px; border-radius:15px; margin-bottom:20px; font-weight:900; cursor:pointer; text-transform:uppercase; font-size:0.8rem; text-align:center;">
-        📲 AGGIUNGI ALLA HOME PER MASSIMA STABILITÀ
-    </div>
+        <!-- PWA INSTALL BANNER -->
+        <div id="install-banner"
+            style="display:none; background: #FFCC00; color:#000; padding:15px; border-radius:15px; margin: 10px 20px; font-weight:900; cursor:pointer; text-transform:uppercase; font-size:0.8rem; text-align:center;">
+            📲 AGGIUNGI ALLA HOME PER MASSIMA STABILITÀ
+        </div>
 
-    <div style="flex: 1"></div>
+        <!-- AUTH SCREEN -->
+        <div id="auth-ui" class="auth-card" data-dna="4000-AUTH" data-component="LOGIN">
+            <!-- SCHERMATA INIZIALE -->
+            <div id="login-step-1">
+                <button onclick="toggleLogin(true)" class="btn-main btn-yellow"
+                    style="font-size: 1rem; letter-spacing: 1px;">
+                    ACCEDI ALLA CACCIA AL TESORO
+                </button>
+            </div>
 
-    <!-- AUTH SCREEN -->
-    <div id="auth-ui" class="auth-card" data-dna="4000-AUTH" data-component="LOGIN">
-        <!-- SCHERMATA INIZIALE -->
-        <div id="login-step-1">
-            <button onclick="toggleLogin(true)" class="btn-main btn-yellow"
-                style="font-size: 1rem; letter-spacing: 1px;">
-                ACCEDI ALLA CACCIA AL TESORO
+            <!-- SCHERMATA INPUT -->
+            <div id="login-step-2" style="display:none">
+                <div class="input-group">
+                    <label>Inserisci Numero Gara + Pilota</label>
+                    <input type="text" id="bib-number" class="bib-input" placeholder="es: 1A o 2B"
+                        data-dna="4001-BIB-INPUT" autocomplete="off">
+                </div>
+                <button onclick="handleLogin()" class="btn-main btn-yellow" style="padding: 15px; font-size: 1rem;"
+                    data-dna="4002-LOGIN-BTN">
+                    ENTRA ORA
+                </button>
+                <div onclick="toggleLogin(false)"
+                    style="text-align:center; margin-top: 20px; color:rgba(255,255,255,0.4); font-size:0.7rem; cursor:pointer; text-transform:uppercase; font-weight:900;">
+                    Indietro
+                </div>
+            </div>
+        </div>
+
+        <!-- RACE SCREEN -->
+        <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
+        <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE">
+            <div class="team-info">
+                <!-- Badge Colorato -->
+                <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA DI CACCIA ...</div>
+
+                <div id="photo-display-label"
+                    style="font-size: 0.8rem; color: #666; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
+                    Foto da scattare</div>
+                <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">1</div>
+
+                <div id="pilot-badge"
+                    style="font-size: 0.75rem; font-weight: 900; color: #888; margin: 10px 0; letter-spacing: 1px; text-transform: uppercase;">
+                    PILOTA: ...</div>
+            </div>
+
+            <!-- CAMERA INPUT NASCOSTO -->
+            <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
+                onchange="processCameraSelection(event)">
+
+            <!-- Pulsante Scatta Circolare -->
+            <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot" data-dna="5003-SHOOT">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                    <path fill-rule="evenodd"
+                        d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+
+            <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: center;">
+                <button onclick="syncOfflineData()" class="btn-main btn-yellow"
+                    style="font-size: 0.65rem; padding: 12px 25px; width: auto;" data-dna="5004-SYNC">🔄 SINCRONIZZA
+                    DATI</button>
+            </div>
+
+            <div
+                style="text-align: center; color: #444; font-size: 0.6rem; margin-top: 20px; font-weight: 800; text-transform: uppercase;">
+                L'invio delle foto è automatico e invisibile.
+            </div>
+
+            <p style="text-align: center; font-size: 0.7rem; color: #555; margin-top: 20px;">
+                Il ricalcolo orario è automatico e invisibile.<br>Calcola i tuoi tempi con cura.
+            </p>
+
+            <button id="reset-btn" onclick="resetTestMode()"
+                style="display:none; background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:40px; cursor:pointer; font-size:0.7rem; font-weight:900;">
+                🧹 RESET GARA (SOLO TEST)
             </button>
         </div>
 
-        <!-- SCHERMATA INPUT -->
-        <div id="login-step-2" style="display:none">
-            <div class="input-group">
-                <label>Inserisci Numero Gara + Pilota</label>
-                <input type="text" id="bib-number" class="bib-input" placeholder="es: 1A o 2B" data-dna="4001-BIB-INPUT"
-                    autocomplete="off">
-            </div>
-            <button onclick="handleLogin()" class="btn-main btn-yellow" style="padding: 15px; font-size: 1rem;"
-                data-dna="4002-LOGIN-BTN">
-                ENTRA ORA
-            </button>
-            <div onclick="toggleLogin(false)"
-                style="text-align:center; margin-top: 20px; color:rgba(255,255,255,0.4); font-size:0.7rem; cursor:pointer; text-transform:uppercase; font-weight:900;">
-                Indietro
-            </div>
-        </div>
-    </div>
-
-    <!-- RACE SCREEN -->
-    <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
-    <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE">
-        <div class="team-info">
-            <!-- Badge Colorato -->
-            <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA DI CACCIA ...</div>
-
-            <div id="photo-display-label"
-                style="font-size: 0.8rem; color: #666; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
-                Foto da scattare</div>
-            <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">1</div>
-
-            <div id="pilot-badge"
-                style="font-size: 0.75rem; font-weight: 900; color: #888; margin: 10px 0; letter-spacing: 1px; text-transform: uppercase;">
-                PILOTA: ...</div>
-        </div>
-
-        <!-- CAMERA INPUT NASCOSTO -->
-        <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
-            onchange="processCameraSelection(event)">
-
-        <!-- Pulsante Scatta Circolare -->
-        <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot" data-dna="5003-SHOOT">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
-                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                <path fill-rule="evenodd"
-                    d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
-                    clip-rule="evenodd" />
-            </svg>
-        </button>
-
-        <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: center;">
-            <button onclick="syncOfflineData()" class="btn-main btn-yellow"
-                style="font-size: 0.65rem; padding: 12px 25px; width: auto;" data-dna="5004-SYNC">🔄 SINCRONIZZA
-                DATI</button>
-        </div>
-
-        <div
-            style="text-align: center; color: #444; font-size: 0.6rem; margin-top: 20px; font-weight: 800; text-transform: uppercase;">
-            L'invio delle foto è automatico e invisibile.
-        </div>
-
-        <p style="text-align: center; font-size: 0.7rem; color: #555; margin-top: 20px;">
-            Il ricalcolo orario è automatico e invisibile.<br>Calcola i tuoi tempi con cura.
-        </p>
-
-        <button id="reset-btn" onclick="resetTestMode()"
-            style="display:none; background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:40px; cursor:pointer; font-size:0.7rem; font-weight:900;">
-            🧹 RESET GARA (SOLO TEST)
-        </button>
-    </div>
-
-    <footer class="footer">
-        v7.9.1 DEV-GUARD | powered by MotoReporter
-    </footer>
+        <footer class="footer">
+            v7.9.1 DEV-GUARD | powered by MotoReporter
+        </footer>
     </div>
 
     <script type="module">
