@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { generateLiberatoriaHTML } from './templates/liberatoria-template.js';
 
 /**
  * 🧬 API Function: Notifica Staff di Nuova Iscrizione
@@ -78,6 +79,22 @@ export default async function handler(req, res) {
                             ${allFieldsHTML}
                         </tbody>
                     </table>
+
+                    <h3 style="margin-top: 40px; font-size: 18px; color: #333; border-bottom: 2px solid #FFCC00; padding-bottom: 10px;">📄 LIBERATORIA COMPILATA</h3>
+                    <div style="background: #fff9e6; border: 2px solid #FFCC00; padding: 20px; margin-top: 20px; border-radius: 15px;">
+                        <p style="margin: 0 0 15px 0; font-size: 14px; color: #666;">
+                            Il documento di liberatoria è stato auto-compilato con i dati forniti dall'iscritto. 
+                            <strong style="color: #E6007E;">Aprilo, controllalo, stampalo e fallo firmare al pilota.</strong>
+                        </p>
+                        <a href="data:text/html;charset=utf-8,${encodeURIComponent(generateLiberatoriaHTML(userData))}" 
+                           download="LIBERATORIA_${userData.cognome}_${userData.nome}.html"
+                           style="display: inline-block; padding: 12px 25px; background: #FFCC00; color: #000; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 14px; margin-right: 10px;">
+                            📥 SCARICA LIBERATORIA HTML
+                        </a>
+                        <p style="margin: 15px 0 0 0; font-size: 12px; color: #999;">
+                            Suggerimento: Una volta aperto il file, usa "Stampa" (Ctrl+P) o "Salva come PDF" dal browser.
+                        </p>
+                    </div>
 
                     <div style="margin-top: 40px; padding: 20px; background: #f8f8f8; border-radius: 15px; text-align: center;">
                         <p style="margin: 0; font-size: 14px; color: #666;">
