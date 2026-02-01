@@ -142,16 +142,11 @@ function App() {
 
             // Assign Loop
             let currentBib = 1;
-            let startTime = new Date();
-            startTime.setHours(9, 0, 0, 0); // START TIME 09:00
 
             const updates = [];
             const groups = Object.values(teamGroups);
 
             for (const group of groups) {
-                const hours = startTime.getHours().toString().padStart(2, '0');
-                const minutes = startTime.getMinutes().toString().padStart(2, '0');
-                const timeString = `${hours}:${minutes}`;
 
                 group.forEach((member, index) => {
                     const suffix = group.length > 1 ? String.fromCharCode(65 + index) : ''; // A, B, C...
@@ -159,20 +154,17 @@ function App() {
 
                     updates.push({
                         id: member.id,
-                        bib_number: bibNumber,
-                        departure_time: timeString
+                        bib_number: bibNumber
                     });
                 });
 
                 currentBib++;
-                startTime.setMinutes(startTime.getMinutes() + 1); // +1 Minute per TEAM (not per person)
             }
 
             // Execute Updates
             for (const update of updates) {
                 await supabase.from('registrations').update({
-                    bib_number: update.bib_number,
-                    departure_time: update.departure_time
+                    bib_number: update.bib_number
                 }).eq('id', update.id);
             }
 
