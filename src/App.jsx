@@ -104,7 +104,100 @@ function App() {
     };
 
     const handleAutoAssign = async () => {
-        // ... (unchanged)
+        const result = await Swal.fire({
+            title: 'ASSEGNAZIONE AUTOMATICA',
+            text: 'Questo assegnerà pettorali e orari a TUTTI gli iscritti PAGATI (o status VERIFICA), sovrascrivendo i dati esistenti. Continuare?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#E6007E',
+            cancelButtonColor: '#333',
+            confirmButtonText: 'SÌ, PROCEDI',
+            background: '#111',
+            color: '#fff'
+        });
+
+        if (!result.isConfirmed) return;
+
+        setLoading(true);
+        try {
+            // Fetch relevant registrations
+            const { data: validRegs, error } = await supabase
+                .from('registrations')
+                .select('*')
+                .or('is_paid.eq.SI,stato_iscrizione.eq.Verifica_In_Corso')
+                .order('created_at', { ascending: true }); // First come, first served
+
+            if (error) throw error;
+            if (!validRegs || validRegs.length === 0) {
+                throw new Error("Nessuna iscrizione valida trovata.");
+            }
+
+            // Group by Team Name
+            const teamGroups = {};
+            validRegs.forEach(r => {
+                const teamKey = r.team_name ? r.team_name.trim().toUpperCase() : `SINGLE_${r.id}`;
+                if (!teamGroups[teamKey]) teamGroups[teamKey] = [];
+                teamGroups[teamKey].push(r);
+            });
+
+            // Assign Loop
+            let currentBib = 1;
+            let startTime = new Date();
+            startTime.setHours(9, 0, 0, 0); // START TIME 09:00
+
+            const updates = [];
+            const groups = Object.values(teamGroups);
+
+            for (const group of groups) {
+                const hours = startTime.getHours().toString().padStart(2, '0');
+                const minutes = startTime.getMinutes().toString().padStart(2, '0');
+                const timeString = `${hours}:${minutes}`;
+
+                group.forEach((member, index) => {
+                    const suffix = group.length > 1 ? String.fromCharCode(65 + index) : ''; // A, B, C...
+                    const bibNumber = `${currentBib}${suffix}`;
+
+                    updates.push({
+                        id: member.id,
+                        bib_number: bibNumber,
+                        departure_time: timeString
+                    });
+                });
+
+                currentBib++;
+                startTime.setMinutes(startTime.getMinutes() + 1); // +1 Minute per TEAM (not per person)
+            }
+
+            // Execute Updates
+            for (const update of updates) {
+                await supabase.from('registrations').update({
+                    bib_number: update.bib_number,
+                    departure_time: update.departure_time
+                }).eq('id', update.id);
+            }
+
+            await Swal.fire({
+                title: 'SUCCESSO',
+                text: `Assegnati ${updates.length} pettorali.`,
+                icon: 'success',
+                background: '#111',
+                color: '#fff',
+                confirmButtonColor: '#E6007E'
+            });
+            fetchAllData();
+
+        } catch (err) {
+            console.error(err);
+            await Swal.fire({
+                title: 'ERRORE',
+                text: err.message,
+                icon: 'error',
+                background: '#111',
+                color: '#fff'
+            });
+        } finally {
+            setLoading(false);
+        }
     };
 
     const getPreviewData = () => {
@@ -330,6 +423,13 @@ function App() {
                                         </select>
                                     </div>
                                     <div style={{ flex: 1 }}></div>
+                                    <button
+                                        onClick={handleAutoAssign}
+                                        style={{ ...filterBtnStyle, backgroundColor: '#E6007E', border: 'none', color: '#fff' }}
+                                    >
+                                        🚀 ASSEGNA PETTORALI
+                                    </button>
+                                    <div style={{ width: '20px' }}></div>
                                     <button
                                         onClick={() => setShowPDFPreview(true)}
                                         style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', border: 'none', color: '#000' }}
