@@ -214,9 +214,10 @@ export function RadarTab() {
         tracking.forEach(item => {
             const team = item.registrations;
             const color = team.card_color === 'ROSSA' ? '#ff4444' : (team.card_color === 'GIALLA' ? '#FFCC00' : '#E6007E');
+            const markerKey = `${item.registration_id}_${item.pilot_code || 'X'}`;
 
-            if (markers.current[item.registration_id]) {
-                markers.current[item.registration_id].setLatLng([item.gps_lat, item.gps_lng]);
+            if (markers.current[markerKey]) {
+                markers.current[markerKey].setLatLng([item.gps_lat, item.gps_lng]);
             } else {
                 const marker = window.L.circleMarker([item.gps_lat, item.gps_lng], {
                     radius: 8,
@@ -227,8 +228,8 @@ export function RadarTab() {
                     fillOpacity: 0.8
                 }).addTo(leafletMap.current);
 
-                marker.bindPopup(`<b>${team.bib_number} - ${team.team_name}</b><br>Ultimo segnale: ${new Date(item.last_seen).toLocaleTimeString()}`);
-                markers.current[item.registration_id] = marker;
+                marker.bindPopup(`<b>${team.bib_number}${item.pilot_code || ''} - ${team.team_name}</b><br>Ultimo segnale: ${new Date(item.last_seen).toLocaleTimeString()}`);
+                markers.current[markerKey] = marker;
             }
         });
     }, [tracking]);
@@ -331,7 +332,7 @@ export function RadarTab() {
                                     border: `2px solid ${badgeColor}`
                                 }}></div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: 900 }}>Team {team.bib_number}</div>
+                                    <div style={{ fontWeight: 900 }}>Team {team.bib_number}{log.pilot_code}</div>
                                     <div style={{ fontSize: '0.7rem', color: '#888' }}>{team.team_name}</div>
                                     <div style={{ fontSize: '0.8rem', color: '#FFCC00', marginTop: '4px' }}>FOTO {log.photo_number}</div>
                                 </div>
@@ -359,7 +360,7 @@ export function RadarTab() {
                     }} onClick={e => e.stopPropagation()}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
                             <div>
-                                <h3 style={{ margin: 0 }}>Team {selectedPhoto.registrations.bib_number} - {selectedPhoto.registrations.team_name}</h3>
+                                <h3 style={{ margin: 0 }}>Team {selectedPhoto.registrations.bib_number}{selectedPhoto.pilot_code} - {selectedPhoto.registrations.team_name}</h3>
                                 <p style={{ color: '#FFCC00', margin: 0 }}>Validazione Foto #{selectedPhoto.photo_number}</p>
                             </div>
                             <button onClick={() => setSelectedPhoto(null)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }}>×</button>

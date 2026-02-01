@@ -238,7 +238,8 @@
             <div class="input-group">
                 <label>Inserisci Numero Gara</label>
                 <!-- DNA: [ID:4001-BIB-INPUT] -->
-                <input type="number" id="bib-number" class="bib-input" placeholder="000" data-dna="4001-BIB-INPUT">
+                <input type="text" id="bib-number" class="bib-input" placeholder="es: 1A o 1B"
+                    data-dna="4001-BIB-INPUT">
             </div>
             <!-- DNA: [ID:4002-LOGIN-BTN] -->
             <button onclick="handleLogin()" class="btn-main btn-yellow" data-dna="4002-LOGIN-BTN">ACCEDI ALLA
@@ -253,6 +254,8 @@
                 <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA ...</div>
                 <!-- DNA: [ID:5002-PHOTO-NUM] -->
                 <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">FOTO 1</div>
+                <div id="pilot-badge" style="font-size: 0.8rem; font-weight: 900; color: #888; margin-bottom: 10px;">
+                    PILOTA ...</div>
                 <div class="status-pill" data-dna="SYSTEM-STATUS">
                     <div class="dot"></div> SISTEMA PRONTO
                 </div>
@@ -295,6 +298,7 @@
         import { supabase } from '/src/lib/supabaseClient.js';
 
         let currentTeam = null;
+        let currentPilot = null; // 'A' o 'B'
         let photoNumber = 1;
         let pendingLogs = JSON.parse(localStorage.getItem('RENGATREFFEN_PENDING_LOGS') || '[]');
         let deferredPrompt;
@@ -361,10 +365,11 @@
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 await supabase.from('live_tracking').upsert({
                     registration_id: currentTeam.id,
+                    pilot_code: currentPilot,
                     gps_lat: pos.coords.latitude,
                     gps_lng: pos.coords.longitude,
                     last_seen: new Date().toISOString()
-                }, { onConflict: 'registration_id' });
+                }, { onConflict: 'registration_id' }); // Overwrites based on team ID for now
                 console.log("[LIVE] Posizione aggiornata per Ambrogio Eye.");
             }, null, { enableHighAccuracy: true });
         }
@@ -388,8 +393,24 @@
         }
 
         window.handleLogin = async function () {
-            const bib = document.getElementById('bib-number').value;
-            if (!bib) return;
+            const rawBib = document.getElementById('bib-number').value.trim().toUpperCase();
+            if (!rawBib) return;
+
+            // Parsing: 1A -> bib=1, pilot=A
+            const match = rawBib.match(/^(\d+)([AB])$/);
+            if (!match) {
+                Swal.fire({
+                    title: 'CODICE ERRATO',
+                    text: 'Inserisci il numero seguito dalla lettera (es: 22A o 22B)',
+                    icon: 'warning',
+                    background: '#111',
+                    color: '#fff'
+                });
+                return;
+            }
+
+            const bib = match[1];
+            currentPilot = match[2];
 
             const { data, error } = await supabase
                 .from('registrations')
@@ -398,7 +419,7 @@
                 .single();
 
             if (error || !data) {
-                Swal.fire('Errore', 'Numero gara non trovato.', 'error');
+                Swal.fire('Errore', 'Team non trovato con numero ' + bib, 'error');
                 return;
             }
 
@@ -420,8 +441,11 @@
         function updateUI() {
             const color = currentTeam.card_color || 'ROSSA';
             const badge = document.getElementById('team-badge');
-            badge.innerText = `SCHEDA ${color}`;
+            badge.innerText = `TEAM ${currentTeam.bib_number} - ${color}`;
             badge.style.color = color === 'ROSSA' ? '#ff4444' : (color === 'GIALLA' ? '#FFCC00' : '#E6007E');
+
+            document.getElementById('pilot-badge').innerText = `PILOTA: ${currentPilot === 'A' ? 'CAPITANO (A)' : 'PARTNER (B)'}`;
+            document.getElementById('pilot-badge').style.color = '#FFCC00';
 
             document.getElementById('photo-display').innerText = `FOTO ${photoNumber}`;
             document.getElementById('auth-ui').style.display = 'none';
@@ -458,6 +482,7 @@
                 const newLog = {
                     registration_id: currentTeam.id,
                     photo_number: photoNumber,
+                    pilot_code: currentPilot,
                     gps_lat: pos ? pos.coords.latitude : null,
                     gps_lng: pos ? pos.coords.longitude : null,
                     gps_alt: pos ? pos.coords.altitude : null,
@@ -496,7 +521,7 @@
             if (navigator.onLine) {
                 try {
                     const fileExt = file.name.split('.').pop() || 'jpg';
-                    const fileName = `${currentTeam.bib_number}_P${photoNumber}_${Date.now()}.${fileExt}`;
+                    const fileName = `${currentTeam.bib_number}${currentPilot}_P${photoNumber}_${Date.now()}.${fileExt}`;
 
                     const { data, error } = await supabase.storage
                         .from('race_photos')
