@@ -224,6 +224,12 @@
                 <div class="dev-dot"></div> MODO DEV ATTIVO
             </div>
             <h1 class="logo">RENGATREFFEN <span style="color: #FFCC00">RACE</span></h1>
+            <div id="header-team"
+                style="display:none; font-size: 1.8rem; font-weight: 900; color: #FFCC00; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px;">
+                [NOME TEAM]</div>
+            <div id="pilot-greeting"
+                style="display:none; font-size: 1.1rem; font-weight: 400; color: #aaa; margin-top: 5px;">
+                Ciao [Nome Pilota]</div>
         </header>
 
         <!-- PWA INSTALL BANNER (Solo se supportato) -->
@@ -416,14 +422,21 @@
                 .from('registrations')
                 .select('*')
                 .eq('bib_number', bib)
-                .single();
+                .limit(1);
 
-            if (error || !data) {
-                Swal.fire('Errore', 'Team non trovato con numero ' + bib, 'error');
+            if (error || !data || data.length === 0) {
+                console.error("Login Error:", error);
+                Swal.fire({
+                    title: 'ERRORE',
+                    text: 'Team non trovato con numero ' + bib + (error ? ' (' + error.hint + ')' : ''),
+                    icon: 'error',
+                    background: '#111',
+                    color: '#fff'
+                });
                 return;
             }
 
-            currentTeam = data;
+            currentTeam = data[0];
 
             const { count } = await supabase
                 .from('race_logs')
@@ -443,6 +456,17 @@
             const badge = document.getElementById('team-badge');
             badge.innerText = `TEAM ${currentTeam.bib_number} - ${color}`;
             badge.style.color = color === 'ROSSA' ? '#ff4444' : (color === 'GIALLA' ? '#FFCC00' : '#E6007E');
+
+            // Header Updates
+            const pilotName = currentPilot === 'A'
+                ? `${currentTeam.nome || ''} ${currentTeam.cognome || ''}`.trim()
+                : `${currentTeam.secondo_nome || ''} ${currentTeam.secondo_cognome || ''}`.trim();
+
+            document.getElementById('header-team').innerText = (currentTeam.team_name || 'SENZA NOME').toUpperCase();
+            document.getElementById('pilot-greeting').innerText = `Ciao ${pilotName || 'Pilota'}`;
+
+            document.getElementById('header-team').style.display = 'block';
+            document.getElementById('pilot-greeting').style.display = 'block';
 
             document.getElementById('pilot-badge').innerText = `PILOTA: ${currentPilot === 'A' ? 'CAPITANO (A)' : 'PARTNER (B)'}`;
             document.getElementById('pilot-badge').style.color = '#FFCC00';
@@ -548,6 +572,14 @@
                 },
                 { enableHighAccuracy: true, timeout: 7000 }
             );
+        }
+
+        window.logout = function () {
+            currentTeam = null;
+            document.getElementById('header-team').style.display = 'none';
+            document.getElementById('pilot-greeting').style.display = 'none';
+            document.getElementById('auth-ui').style.display = 'block';
+            document.getElementById('race-ui').style.display = 'none';
         }
 
         window.resetTestMode = function () {
