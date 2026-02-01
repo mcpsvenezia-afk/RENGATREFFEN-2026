@@ -571,10 +571,9 @@
             localStorage.setItem('RENGATREFFEN_PENDING_LOGS', JSON.stringify(pendingLogs));
             updateSyncStatus();
 
-            if (pendingLogs.length > 0) {
-                document.getElementById('sync-alert')?.style.display = 'block';
-            } else {
-                document.getElementById('sync-alert')?.style.display = 'none';
+            const syncAlert = document.getElementById('sync-alert');
+            if (syncAlert) {
+                syncAlert.style.display = pendingLogs.length > 0 ? 'block' : 'none';
             }
         }
 
