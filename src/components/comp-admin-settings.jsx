@@ -75,26 +75,43 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             const updates = [];
             const cardColors = ['ROSSA', 'GIALLA', 'VIOLA'];
 
-            // First pass: Assign BIB numbers sequentially to all confirmed teams if not set or always for sync
-            const allSorted = [...regs].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-            allSorted.forEach((r, idx) => {
-                r.bib_number = (idx + 1).toString();
-            });
+            // 1. Filter teams that have a BIB NUMBER assigned manually
+            const validRegs = regs.filter(r => r.bib_number && r.bib_number.trim() !== '');
 
-            // Re-group with assigned bibs
-            const caccia = allSorted.filter(r => r.formula_partecipazione?.startsWith('Caccia'));
-            const discovery = allSorted.filter(r => r.formula_partecipazione === 'Discovery');
-            const x4 = allSorted.filter(r => r.formula_partecipazione === '4x4');
+            if (validRegs.length < regs.length) {
+                Swal.fire({
+                    title: 'ATTENZIONE',
+                    text: `${regs.length - validRegs.length} team confermati non hanno ancora un NUMERO GARA e sono stati ignorati. Assegnali prima di rigenerare.`,
+                    icon: 'warning',
+                    background: '#111',
+                    color: '#fff'
+                });
+            }
+
+            // 2. Helper to split and sort
+            const getSortedGroup = (filterFn) => {
+                return validRegs
+                    .filter(filterFn)
+                    .sort((a, b) => {
+                        // Numeric sort for bibs like "1", "2", "10"
+                        const numA = parseInt(a.bib_number.replace(/\D/g, '')) || 9999;
+                        const numB = parseInt(b.bib_number.replace(/\D/g, '')) || 9999;
+                        return numA - numB;
+                    });
+            };
+
+            const caccia = getSortedGroup(r => r.formula_partecipazione?.startsWith('Caccia'));
+            const discovery = getSortedGroup(r => r.formula_partecipazione === 'Discovery');
+            const x4 = getSortedGroup(r => r.formula_partecipazione === '4x4');
 
             const photoBaseOffsets = [60, 120, 180, 240];
             let globalIdx = 0;
 
             const processGroup = (group, startTimeId) => {
                 let currentMinutes = parseTimeToMinutes(p[startTimeId] || '08:00');
-                group.sort((a, b) => parseInt(a.bib_number) - parseInt(b.bib_number));
 
                 group.forEach((team) => {
-                    const color = cardColors[globalIdx % 3];
+                    const color = cardColors[globalIdx % 3]; // Rotation based on start order
                     const prefix = color.toLowerCase();
                     const depTime = formatTime(currentMinutes);
 
@@ -121,7 +138,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
                     updates.push({
                         id: team.id,
-                        bib_number: team.bib_number,
+                        // bib_number: team.bib_number, // DO NOT TOUCH BIB
                         departure_time: depTime,
                         card_color: color,
                         target_times: targets
@@ -133,12 +150,11 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             };
 
             processGroup(caccia, 'start_time_caccia');
-            processGroup(discovery, 'start_time_discovery');
+            processGroup(discovery, 'start_time_discovery'); // Continue globalIdx rotation? Yes, usually logic is continuous
             processGroup(x4, 'start_time_4x4');
 
             for (const upd of updates) {
                 await supabase.from('registrations').update({
-                    bib_number: upd.bib_number,
                     departure_time: upd.departure_time,
                     card_color: upd.card_color,
                     target_times: upd.target_times

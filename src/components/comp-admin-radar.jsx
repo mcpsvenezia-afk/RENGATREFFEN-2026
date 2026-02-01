@@ -140,7 +140,7 @@ export function RadarTab() {
             })
             .subscribe();
 
-        const interval = setInterval(fetchInitialData, 30000); // Polling di sicurezza
+        const interval = setInterval(fetchInitialData, 10000); // Polling più frequente (10s)
 
         return () => {
             supabase.removeChannel(logsSub);
@@ -278,6 +278,12 @@ export function RadarTab() {
                     <h2 style={{ margin: 0, fontWeight: 900, fontSize: '1.2rem' }}>🛰️ GEOPOINT <span style={{ color: '#FFCC00' }}>PRO RADAR</span></h2>
 
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <button onClick={fetchInitialData} style={{
+                            background: 'rgba(255,255,255,0.1)', border: '1px solid #444', padding: '6px 15px',
+                            borderRadius: '10px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900, color: '#fff'
+                        }}>
+                            🔄 REFRESH
+                        </button>
                         <button onClick={handleManualSave} style={{
                             background: '#00E5FF', border: 'none', padding: '6px 15px',
                             borderRadius: '10px', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 900, color: '#000'

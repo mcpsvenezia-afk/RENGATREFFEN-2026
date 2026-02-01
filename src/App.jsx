@@ -37,6 +37,13 @@ function App() {
         const dnaStored = localStorage.getItem('RENGATREFFEN_SHOW_DNA') !== 'false';
         setIsDevMode(isStored);
         setShowDna(dnaStored);
+
+        // Check URL for view mode
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('view') === 'radar') {
+            setActiveTab('radar');
+        }
+
         fetchAllData();
     }, []);
 
@@ -365,8 +372,16 @@ function App() {
                                 <button data-dna="1103-TAB-RANKINGS" onClick={() => setActiveTab('rankings')} style={{ ...mainTabStyle(activeTab === 'rankings', 'rankings'), flex: 1, minWidth: '120px' }}>
                                     CLASSIFICHE 🏆
                                 </button>
-                                <button data-dna="1105-TAB-RADAR" onClick={() => setActiveTab('radar')} style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff', flex: 1, minWidth: '120px' }}>
-                                    RADAR 🛰️
+                                <button
+                                    data-dna="1105-TAB-RADAR"
+                                    onClick={() => {
+                                        // Open in new tab if we are not already in radar view
+                                        if (activeTab === 'radar') return;
+                                        window.open(window.location.pathname + '?view=radar', '_blank');
+                                    }}
+                                    style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff', flex: 1, minWidth: '120px' }}
+                                >
+                                    RADAR 🛰️ {activeTab !== 'radar' && '↗'}
                                 </button>
                                 <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={{ ...mainTabStyle(activeTab === 'settings', 'settings'), flex: 1, minWidth: '120px' }}>
                                     IMPOSTAZIONI ⚙️
