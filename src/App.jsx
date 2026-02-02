@@ -265,11 +265,41 @@ function App() {
     }
 
     async function handleDeleteRegistration(id) {
+        const result = await Swal.fire({
+            title: 'SEI SICURO?',
+            text: "Questa azione eliminerà definitivamente il partecipante, tutte le sue foto e i dati di tracking!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#E6007E',
+            cancelButtonColor: '#333',
+            confirmButtonText: 'SÌ, ELIMINA',
+            cancelButtonText: 'ANNULLA',
+            background: '#111',
+            color: '#fff'
+        });
+
+        if (!result.isConfirmed) return;
+
         setLoading(true);
         try {
+            // 1. Pulizia dei log di debug che non hanno il cascade (FIX temporaneo lato client)
+            await supabase.from('tracking_debug_logs').delete().eq('registration_id', id);
+
+            // 2. Eliminazione della registrazione (Gli altri hanno cascade)
             const { error } = await supabase.from('registrations').delete().eq('id', id);
             if (error) throw error;
+
             setRegistrations(prev => prev.filter(r => r.id !== id));
+
+            Swal.fire({
+                title: 'ELIMINATO',
+                text: 'Partecipante rimosso con successo.',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#111',
+                color: '#fff'
+            });
         } catch (err) {
             console.error(err);
             Swal.fire({
