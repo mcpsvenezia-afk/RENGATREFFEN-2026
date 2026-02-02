@@ -25,18 +25,64 @@ export default async function handler(req, res) {
 
     const resend = new Resend(apiKey);
 
+    const LABEL_MAPPING = {
+        nome: 'Nome',
+        cognome: 'Cognome',
+        email: 'Email',
+        telefono: 'Telefono Cellulare',
+        codice_fiscale: 'Codice Fiscale',
+        citta_nascita: 'Città di Nascita',
+        via_residenza: 'Via di residenza',
+        civico_residenza: 'Civico',
+        cap_residenza: 'CAP',
+        citta_residenza: 'Città di Residenza',
+        is_mcps_member: 'Socio MCPS?',
+        mcps_delegation: 'Delegazione MCPS',
+        team_name: 'Nome del Team',
+        moto_details: 'Dettagli Moto',
+        team_role: 'Ruolo nel Team',
+        formula_partecipazione: 'Formula di Partecipazione',
+        secondo_nome: 'Nome Partner',
+        secondo_cognome: 'Cognome Partner',
+        secondo_cellulare: 'Cellulare Partner',
+        has_roadbook_skill: 'Uso Roadbook Digitale?',
+        understand_treasure_hunt: 'Capito Caccia al Tesoro?',
+        understand_knobby_tires: 'Capito Ruote Tassellate?',
+        understand_team_of_2: 'Capito Team di 2?',
+        understand_donation_no_refund: 'Capito No Rimborso?',
+        understand_rain_or_shine: 'Capito Anche con Pioggia?',
+        authorize_media: 'Autorizza Foto/Video?',
+        authorize_pilot_profile: 'Autorizza Profilo Pilota?',
+        pilot_bio: 'Bio Pilota',
+        is_fango_tours_member: 'Socio Fango Tours?',
+        request_fango_tours_membership: 'Richiesta Tessera Fango?',
+        accept_fango_insurance: 'Accetta Assicurazione Fango?',
+        food_preferences: 'Preferenze Alimentari',
+        emergency_contact_phone: 'Telefono Emergenza',
+        emergency_contact_info: 'Info Contatto Emergenza',
+        accept_regulation: 'Accetta Regolamento?',
+        importo_dovuto: 'Totale da Versare (€)',
+        stato_iscrizione: 'Stato Iscrizione',
+        passeggeri_4x4: 'Numero Passeggeri 4x4',
+        nomi_passeggeri_4x4: 'Nomi Passeggeri 4x4',
+        pranzo_accompagnatori: 'Numero Ospiti Pranzo',
+        nomi_ospiti_pranzo: 'Nomi Ospiti Pranzo'
+    };
+
     try {
         // Genera HTML ben formattato con TUTTI i dati
         const allFieldsHTML = Object.keys(userData)
-            .filter(key => !['id', 'created_at'].includes(key))
+            .filter(key => !['id', 'created_at', 'pilot_photo'].includes(key))
             .map(key => {
                 let value = userData[key];
+                const label = LABEL_MAPPING[key] || key;
+
                 if (value === null || value === undefined || value === '') value = 'N/A';
                 if (typeof value === 'object') value = JSON.stringify(value);
 
                 return `<tr>
-                    <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: 600; background: #f5f5f5; width: 35%;">${key}</td>
-                    <td style="padding: 8px 12px; border: 1px solid #ddd;">${value}</td>
+                    <td style="padding: 8px 12px; border: 1px solid #ddd; font-weight: 600; background: #f5f5f5; width: 40%; font-size: 13px;">${label}</td>
+                    <td style="padding: 8px 12px; border: 1px solid #ddd; font-size: 13px;">${value}</td>
                 </tr>`;
             })
             .join('');

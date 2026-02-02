@@ -125,7 +125,7 @@
 
             flex-direction: column;
 
-            gap: 0.8rem;
+            gap: 0.4rem;
 
             position: relative;
 
@@ -143,7 +143,7 @@
 
             letter-spacing: 1px;
 
-            margin-bottom: 0.5rem;
+            margin-bottom: 2px !important;
 
             display: block;
 
@@ -280,23 +280,84 @@
         }
 
         .radio-item .radio-label {
-
             flex: 1;
-
             font-size: 1.1rem !important;
-
             font-weight: 700 !important;
-
             color: #aaa !important;
-
             order: 1;
-
         }
 
         .radio-item input:checked+.radio-label {
-
             color: #fff !important;
+        }
 
+        /* 📦 RADIO BOXY STYLE (v7.10) */
+        .radio-item-boxy {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .radio-item-boxy:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #FFCC00;
+        }
+
+        .radio-item-boxy input[type="radio"] {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #555 !important;
+            border-radius: 50% !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            order: 0 !important;
+            margin: 0 !important;
+            background: transparent !important;
+        }
+
+        .radio-item-boxy input[type="radio"]:checked {
+            border-color: #FFCC00 !important;
+            background: #FFCC00 !important;
+        }
+
+        .radio-item-boxy input[type="radio"]:checked::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #000 !important;
+            border-radius: 50% !important;
+            display: block;
+        }
+
+        .radio-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            margin-left: 10px;
+        }
+
+        .radio-content strong {
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .radio-content span {
+            font-weight: 800;
+            color: #FFCC00;
         }
 
         .renga-submit-btn {
@@ -1397,10 +1458,57 @@
         }
 
         // Attach listener to team name input
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const teamNameInput = document.getElementById('team_name_input');
             if (teamNameInput) {
                 teamNameInput.addEventListener('input', applyStaffMode);
+            }
+
+            // 🚀 LOGICA DI CONTROLLO "SOGLIA 30 PARTECIPANTI" (v7.10)
+            try {
+                // Import supabase directly for the count
+                const { supabase } = await import('/src/lib/supabaseClient.js');
+
+                const { count, error } = await supabase
+                    .from('registrations')
+                    .select('*', { count: 'exact', head: true })
+                    .or('formula_partecipazione.eq.Caccia_MCPS,formula_partecipazione.eq.Caccia_NON_MCPS')
+                    .not('team_name', 'ilike', '%staff%');
+
+                if (error) throw error;
+
+                console.log(`📊 Limiti: Iscritti Caccia = ${count}/30`);
+
+                if (count < 30) {
+                    const discoveryInput = document.querySelector('input[value="Discovery"]');
+                    const fourByFourInput = document.querySelector('input[value="4x4"]');
+
+                    [discoveryInput, fourByFourInput].forEach(input => {
+                        if (input) {
+                            const item = input.closest('.radio-item-boxy');
+                            item.style.opacity = '0.4';
+                            item.style.filter = 'grayscale(1)';
+                            item.style.pointerEvents = 'auto'; // allow click for alert
+
+                            // Aggiungi overlay o intercetta click
+                            input.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                input.checked = false;
+                                Swal.fire({
+                                    title: '⚠️ FORMULA NON ATTIVA',
+                                    html: `Le iscrizioni per <b>Discovery</b> e <b>4x4</b> si apriranno solo al raggiungimento di 30 iscritti alla <i>Caccia al Tesoro</i>.<br><br><div style="font-size: 1.2rem; font-weight: 800;">Stato attuale: ${count}/30</div>`,
+                                    icon: 'info',
+                                    confirmButtonColor: '#FFCC00',
+                                    background: '#111',
+                                    color: '#fff'
+                                });
+                            }, true);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('❌ Errore caricamento limiti:', err);
             }
         });
 
