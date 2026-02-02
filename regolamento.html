@@ -21,6 +21,31 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .price-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin: 40px auto;
+            max-width: 1000px;
+        }
+
+        .price-container-v2 {
+            min-height: 220px;
+        }
+
+        @media (max-width: 900px) {
+            .price-cards {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .price-container-v2:hover {
+            transform: translateY(-5px);
+            filter: brightness(1.1);
+        }
+    </style>
 </head>
 
 <body>
@@ -441,8 +466,7 @@
 
                 <h2 class="section-title reveal dark-title">Quota di Iscrizione</h2>
 
-                <div class="price-cards reveal"
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin: 40px 0;">
+                <div class="price-cards reveal">
 
                     <!-- MCPS -->
                     <div class="price-container-v2"
