@@ -12,7 +12,16 @@ FOREIGN KEY (registration_id)
 REFERENCES registrations(id) 
 ON DELETE CASCADE;
 
--- 2. VERIFY: live_tracking (Ensuring cascade is active)
+-- 2. ADD POLICIES: Allow Admin to manage debug logs
+DROP POLICY IF EXISTS "Allow Delete for Admin" ON tracking_debug_logs;
+CREATE POLICY "Allow Delete for Admin" ON tracking_debug_logs
+    FOR DELETE USING (true);
+
+DROP POLICY IF EXISTS "Allow All for Admin" ON tracking_debug_logs;
+CREATE POLICY "Allow All for Admin" ON tracking_debug_logs
+    FOR ALL USING (true);
+
+-- 3. VERIFY: live_tracking (Ensuring cascade is active)
 ALTER TABLE live_tracking 
 DROP CONSTRAINT IF EXISTS fk_live_tracking_registration;
 
@@ -22,7 +31,7 @@ FOREIGN KEY (registration_id)
 REFERENCES registrations(id) 
 ON DELETE CASCADE;
 
--- 3. VERIFY: race_logs (Ensuring cascade is active)
+-- 4. VERIFY: race_logs (Ensuring cascade is active)
 ALTER TABLE race_logs 
 DROP CONSTRAINT IF EXISTS fk_race_logs_registration;
 
@@ -32,8 +41,7 @@ FOREIGN KEY (registration_id)
 REFERENCES registrations(id) 
 ON DELETE CASCADE;
 
--- 4. VERIFY: registration_notes (Ensuring cascade is active)
--- This was already CASCADE but we re-apply for safety
+-- 5. VERIFY: registration_notes (Ensuring cascade is active)
 ALTER TABLE registration_notes 
 DROP CONSTRAINT IF EXISTS registration_notes_registration_id_fkey;
 

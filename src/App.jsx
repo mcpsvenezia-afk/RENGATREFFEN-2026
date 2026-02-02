@@ -282,12 +282,27 @@ function App() {
 
         setLoading(true);
         try {
-            // 1. Pulizia dei log di debug che non hanno il cascade (FIX temporaneo lato client)
-            await supabase.from('tracking_debug_logs').delete().eq('registration_id', id);
+            // 1. Pulizia dei log di debug (Importante per evitare FK Conflict)
+            const { error: debugError } = await supabase
+                .from('tracking_debug_logs')
+                .delete()
+                .eq('registration_id', id);
+
+            if (debugError) {
+                console.error("Errore pulizia debug logs:", debugError);
+                // Non lanciamo errore qui perché se l'utente ha già fatto girare la migrazione SQL CASCADE, 
+                // questo step potrebbe non essere strettamente necessario o fallire per RLS ma il CASCADE farebbe il lavoro.
+            }
 
             // 2. Eliminazione della registrazione (Gli altri hanno cascade)
             const { error } = await supabase.from('registrations').delete().eq('id', id);
-            if (error) throw error;
+
+            if (error) {
+                if (error.code === '23503') {
+                    throw new Error("Conflitto Database: Esistono ancora log o sessioni attive. Esegui la migrazione SQL 015 per risolvere definitivamente.");
+                }
+                throw error;
+            }
 
             setRegistrations(prev => prev.filter(r => r.id !== id));
 
