@@ -81,16 +81,18 @@ export function RankingsTab({ registrations, onRefresh }) {
         return logs.filter(l => l.registration_id === teamRegId);
     };
 
-    // Group registrations by Team
+    // Group registrations by Team (ONLY CACCIA for rankings)
     const teams = registrations.reduce((acc, r) => {
         if (!r.team_name || r.team_name.toLowerCase() === 'staff') return acc;
+        // Only Caccia formula participates in the competitive ranking
+        if (!r.formula_partecipazione?.startsWith('Caccia')) return acc;
 
         // Find existing team group
         let group = acc.find(g => g.name === r.team_name);
         if (!group) {
             group = {
                 name: r.team_name,
-                id: r.id, // Use the first member's ID as team ID for keys
+                id: r.id,
                 color: r.card_color,
                 members: [],
                 score: 0

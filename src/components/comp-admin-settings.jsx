@@ -106,7 +106,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             const photoBaseOffsets = [30, 60, 90, 120, 150, 180];
             let globalIdx = 0;
 
-            const processGroup = (group, startTimeId) => {
+            const processGroup = (group, startTimeId, isCaccia = false) => {
                 let currentMinutes = parseTimeToMinutes(p[startTimeId] || '08:00');
 
                 group.forEach((team) => {
@@ -128,22 +128,24 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     const [baseH, baseM] = (p[startTimeId] || '08:00').split(':').map(Number);
 
                     const targets = {};
-                    [0, 1, 2, 3, 4, 5].forEach((idx) => {
-                        const totalMinutesFromBase = offsets[idx] || 0;
-                        const targetDate = new Date();
-                        targetDate.setHours(baseH, baseM + totalMinutesFromBase, 0, 0);
+                    if (isCaccia) {
+                        [0, 1, 2, 3, 4, 5].forEach((idx) => {
+                            const totalMinutesFromBase = offsets[idx] || 0;
+                            const targetDate = new Date();
+                            targetDate.setHours(baseH, baseM + totalMinutesFromBase, 0, 0);
 
-                        const timeStr = targetDate.toLocaleTimeString('it-IT', {
-                            hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+                            const timeStr = targetDate.toLocaleTimeString('it-IT', {
+                                hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+                            });
+                            targets[`photo_${idx + 1}`] = timeStr;
                         });
-                        targets[`photo_${idx + 1}`] = timeStr;
-                    });
+                    }
 
                     updates.push({
                         id: team.id,
                         departure_time: depTime,
-                        card_color: color,
-                        target_times: targets
+                        card_color: isCaccia ? color : null,
+                        target_times: isCaccia ? targets : {}
                     });
 
                     currentMinutes += interval;
@@ -151,9 +153,9 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                 });
             };
 
-            processGroup(caccia, 'start_time_caccia');
-            processGroup(discovery, 'start_time_discovery'); // Continue globalIdx rotation? Yes, usually logic is continuous
-            processGroup(x4, 'start_time_4x4');
+            processGroup(caccia, 'start_time_caccia', true);
+            processGroup(discovery, 'start_time_discovery', false);
+            processGroup(x4, 'start_time_4x4', false);
 
             for (const upd of updates) {
                 await supabase.from('registrations').update({
