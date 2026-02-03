@@ -14,21 +14,61 @@ export function RankingsTab({ registrations, onRefresh }) {
     async function fetchRaceData() {
         setLoading(true);
         try {
-            // Fetch logs
             const { data: logsData } = await supabase
                 .from('race_logs')
                 .select('*')
                 .order('recorded_at', { ascending: true });
             setLogs(logsData || []);
-
-            // Fetch any manual validations (if stored somewhere, currently assuming logs have status or similar)
-            // For now we'll imply validation state from the logs or local state if we add it
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
         }
     }
+
+    const handleValidatePhoto = async (logId) => {
+        try {
+            const { error } = await supabase
+                .from('race_logs')
+                .update({ validation_status: 'VALID' })
+                .eq('id', logId);
+            if (error) throw error;
+            fetchRaceData();
+            if (onRefresh) onRefresh();
+        } catch (err) { alert("Errore: " + err.message); }
+    };
+
+    const handleRejectPhoto = async (logId) => {
+        try {
+            const { error } = await supabase
+                .from('race_logs')
+                .update({ validation_status: 'REJECTED' })
+                .eq('id', logId);
+            if (error) throw error;
+            fetchRaceData();
+        } catch (err) { alert("Errore: " + err.message); }
+    };
+
+    const handleDeletePhoto = async (logId) => {
+        if (!confirm("Eliminare definitivamente?")) return;
+        try {
+            await supabase.from('race_logs').delete().eq('id', logId);
+            fetchRaceData();
+        } catch (err) { alert("Errore: " + err.message); }
+    };
+
+    const handleSkipPhoto = async (team, photoNum) => {
+        try {
+            await supabase.from('race_logs').insert([{
+                registration_id: team.members[0].id,
+                photo_number: photoNum,
+                validation_status: 'SALTATA',
+                photo_url: null,
+                recorded_at: new Date().toISOString()
+            }]);
+            fetchRaceData();
+        } catch (err) { alert("Errore: " + err.message); }
+    };
 
     const getTeamLogs = (teamRegId) => {
         return logs.filter(l => l.registration_id === teamRegId);
@@ -64,18 +104,37 @@ export function RankingsTab({ registrations, onRefresh }) {
         return teamLogs[0];
     };
 
-    // Calculate Scores (Mock logic based on previous file, updated to be robust)
+    // Calculate Scores (Based on VALID photos and offsets)
     teams.forEach(team => {
-        // Here we could implement complex scoring. 
-        // For now, based on user request, we just show the data, scoring might be manual or calculated later.
-        // We'll calculate a simple "photos taken" count
         const teamMemberIds = team.members.map(m => m.id);
-        const count = logs.filter(l => teamMemberIds.includes(l.registration_id)).length;
-        team.photoCount = count;
+        const teamLogs = logs.filter(l => teamMemberIds.includes(l.registration_id));
+
+        // Photo Count = Only VALIDATED ones or PENDING (for organizer to see work)
+        // Skipped photos also count as "processed" but with penalty
+        const processedCount = teamLogs.filter(l => l.validation_status === 'VALID' || l.validation_status === 'SALTATA').length;
+        team.photoCount = processedCount;
+
+        // TOTAL SCORE CALCULATION (Simplified: absolute diff in seconds for valid logs)
+        let totalPenalty = 0;
+        teamLogs.forEach(log => {
+            if (log.validation_status === 'VALID') {
+                // Calculation logic similar to UI below
+                const depTime = team.members[0].departure_time || "09:00";
+                const [startH, startM] = depTime.split(':').map(Number);
+                const targetDate = new Date(log.recorded_at);
+                targetDate.setHours(startH, startM + (log.photo_number * 30), 0, 0);
+
+                const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
+                totalPenalty += Math.floor(diffMs / 1000);
+            } else if (log.validation_status === 'SALTATA') {
+                totalPenalty += 3600; // 1 hour penalty for skipped photo
+            }
+        });
+        team.totalScore = totalPenalty;
     });
 
-    // Sort teams by number of photos (descending) as a placeholder for score
-    teams.sort((a, b) => b.photoCount - a.photoCount);
+    // Sort teams by SCORE (Lower is better)
+    teams.sort((a, b) => a.totalScore - b.totalScore);
 
     const toggleExpand = (teamId) => {
         setExpandedTeamId(expandedTeamId === teamId ? null : teamId);
@@ -135,8 +194,13 @@ export function RankingsTab({ registrations, onRefresh }) {
                             </div>
 
                             <div style={{ textAlign: 'center', padding: '0 20px' }}>
-                                <div style={{ fontSize: '0.7rem', color: '#666', fontWeight: 900 }}>FOTO</div>
-                                <div style={{ fontSize: '1.2rem', color: '#FFCC00', fontWeight: 900 }}>{team.photoCount}</div>
+                                <div style={{ fontSize: '0.7rem', color: '#666', fontWeight: 900 }}>PUNTEGGIO</div>
+                                <div style={{ fontSize: '1.2rem', color: '#00E5FF', fontWeight: 900 }}>{team.totalScore} <small style={{ fontSize: '0.6rem', color: '#444' }}>sec</small></div>
+                            </div>
+
+                            <div style={{ textAlign: 'center', padding: '0 20px' }}>
+                                <div style={{ fontSize: '0.7rem', color: '#666', fontWeight: 900 }}>PROVE</div>
+                                <div style={{ fontSize: '1.2rem', color: '#FFCC00', fontWeight: 900 }}>{team.photoCount} / 6</div>
                             </div>
 
                             <div style={{ transform: expandedTeamId === team.id ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s', color: '#666' }}>
@@ -208,17 +272,60 @@ export function RankingsTab({ registrations, onRefresh }) {
                                                         </td>
                                                         <td style={{ padding: '10px', textAlign: 'center' }}>
                                                             {log ? (
-                                                                <div style={{ display: 'inline-block', position: 'relative' }}>
-                                                                    <img
-                                                                        src={log.photo_url}
-                                                                        alt={`Foto ${num}`}
-                                                                        style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #444', cursor: 'pointer' }}
-                                                                        onClick={() => window.open(log.photo_url, '_blank')}
-                                                                    />
-                                                                    <div style={{ position: 'absolute', bottom: -5, right: -5, background: '#4CAF50', color: '#000', borderRadius: '50%', padding: '2px', fontSize: '0.6rem' }}>✅</div>
+                                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                                                                    {log.photo_url ? (
+                                                                        <div style={{ position: 'relative' }}>
+                                                                            <img
+                                                                                src={log.photo_url}
+                                                                                alt={`Foto ${num}`}
+                                                                                style={{
+                                                                                    width: '100px',
+                                                                                    height: '75px',
+                                                                                    objectFit: 'cover',
+                                                                                    borderRadius: '12px',
+                                                                                    border: log.validation_status === 'VALID' ? '3px solid #4CAF50' :
+                                                                                        log.validation_status === 'REJECTED' ? '3px solid #F44336' : '1px solid #444',
+                                                                                    cursor: 'pointer',
+                                                                                    opacity: log.validation_status === 'REJECTED' ? 0.3 : 1
+                                                                                }}
+                                                                                onClick={() => window.open(log.photo_url, '_blank')}
+                                                                            />
+                                                                            {log.validation_status === 'VALID' && <div style={{ position: 'absolute', bottom: -5, right: -5, background: '#4CAF50', color: '#000', borderRadius: '50%', padding: '4px', fontSize: '0.7rem', fontWeight: 900 }}>✅</div>}
+                                                                            {log.validation_status === 'REJECTED' && <div style={{ position: 'absolute', bottom: -5, right: -5, background: '#F44336', color: '#fff', borderRadius: '50%', padding: '4px', fontSize: '0.7rem', fontWeight: 900 }}>❌</div>}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', color: '#888', fontSize: '0.7rem', fontWeight: 900 }}>
+                                                                            🚫 SALTATA
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* ACTION BUTTONS */}
+                                                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                                                        {log.validation_status !== 'VALID' && log.photo_url && (
+                                                                            <button
+                                                                                onClick={() => handleValidatePhoto(log.id)}
+                                                                                style={{ border: 'none', background: '#4CAF50', color: '#000', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900, cursor: 'pointer' }}
+                                                                            >VALIDA</button>
+                                                                        )}
+                                                                        {log.validation_status !== 'REJECTED' && log.photo_url && (
+                                                                            <button
+                                                                                onClick={() => handleRejectPhoto(log.id)}
+                                                                                style={{ border: 'none', background: '#F44336', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900, cursor: 'pointer' }}
+                                                                            >SCARTA</button>
+                                                                        )}
+                                                                        <button
+                                                                            onClick={() => handleDeletePhoto(log.id)}
+                                                                            style={{ border: 'none', background: '#222', color: '#666', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900, cursor: 'pointer' }}
+                                                                        >ELIMINA</button>
+                                                                    </div>
                                                                 </div>
                                                             ) : (
-                                                                <span style={{ color: '#333', fontSize: '1.5rem' }}>•</span>
+                                                                <button
+                                                                    onClick={() => handleSkipPhoto(team, num)}
+                                                                    style={{ border: '1px dashed #333', background: 'transparent', color: '#444', padding: '8px 15px', borderRadius: '8px', fontSize: '0.6rem', fontWeight: 900, cursor: 'pointer' }}
+                                                                >
+                                                                    + SEGNA SALTATA
+                                                                </button>
                                                             )}
                                                         </td>
                                                     </tr>
