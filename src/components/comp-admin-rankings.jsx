@@ -5,11 +5,18 @@ export function RankingsTab({ registrations, onRefresh }) {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [expandedTeamId, setExpandedTeamId] = useState(null);
-    const [validations, setValidations] = useState({});
+    const [selectedPhoto, setSelectedPhoto] = useState(null); // { log, team, photoNum }
+    const [eventParams, setEventParams] = useState(null);
 
     useEffect(() => {
         fetchRaceData();
+        fetchSettings();
     }, []);
+
+    async function fetchSettings() {
+        const { data } = await supabase.from('settings').select('*').eq('id', 'event_params').single();
+        if (data) setEventParams(data.value);
+    }
 
     async function fetchRaceData() {
         setLoading(true);
@@ -118,14 +125,22 @@ export function RankingsTab({ registrations, onRefresh }) {
         let totalPenalty = 0;
         teamLogs.forEach(log => {
             if (log.validation_status === 'VALID') {
-                // Calculation logic similar to UI below
-                const depTime = team.members[0].departure_time || "09:00";
-                const [startH, startM] = depTime.split(':').map(Number);
-                const targetDate = new Date(log.recorded_at);
-                targetDate.setHours(startH, startM + (log.photo_number * 30), 0, 0);
-
-                const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
-                totalPenalty += Math.floor(diffMs / 1000);
+                const targetTimeStr = team.members[0]?.target_times?.[`photo_${log.photo_number}`];
+                if (targetTimeStr) {
+                    const [tH, tM, tS] = targetTimeStr.split(':').map(Number);
+                    const targetDate = new Date(log.recorded_at);
+                    targetDate.setHours(tH, tM, tS || 0, 0);
+                    const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
+                    totalPenalty += Math.floor(diffMs / 1000);
+                } else {
+                    // Fallback basic calculation
+                    const depTime = team.members[0].departure_time || "09:00";
+                    const [startH, startM] = depTime.split(':').map(Number);
+                    const targetDate = new Date(log.recorded_at);
+                    targetDate.setHours(startH, startM + (log.photo_number * 30), 0, 0);
+                    const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
+                    totalPenalty += Math.floor(diffMs / 1000);
+                }
             } else if (log.validation_status === 'SALTATA') {
                 totalPenalty += 3600; // 1 hour penalty for skipped photo
             }
@@ -227,22 +242,30 @@ export function RankingsTab({ registrations, onRefresh }) {
                                         <tbody>
                                             {[1, 2, 3, 4, 5, 6].map(num => {
                                                 const log = getLogDetails(team, num);
-                                                // MOCK TARGET TIME CALCULATION: Start Time + (Num * 30 min) based on first member
-                                                const depTime = team.members[0].departure_time || "09:00";
-                                                const [startH, startM] = depTime.split(':').map(Number);
-                                                const targetDate = new Date();
-                                                targetDate.setHours(startH, startM + (num * 30), 0);
-                                                const targetTimeStr = targetDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                                                // SOURCE OF TRUTH: target_times from registration
+                                                let targetTimeStr = "--:--";
+                                                if (team.members[0]?.target_times?.[`photo_${num}`]) {
+                                                    targetTimeStr = team.members[0].target_times[`photo_${num}`].substring(0, 5);
+                                                } else {
+                                                    // Fallback calculation if not regenerated
+                                                    const depTime = team.members[0].departure_time || "09:00";
+                                                    const [startH, startM] = depTime.split(':').map(Number);
+                                                    const targetDate = new Date();
+                                                    targetDate.setHours(startH, startM + (num * 30), 0);
+                                                    targetTimeStr = targetDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                                }
 
                                                 const actualTimeStr = log ? new Date(log.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--:--:--';
 
                                                 let diffStr = "--";
                                                 let diffColor = "#666";
 
-                                                if (log) {
+                                                if (log && log.recorded_at) {
                                                     const logTime = new Date(log.recorded_at);
-                                                    // Re-set target date to same day as log to be safe for diff
-                                                    targetDate.setFullYear(logTime.getFullYear(), logTime.getMonth(), logTime.getDate());
+                                                    const [tH, tM] = targetTimeStr.split(':').map(Number);
+                                                    const targetDate = new Date(logTime);
+                                                    targetDate.setHours(tH, tM, 0, 0);
 
                                                     const diffMs = logTime - targetDate;
                                                     const diffSec = Math.floor(diffMs / 1000);
@@ -274,7 +297,10 @@ export function RankingsTab({ registrations, onRefresh }) {
                                                             {log ? (
                                                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
                                                                     {log.photo_url ? (
-                                                                        <div style={{ position: 'relative' }}>
+                                                                        <div
+                                                                            style={{ position: 'relative', cursor: 'pointer' }}
+                                                                            onClick={() => setSelectedPhoto({ log, team, photoNum: num })}
+                                                                        >
                                                                             <img
                                                                                 src={log.photo_url}
                                                                                 alt={`Foto ${num}`}
@@ -285,10 +311,8 @@ export function RankingsTab({ registrations, onRefresh }) {
                                                                                     borderRadius: '12px',
                                                                                     border: log.validation_status === 'VALID' ? '3px solid #4CAF50' :
                                                                                         log.validation_status === 'REJECTED' ? '3px solid #F44336' : '1px solid #444',
-                                                                                    cursor: 'pointer',
                                                                                     opacity: log.validation_status === 'REJECTED' ? 0.3 : 1
                                                                                 }}
-                                                                                onClick={() => window.open(log.photo_url, '_blank')}
                                                                             />
                                                                             {log.validation_status === 'VALID' && <div style={{ position: 'absolute', bottom: -5, right: -5, background: '#4CAF50', color: '#000', borderRadius: '50%', padding: '4px', fontSize: '0.7rem', fontWeight: 900 }}>✅</div>}
                                                                             {log.validation_status === 'REJECTED' && <div style={{ position: 'absolute', bottom: -5, right: -5, background: '#F44336', color: '#fff', borderRadius: '50%', padding: '4px', fontSize: '0.7rem', fontWeight: 900 }}>❌</div>}
@@ -299,25 +323,9 @@ export function RankingsTab({ registrations, onRefresh }) {
                                                                         </div>
                                                                     )}
 
-                                                                    {/* ACTION BUTTONS */}
-                                                                    <div style={{ display: 'flex', gap: '5px' }}>
-                                                                        {log.validation_status !== 'VALID' && log.photo_url && (
-                                                                            <button
-                                                                                onClick={() => handleValidatePhoto(log.id)}
-                                                                                style={{ border: 'none', background: '#4CAF50', color: '#000', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900, cursor: 'pointer' }}
-                                                                            >VALIDA</button>
-                                                                        )}
-                                                                        {log.validation_status !== 'REJECTED' && log.photo_url && (
-                                                                            <button
-                                                                                onClick={() => handleRejectPhoto(log.id)}
-                                                                                style={{ border: 'none', background: '#F44336', color: '#fff', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900, cursor: 'pointer' }}
-                                                                            >SCARTA</button>
-                                                                        )}
-                                                                        <button
-                                                                            onClick={() => handleDeletePhoto(log.id)}
-                                                                            style={{ border: 'none', background: '#222', color: '#666', padding: '4px 8px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 900, cursor: 'pointer' }}
-                                                                        >ELIMINA</button>
-                                                                    </div>
+                                                                    {log.photo_url && (
+                                                                        <div style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>CLICCA PER GESTIRE</div>
+                                                                    )}
                                                                 </div>
                                                             ) : (
                                                                 <button
@@ -339,6 +347,74 @@ export function RankingsTab({ registrations, onRefresh }) {
                     </div>
                 ))}
             </div>
+
+            {/* 🖼️ PHOTO PREVIEW MODAL */}
+            {selectedPhoto && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 10000,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    padding: '40px', backdropFilter: 'blur(10px)', animation: 'fadeIn 0.3s ease'
+                }}>
+                    <div style={{ position: 'absolute', top: '30px', right: '30px', cursor: 'pointer', color: '#fff', fontSize: '2rem' }} onClick={() => setSelectedPhoto(null)}>✕</div>
+
+                    <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                        <h2 style={{ color: '#00E5FF', margin: 0, fontSize: '2rem', fontWeight: 950 }}>{selectedPhoto.team.name}</h2>
+                        <p style={{ color: '#fff', margin: '5px 0', fontSize: '1.2rem', fontWeight: 900 }}>STEP {selectedPhoto.photoNum} / {selectedPhoto.team.color}</p>
+                    </div>
+
+                    <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '60vh', borderRadius: '30px', overflow: 'hidden', border: '1px solid #333', boxShadow: '0 50px 100px rgba(0,0,0,0.8)' }}>
+                        <img
+                            src={selectedPhoto.log.photo_url}
+                            style={{ maxWidth: '100%', maxHeight: '60vh', display: 'block' }}
+                            alt="Full Preview"
+                        />
+                        {selectedPhoto.log.validation_status === 'VALID' && (
+                            <div style={{ position: 'absolute', top: 20, right: 20, background: '#4CAF50', color: '#000', padding: '10px 30px', borderRadius: '100px', fontWeight: 900 }}>APPROVATA ✓</div>
+                        )}
+                        {selectedPhoto.log.validation_status === 'REJECTED' && (
+                            <div style={{ position: 'absolute', top: 20, right: 20, background: '#F44336', color: '#fff', padding: '10px 30px', borderRadius: '100px', fontWeight: 900 }}>SCARTATA ❌</div>
+                        )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '20px', marginTop: '40px' }}>
+                        <button
+                            onClick={async () => {
+                                await handleValidatePhoto(selectedPhoto.log.id);
+                                setSelectedPhoto(null);
+                            }}
+                            style={{
+                                padding: '20px 40px', borderRadius: '100px', border: 'none', background: '#4CAF50', color: '#000',
+                                fontSize: '1.1rem', fontWeight: 950, cursor: 'pointer', boxShadow: '0 10px 30px rgba(76,175,80,0.3)',
+                                opacity: selectedPhoto.log.validation_status === 'VALID' ? 0.5 : 1
+                            }}
+                        >APPROVA FOTO</button>
+
+                        <button
+                            onClick={async () => {
+                                await handleRejectPhoto(selectedPhoto.log.id);
+                                setSelectedPhoto(null);
+                            }}
+                            style={{
+                                padding: '20px 40px', borderRadius: '100px', border: 'none', background: '#F44336', color: '#fff',
+                                fontSize: '1.1rem', fontWeight: 950, cursor: 'pointer', boxShadow: '0 10px 30px rgba(244,67,54,0.3)',
+                                opacity: selectedPhoto.log.validation_status === 'REJECTED' ? 0.5 : 1
+                            }}
+                        >SCARTA FOTO</button>
+
+                        <button
+                            onClick={async () => {
+                                await handleDeletePhoto(selectedPhoto.log.id);
+                                setSelectedPhoto(null);
+                            }}
+                            style={{
+                                padding: '20px 40px', borderRadius: '100px', border: '2px solid #333', background: 'transparent', color: '#666',
+                                fontSize: '1.1rem', fontWeight: 950, cursor: 'pointer'
+                            }}
+                        >ELIMINA LOG</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
