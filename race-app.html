@@ -890,13 +890,23 @@
                 pilot: currentPilot
             }));
 
+            // 🧬 Recupara il numero foto corretto per questo pilota
+            // Se sono Capitano (A), conto i log 'A' + quelli legacy (senza codice)
+            // Se sono Partner (B), conto solo i log 'B'
+            const pilotFilter = currentPilot === 'A'
+                ? 'pilot_code.eq.A,pilot_code.is.null'
+                : 'pilot_code.eq.B';
+
             const { count } = await supabase
                 .from('race_logs')
                 .select('*', { count: 'exact', head: true })
                 .eq('registration_id', currentTeam.id)
-                .eq('pilot_code', currentPilot);
+                .or(pilotFilter);
 
-            const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id && l.pilot_code === currentPilot).length;
+            const localCountForTeam = pendingLogs.filter(l =>
+                l.registration_id === currentTeam.id &&
+                (currentPilot === 'A' ? (l.pilot_code === 'A' || !l.pilot_code) : l.pilot_code === 'B')
+            ).length;
 
             photoNumber = (count || 0) + localCountForTeam + 1;
             updateUI();
@@ -971,13 +981,20 @@
                 }
 
                 // Continue with logs fetching regardless of team detail success
+                const pilotFilter = currentPilot === 'A'
+                    ? 'pilot_code.eq.A,pilot_code.is.null'
+                    : 'pilot_code.eq.B';
+
                 const { count } = await supabase
                     .from('race_logs')
                     .select('*', { count: 'exact', head: true })
                     .eq('registration_id', currentTeam.id)
-                    .eq('pilot_code', currentPilot);
+                    .or(pilotFilter);
 
-                const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id && l.pilot_code === currentPilot).length;
+                const localCountForTeam = pendingLogs.filter(l =>
+                    l.registration_id === currentTeam.id &&
+                    (currentPilot === 'A' ? (l.pilot_code === 'A' || !l.pilot_code) : l.pilot_code === 'B')
+                ).length;
                 photoNumber = (count || 0) + localCountForTeam + 1;
                 updateUI();
                 startLiveTracking();

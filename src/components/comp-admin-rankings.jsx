@@ -160,8 +160,8 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
         // 2. Score each group
         const teamList = Object.values(groups).map(team => {
             const memberIds = team.members.map(m => m.id);
-            // 🛡️ FILTRO CAPITANO: Calcoliamo il punteggio SOLO sui log del Pilota A (Capitano)
-            const teamLogs = logs.filter(l => memberIds.includes(l.registration_id) && l.pilot_code === 'A');
+            // 🛡️ FILTRO CAPITANO: Calcoliamo il punteggio sui log del Capitano (A) o quelli legacy (senza codice)
+            const teamLogs = logs.filter(l => memberIds.includes(l.registration_id) && (l.pilot_code === 'A' || !l.pilot_code));
 
             let totalPenalty = 0;
             let validCount = 0;
@@ -319,8 +319,8 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                         <tbody>
                                             {[1, 2, 3, 4].map(num => {
                                                 const teamMemberIds = team.members.map(m => m.id);
-                                                // Priorità al log del Capitano (Pilot A) per la visualizzazione ufficiale
-                                                const log = logs.find(l => teamMemberIds.includes(l.registration_id) && l.photo_number === num && l.pilot_code === 'A');
+                                                // Priorità al log del Capitano (A) o legacy (senza codice)
+                                                const log = logs.find(l => teamMemberIds.includes(l.registration_id) && l.photo_number === num && (l.pilot_code === 'A' || !l.pilot_code));
 
                                                 // SOURCE OF TRUTH: target_times from team group
                                                 let targetTimeStr = "--:--";
