@@ -308,12 +308,12 @@ export function RankingsTab({ registrations, onRefresh }) {
                                                         </td>
                                                         <td style={{ padding: '10px', textAlign: 'center' }}>
                                                             {log ? (
-                                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                                                                <div
+                                                                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                                                                    onClick={() => setSelectedPhoto({ log, team, photoNum: num })}
+                                                                >
                                                                     {log.photo_url ? (
-                                                                        <div
-                                                                            style={{ position: 'relative', cursor: 'pointer' }}
-                                                                            onClick={() => setSelectedPhoto({ log, team, photoNum: num })}
-                                                                        >
+                                                                        <div style={{ position: 'relative' }}>
                                                                             <img
                                                                                 src={log.photo_url}
                                                                                 alt={`Foto ${num}`}
@@ -331,14 +331,11 @@ export function RankingsTab({ registrations, onRefresh }) {
                                                                             {log.validation_status === 'REJECTED' && <div style={{ position: 'absolute', bottom: -5, right: -5, background: '#F44336', color: '#fff', borderRadius: '50%', padding: '4px', fontSize: '0.7rem', fontWeight: 900 }}>❌</div>}
                                                                         </div>
                                                                     ) : (
-                                                                        <div style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', color: '#888', fontSize: '0.7rem', fontWeight: 900 }}>
+                                                                        <div style={{ padding: '15px 10px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', color: '#ff4444', fontSize: '0.65rem', fontWeight: 950, border: '1px solid #333', textAlign: 'center' }}>
                                                                             🚫 SALTATA
                                                                         </div>
                                                                     )}
-
-                                                                    {log.photo_url && (
-                                                                        <div style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>CLICCA PER GESTIRE</div>
-                                                                    )}
+                                                                    <div style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>CLICCA PER GESTIRE</div>
                                                                 </div>
                                                             ) : (
                                                                 <button
@@ -376,12 +373,20 @@ export function RankingsTab({ registrations, onRefresh }) {
                         <p style={{ color: '#fff', margin: '5px 0', fontSize: '1.2rem', fontWeight: 900 }}>STEP {selectedPhoto.photoNum} / {selectedPhoto.team.color}</p>
                     </div>
 
-                    <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '60vh', borderRadius: '30px', overflow: 'hidden', border: '1px solid #333', boxShadow: '0 50px 100px rgba(0,0,0,0.8)' }}>
-                        <img
-                            src={selectedPhoto.log.photo_url}
-                            style={{ maxWidth: '100%', maxHeight: '60vh', display: 'block' }}
-                            alt="Full Preview"
-                        />
+                    <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '60vh', borderRadius: '30px', overflow: 'hidden', border: '1px solid #333', boxShadow: '0 50px 100px rgba(0,0,0,0.8)', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {selectedPhoto.log.photo_url ? (
+                            <img
+                                src={selectedPhoto.log.photo_url}
+                                style={{ maxWidth: '100%', maxHeight: '60vh', display: 'block' }}
+                                alt="Full Preview"
+                            />
+                        ) : (
+                            <div style={{ padding: '100px', textAlign: 'center', color: '#444' }}>
+                                <div style={{ fontSize: '4rem', marginBottom: '20px' }}>📷</div>
+                                <div style={{ fontSize: '1.2rem', fontWeight: 900, textTransform: 'uppercase' }}>Foto o Documento non presente</div>
+                                <div style={{ fontSize: '0.8rem', marginTop: '10px' }}>(Segnato manualmente come saltato)</div>
+                            </div>
+                        )}
                         {selectedPhoto.log.validation_status === 'VALID' && (
                             <div style={{ position: 'absolute', top: 20, right: 20, background: '#4CAF50', color: '#000', padding: '10px 30px', borderRadius: '100px', fontWeight: 900 }}>APPROVATA ✓</div>
                         )}
@@ -424,7 +429,7 @@ export function RankingsTab({ registrations, onRefresh }) {
                                 padding: '20px 40px', borderRadius: '100px', border: '2px solid #333', background: 'transparent', color: '#666',
                                 fontSize: '1.1rem', fontWeight: 950, cursor: 'pointer'
                             }}
-                        >ELIMINA LOG</button>
+                        >ELIMINA FOTO</button>
                     </div>
                 </div>
             )}
