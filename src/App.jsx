@@ -26,6 +26,7 @@ function App() {
     // Filters & Sorting v7.2.7
     const [filterFormula, setFilterFormula] = useState('ALL');
     const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PAID, NOT_PAID, WAITING, REJECTED, VERIFY
+    const [filterTeamStatus, setFilterTeamStatus] = useState('ALL'); // ALL, SINGLE, PENDING, PAIRED
     const [sortType, setSortType] = useState('BIB'); // DEFAULT, TIME, BIB, TEAM, COGNOME, STAFF, LUNCH
     const [showPDFPreview, setShowPDFPreview] = useState(false);
     const [previewType, setPreviewType] = useState('FULL'); // FULL, ONLY_4X4, ONLY_PAID, TOTALS
@@ -74,6 +75,17 @@ function App() {
             else if (filterStatus === 'WAITING') list = list.filter(r => r.stato_iscrizione === 'Lista_Attesa');
             else if (filterStatus === 'REJECTED') list = list.filter(r => r.stato_iscrizione === 'Rifiutata');
             else if (filterStatus === 'VERIFY') list = list.filter(r => r.stato_iscrizione === 'Verifica_In_Corso');
+        }
+
+        // 2.5. Team Pairing Status Filter
+        if (filterTeamStatus !== 'ALL') {
+            if (filterTeamStatus === 'SINGLE') {
+                list = list.filter(r => !r.team_status || r.team_status === 'SINGLE');
+            } else if (filterTeamStatus === 'PENDING') {
+                list = list.filter(r => r.team_status === 'PENDING');
+            } else if (filterTeamStatus === 'PAIRED') {
+                list = list.filter(r => r.team_status === 'PAIRED');
+            }
         }
 
         // 3. Advanced Sorting
@@ -460,6 +472,15 @@ function App() {
                                             <option value="COGNOME">COGNOME PILOTA</option>
                                             <option value="STAFF">GRUPPO STAFF</option>
                                             <option value="LUNCH">OSPITI PRANZO</option>
+                                        </select>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>ACCOPPIAMENTO:</span>
+                                        <select value={filterTeamStatus} onChange={e => setFilterTeamStatus(e.target.value)} style={selectFilterStyle}>
+                                            <option value="ALL">TUTTI</option>
+                                            <option value="SINGLE">🔴 SOLO SINGOLI</option>
+                                            <option value="PENDING">🟠 PARZIALI</option>
+                                            <option value="PAIRED">🟢 ACCOPPIATI</option>
                                         </select>
                                     </div>
                                     <div style={{ flex: 1 }}></div>

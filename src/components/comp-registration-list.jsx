@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { TeamPairingIndicator } from './comp-team-status-badge';
 
 // Helper for team colors
 const getTeamColor = (name) => {
@@ -34,6 +35,7 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                         <th style={{ ...thStyle, width: '100px' }}>PARTENZA</th>
                         <th style={thStyle}>FORMULA</th>
                         <th style={thStyle}>TEAM</th>
+                        <th style={thStyle}>STATUS</th>
                         <th style={thStyle}>PILOTA</th>
                         <th style={thStyle}>EMAIL/CELL</th>
                         <th style={thStyle}>MOTO/TARGA</th>
@@ -126,6 +128,9 @@ export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMod
                                     <span style={{ color: '#fff', fontWeight: 'bold', textTransform: 'uppercase' }}>{reg.team_name}</span>
                                     <br />
                                     <small style={{ color: '#888', fontSize: '0.7rem' }}>{reg.team_role}</small>
+                                </td>
+                                <td style={tdStyle}>
+                                    <TeamPairingIndicator registration={reg} />
                                 </td>
                                 <td style={tdStyle}>{reg.nome} {reg.cognome}</td>
                                 <td style={tdStyle}>
