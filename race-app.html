@@ -893,9 +893,10 @@
             const { count } = await supabase
                 .from('race_logs')
                 .select('*', { count: 'exact', head: true })
-                .eq('registration_id', currentTeam.id);
+                .eq('registration_id', currentTeam.id)
+                .eq('pilot_code', currentPilot);
 
-            const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id).length;
+            const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id && l.pilot_code === currentPilot).length;
 
             photoNumber = (count || 0) + localCountForTeam + 1;
             updateUI();
@@ -973,9 +974,10 @@
                 const { count } = await supabase
                     .from('race_logs')
                     .select('*', { count: 'exact', head: true })
-                    .eq('registration_id', currentTeam.id);
+                    .eq('registration_id', currentTeam.id)
+                    .eq('pilot_code', currentPilot);
 
-                const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id).length;
+                const localCountForTeam = pendingLogs.filter(l => l.registration_id === currentTeam.id && l.pilot_code === currentPilot).length;
                 photoNumber = (count || 0) + localCountForTeam + 1;
                 updateUI();
                 startLiveTracking();

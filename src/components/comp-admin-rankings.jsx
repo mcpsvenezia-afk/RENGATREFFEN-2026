@@ -169,8 +169,10 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
             [1, 2, 3, 4].forEach(num => {
                 const log = teamLogs.find(l => l.photo_number === num);
                 if (log) {
+                    // Contiamo la prova come "fatta" se c'è un log (anche se non ancora validato)
+                    validCount++;
+
                     if (log.validation_status === 'VALID') {
-                        validCount++;
                         // Target lookup
                         const targetTimeStr = team.target_times?.[`photo_${num}`];
                         if (targetTimeStr) {
