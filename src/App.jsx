@@ -1,6 +1,7 @@
 /**
  * 🧬 PAGINA: Admin Dashboard v3.1 (Edizione Alto Contrasto)
  * Obiettivo: Massima leggibilità, Sfondo Dark Premium, Elementi grandi
+ * Version: 10.2.2-LIVE
  */
 
 import React, { useEffect, useState } from 'react';
