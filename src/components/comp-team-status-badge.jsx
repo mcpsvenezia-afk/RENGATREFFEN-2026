@@ -32,7 +32,7 @@ export function TeamStatusBadge({ status, teamId, partnerName }) {
         return {
             color: '#F44336',
             icon: '👤',
-            label: 'LUPO SOLITARIO',
+            label: '🐺 SOLITARIO',
             tooltip: 'Nessun partner indicato'
         };
     };
@@ -79,8 +79,10 @@ export function TeamPairingIndicator({ registration }) {
 
     let displayStatus = team_status || 'SINGLE';
 
-    // Override if no partner indicated
-    if (!hasPartnerIndicated) {
+    // Se abbiamo un team_id, lo stato è forzatamente OK
+    if (team_id) {
+        displayStatus = 'CONFIRMED';
+    } else if (!hasPartnerIndicated) {
         displayStatus = 'SINGLE';
     }
 
