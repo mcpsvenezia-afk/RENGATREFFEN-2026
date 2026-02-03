@@ -42,10 +42,13 @@ export default async function handler(req, res) {
             console.error('Messages query error:', msgError);
             throw msgError;
         }
+        console.log('Messages fetched:', messages?.length || 0);
 
         // 2. Get all replies for this user/message (may not exist yet)
         let replies = [];
         try {
+            console.log('Fetching replies for messageId:', messageId, 'or email:', email);
+
             let repliesQuery = supabase
                 .from('crm_replies')
                 .select('*')
@@ -58,13 +61,21 @@ export default async function handler(req, res) {
             }
 
             const { data: repliesData, error: repError } = await repliesQuery;
+
+            console.log('Replies query result:', {
+                data: repliesData,
+                error: repError,
+                count: repliesData?.length || 0
+            });
+
             if (!repError && repliesData) {
                 replies = repliesData;
+                console.log('Replies loaded successfully:', replies.length);
             } else {
-                console.warn('Replies query warning (table may not exist):', repError);
+                console.warn('Replies query warning:', repError);
             }
         } catch (repErr) {
-            console.warn('Replies fetch failed (table may not exist yet):', repErr);
+            console.error('Replies fetch EXCEPTION:', repErr);
         }
 
         // 3. Combine and format thread

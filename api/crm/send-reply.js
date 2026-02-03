@@ -29,6 +29,8 @@ export default async function handler(req, res) {
 
         // 1. Try to save reply to database (may fail if table doesn't exist yet)
         try {
+            console.log('Attempting to save reply to DB:', { messageId, userEmail, content: content.substring(0, 50) });
+
             const { data: replyData, error: dbError } = await supabase
                 .from('crm_replies')
                 .insert([{
@@ -42,13 +44,15 @@ export default async function handler(req, res) {
                 .single();
 
             if (dbError) {
-                console.warn('DB insert warning (table may not exist):', dbError);
+                console.error('DB insert ERROR:', dbError);
+                console.error('Error details:', JSON.stringify(dbError, null, 2));
             } else {
                 reply = replyData;
-                console.log('Reply saved to DB:', reply.id);
+                console.log('✅ Reply saved to DB successfully:', reply.id);
             }
         } catch (dbErr) {
-            console.warn('DB insert failed (table may not exist yet):', dbErr);
+            console.error('DB insert EXCEPTION:', dbErr);
+            console.error('Exception details:', dbErr.message, dbErr.stack);
         }
 
         // 2. Send email notification (this should always work)
