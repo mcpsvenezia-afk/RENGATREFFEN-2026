@@ -23,9 +23,11 @@ ALTER TABLE crm_replies ENABLE ROW LEVEL SECURITY;
 
 -- 4. POLICIES FOR CRM REPLIES
 DROP POLICY IF EXISTS "Allow authenticated all crm_replies" ON crm_replies;
-CREATE POLICY "Allow authenticated all crm_replies" ON crm_replies
-    FOR ALL TO authenticated
-    USING (true);
+DROP POLICY IF EXISTS "Allow all operations on crm_replies" ON crm_replies;
+CREATE POLICY "Allow all operations on crm_replies" ON crm_replies
+    FOR ALL
+    USING (true)
+    WITH CHECK (true);
 
 -- 5. INDEXES FOR PERFORMANCE
 CREATE INDEX IF NOT EXISTS idx_crm_replies_message_id ON crm_replies(message_id);
