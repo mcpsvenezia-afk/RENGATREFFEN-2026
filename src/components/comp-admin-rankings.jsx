@@ -81,9 +81,15 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
 
         try {
             setLoading(true);
-            // Delete all logs: using .gt('id', 0) matches all bigint IDs
-            const { error: errLogs } = await supabase.from('race_logs').delete().gt('id', 0);
+            // 1. Delete all race logs (photos, skips, etc)
+            const { error: errLogs } = await supabase.from('race_logs').delete().neq('id', 0);
             if (errLogs) throw errLogs;
+
+            // 2. Clear target_times from registrations to allow fresh regeneration
+            const { error: errRegs } = await supabase.from('registrations')
+                .update({ target_times: {}, score_caccia: 0 })
+                .neq('id', '00000000-0000-0000-0000-000000000000');
+            if (errRegs) throw errRegs;
 
             await fetchRaceData();
             if (onRefresh) onRefresh();
