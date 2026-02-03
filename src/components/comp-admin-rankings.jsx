@@ -133,9 +133,14 @@ export function RankingsTab({ registrations, onRefresh }) {
                     const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
                     totalPenalty += Math.floor(diffMs / 1000);
                 } else {
-                    // Fallback using raw departure_time
-                    const depTime = team.members[0].departure_time || "09:00";
-                    const [startH, startM] = depTime.split(':').map(Number);
+                    // Fallback using category base from settings
+                    const formula = team.members[0]?.formula_partecipazione || "";
+                    let baseTime = "09:00";
+                    if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
+                    else if (formula === "Discovery") baseTime = eventParams?.race_params?.start_time_discovery || "22:30";
+                    else if (formula === "4x4") baseTime = eventParams?.race_params?.start_time_4x4 || "23:00";
+
+                    const [startH, startM] = baseTime.split(':').map(Number);
                     const targetDate = new Date(log.recorded_at);
                     targetDate.setHours(startH, startM, 0, 0);
                     const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
@@ -249,9 +254,14 @@ export function RankingsTab({ registrations, onRefresh }) {
                                                 if (team.members[0]?.target_times?.[`photo_${num}`]) {
                                                     targetTimeStr = team.members[0].target_times[`photo_${num}`].substring(0, 5);
                                                 } else {
-                                                    // Fallback calculation using raw departure_time
-                                                    const depTime = team.members[0].departure_time || "09:00";
-                                                    const [startH, startM] = depTime.split(':').map(Number);
+                                                    // Fallback using category base from settings
+                                                    const formula = team.members[0]?.formula_partecipazione || "";
+                                                    let baseTime = "09:00";
+                                                    if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
+                                                    else if (formula === "Discovery") baseTime = eventParams?.race_params?.start_time_discovery || "22:30";
+                                                    else if (formula === "4x4") baseTime = eventParams?.race_params?.start_time_4x4 || "23:00";
+
+                                                    const [startH, startM] = baseTime.split(':').map(Number);
                                                     const targetDate = new Date();
                                                     targetDate.setHours(startH, startM, 0);
                                                     targetTimeStr = targetDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

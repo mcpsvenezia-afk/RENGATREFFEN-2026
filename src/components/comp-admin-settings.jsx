@@ -125,13 +125,14 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     ];
 
                     const [h, m] = depTime.split(':').map(Number);
-                    const depDate = new Date();
-                    depDate.setHours(h, m, 0, 0);
+                    const [baseH, baseM] = (p[startTimeId] || '08:00').split(':').map(Number);
 
                     const targets = {};
                     [0, 1, 2, 3, 4, 5].forEach((idx) => {
-                        const totalMinutesFromStart = offsets[idx] || 0;
-                        const targetDate = new Date(depDate.getTime() + totalMinutesFromStart * 60000);
+                        const totalMinutesFromBase = offsets[idx] || 0;
+                        const targetDate = new Date();
+                        targetDate.setHours(baseH, baseM + totalMinutesFromBase, 0, 0);
+
                         const timeStr = targetDate.toLocaleTimeString('it-IT', {
                             hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
                         });
