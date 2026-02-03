@@ -25,24 +25,35 @@ export default async function handler(req, res) {
     }
 
     try {
-        // 1. Save reply to database
-        const { data: reply, error: dbError } = await supabase
-            .from('crm_replies')
-            .insert([{
-                message_id: messageId || null,
-                user_email: userEmail,
-                content: content,
-                direction: 'outbound',
-                admin_name: adminName
-            }])
-            .select()
-            .single();
+        let reply = null;
 
-        if (dbError) throw dbError;
+        // 1. Try to save reply to database (may fail if table doesn't exist yet)
+        try {
+            const { data: replyData, error: dbError } = await supabase
+                .from('crm_replies')
+                .insert([{
+                    message_id: messageId || null,
+                    user_email: userEmail,
+                    content: content,
+                    direction: 'outbound',
+                    admin_name: adminName
+                }])
+                .select()
+                .single();
 
-        // 2. Send email notification
+            if (dbError) {
+                console.warn('DB insert warning (table may not exist):', dbError);
+            } else {
+                reply = replyData;
+                console.log('Reply saved to DB:', reply.id);
+            }
+        } catch (dbErr) {
+            console.warn('DB insert failed (table may not exist yet):', dbErr);
+        }
+
+        // 2. Send email notification (this should always work)
         const emailData = await resend.emails.send({
-            from: 'Renga Treffen <noreply@rengatreffen.it>',
+            from: 'Renga Treffen <info@rengatreffen.it>',
             to: [userEmail],
             subject: '💬 Risposta dal Team Renga Treffen',
             html: `
@@ -91,23 +102,34 @@ export default async function handler(req, res) {
             `
         });
 
-        // 3. Log email send in notes
+        console.log('Email sent successfully:', emailData.id);
+
+        // 3. Try to log email send in notes (optional, may fail)
         if (messageId) {
-            await supabase.from('message_notes').insert([{
-                message_id: messageId,
-                content: `🤖 AUTO: Risposta inviata via email a ${userEmail}`,
-                admin_name: 'System'
-            }]);
+            try {
+                await supabase.from('message_notes').insert([{
+                    message_id: messageId,
+                    content: `🤖 AUTO: Risposta inviata via email a ${userEmail}`,
+                    admin_name: 'System'
+                }]);
+            } catch (noteErr) {
+                console.warn('Note insert failed:', noteErr);
+            }
         }
 
         res.status(200).json({
             success: true,
             reply,
-            emailId: emailData.id
+            emailId: emailData.id,
+            message: 'Email inviata con successo' + (reply ? ' e salvata nel database' : '')
         });
 
     } catch (error) {
         console.error('Send reply error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({
+            error: error.message,
+            details: error.toString(),
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 }
