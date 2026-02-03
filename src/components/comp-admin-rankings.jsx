@@ -11,6 +11,10 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
     useEffect(() => {
         fetchRaceData();
         fetchSettings();
+
+        // 🔄 AUTO-REFRESH: Aggiorna i log ogni 10 secondi per vedere i progressi live
+        const interval = setInterval(fetchRaceData, 10000);
+        return () => clearInterval(interval);
     }, []);
 
     async function fetchSettings() {
@@ -159,9 +163,9 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
 
         // 2. Score each group
         const teamList = Object.values(groups).map(team => {
-            const memberIds = team.members.map(m => m.id);
+            const memberIds = team.members.map(m => String(m.id));
             // Prendo TUTTI i log del team per la visibilità globale
-            const teamLogs = logs.filter(l => memberIds.includes(l.registration_id));
+            const teamLogs = logs.filter(l => memberIds.includes(String(l.registration_id)));
 
             let totalPenalty = 0;
             let validCount = 0;
@@ -322,8 +326,8 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                         </thead>
                                         <tbody>
                                             {[1, 2, 3, 4].map(num => {
-                                                const teamMemberIds = team.members.map(m => m.id);
-                                                const stepLogs = logs.filter(l => teamMemberIds.includes(l.registration_id) && l.photo_number === num);
+                                                const teamMemberIds = team.members.map(m => String(m.id));
+                                                const stepLogs = logs.filter(l => teamMemberIds.includes(String(l.registration_id)) && l.photo_number === num);
 
                                                 // Log Ufficiale (A o null)
                                                 const official = stepLogs.find(l => l.pilot_code === 'A' || !l.pilot_code);
@@ -369,6 +373,22 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                                     diffColor = absDiff < 60 ? '#4CAF50' : (absDiff < 300 ? '#FFCC00' : '#ff4444');
                                                 }
 
+                                                // 🧬 Se è un log del Partner (senza ufficiale), visualizziamo comunque il tempo in arancione
+                                                if (isPartnerRef && log && log.recorded_at) {
+                                                    const logTime = new Date(log.recorded_at);
+                                                    const [tH, tM] = targetTimeStr.split(':').map(Number);
+                                                    const targetDate = new Date(logTime);
+                                                    targetDate.setHours(tH, tM, 0, 0);
+                                                    const diffMs = logTime - targetDate;
+                                                    const diffSec = Math.floor(diffMs / 1000);
+                                                    const absDiff = Math.abs(diffSec);
+                                                    const sign = diffSec > 0 ? "+" : "-";
+                                                    const mm = Math.floor(absDiff / 60).toString().padStart(2, '0');
+                                                    const ss = (absDiff % 60).toString().padStart(2, '0');
+                                                    diffStr = `${sign}${mm}:${ss}`;
+                                                    diffColor = '#FF9800'; // Arancione "Bozza" per il partner
+                                                }
+
                                                 return (
                                                     <tr key={num} style={{ borderBottom: '1px solid #222' }}>
                                                         <td style={{ padding: '15px', fontWeight: 900, color: '#fff' }}>
@@ -378,11 +398,11 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                                             <div style={{ color: '#fff', fontWeight: 900 }}>{targetTimeStr}</div>
                                                         </td>
                                                         <td style={{ padding: '15px' }}>
-                                                            <div style={{ color: isPartnerRef ? '#666' : '#00E5FF', fontFamily: 'monospace' }}>{actualTimeStr}</div>
-                                                            {isPartnerRef && <div style={{ fontSize: '0.6rem', color: '#666', fontWeight: 900 }}>PARTNER (No Score)</div>}
+                                                            <div style={{ color: isPartnerRef ? '#FF9800' : '#00E5FF', fontFamily: 'monospace' }}>{actualTimeStr}</div>
+                                                            {isPartnerRef && <div style={{ fontSize: '0.6rem', color: '#FF9800', fontWeight: 900 }}>PARTNER (BOZZA)</div>}
                                                         </td>
-                                                        <td style={{ padding: '15px', color: isPartnerRef ? '#333' : diffColor, fontWeight: 900, fontFamily: 'monospace' }}>
-                                                            {isPartnerRef ? '--' : diffStr}
+                                                        <td style={{ padding: '15px', color: isPartnerRef ? '#FF9800' : diffColor, fontWeight: 900, fontFamily: 'monospace' }}>
+                                                            {isPartnerRef ? (log ? diffStr : '--') : diffStr}
                                                         </td>
                                                         <td style={{ padding: '10px', textAlign: 'center' }}>
                                                             {log ? (
