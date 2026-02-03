@@ -81,9 +81,8 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
 
         try {
             setLoading(true);
-            // Delete all logs using a range or common field if eq('id', ...) is not viable for bulk
-            // Assuming supabase.from('race_logs').delete().neq('id', '000...000') works for all
-            const { error: errLogs } = await supabase.from('race_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+            // Delete all logs: using .gt('id', 0) matches all bigint IDs
+            const { error: errLogs } = await supabase.from('race_logs').delete().gt('id', 0);
             if (errLogs) throw errLogs;
 
             await fetchRaceData();
