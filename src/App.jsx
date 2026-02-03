@@ -456,161 +456,175 @@ function App() {
                 <main style={{ padding: '60px' }}>
                     {!selectedItem ? (
                         <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-                            {/* 📊 SUMMARY CARDS */}
-                            <div data-dna="1150-SUMMARY-STATS" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '20px' }}>
+                            {/* 📊 SUMMARY CARDS - PREMIUM DESIGN */}
+                            <div data-dna="1150-SUMMARY-STATS" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', marginBottom: '40px' }}>
                                 {[
-                                    { label: 'TOTALE ISCRITTI', value: stats.total, color: '#fff' },
-                                    { label: 'PAGATI', value: stats.paid, color: '#4CAF50' },
-                                    { label: 'OSPITI PRANZO', value: stats.lunchGuests, color: '#00E5FF' },
-                                    { label: 'MOTO (MCPS)', value: stats.mcps, color: '#FFCC00' },
-                                    { label: 'MOTO (NON MCPS)', value: stats.nonMcps, color: '#FFAB00' },
-                                    { label: 'DISCOVERY', value: stats.discovery, color: '#FF9100' },
-                                    { label: '4x4', value: stats.x4, color: '#FF6D00' }
+                                    { label: 'ISCRITTI', value: stats.total, color: '#fff', icon: '👥' },
+                                    { label: 'PAGATI', value: stats.paid, color: '#4CAF50', icon: '💰' },
+                                    { label: 'MCPS', value: stats.mcps, color: '#FFCC00', icon: '🐺' },
+                                    { label: 'ESTERNI', value: stats.nonMcps, color: '#FFAB00', icon: '🌍' },
+                                    { label: 'DISCOVERY', value: stats.discovery, color: '#00E5FF', icon: '🔭' },
+                                    { label: '4x4', value: stats.x4, color: '#FF6D00', icon: '🚜' },
+                                    { label: 'PRANZO', value: stats.lunchGuests, color: '#E6007E', icon: '🍽️' }
                                 ].map(s => (
-                                    <div key={s.label} style={{ background: '#111', padding: '10px', borderRadius: '12px', border: '1px solid #222', textAlign: 'center' }}>
-                                        <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#666', marginBottom: '5px' }}>{s.label}</div>
-                                        <div style={{ fontSize: '1.2rem', fontWeight: 900, color: s.color }}>{s.value}</div>
+                                    <div key={s.label} style={{
+                                        background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))',
+                                        padding: '25px',
+                                        borderRadius: '24px',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        textAlign: 'left',
+                                        backdropFilter: 'blur(10px)',
+                                        transition: '0.3s',
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+                                    }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#666', letterSpacing: '1px', textTransform: 'uppercase' }}>{s.label}</span>
+                                            <span style={{ fontSize: '1.2rem' }}>{s.icon}</span>
+                                        </div>
+                                        <div style={{ fontSize: '1.8rem', fontWeight: 950, color: s.color, letterSpacing: '-1px' }}>{s.value}</div>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* MAIN TABS COMPACT */}
-                            <div data-dna="1100-SECTION-NAV" style={{ display: 'flex', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
-                                <button data-dna="1101-TAB-REGISTRATIONS" onClick={() => setActiveTab('registrations')} style={{ ...mainTabStyle(activeTab === 'registrations', 'registrations'), flex: 1, minWidth: '120px' }}>
-                                    ISCRIZIONI ({registrations.length})
-                                </button>
-                                <button data-dna="1102-TAB-MESSAGES" onClick={() => setActiveTab('messages')} style={{ ...mainTabStyle(activeTab === 'messages', 'messages'), flex: 1, minWidth: '120px' }}>
-                                    MESSAGGI ({messages.length})
-                                </button>
-                                <button data-dna="1103-TAB-RANKINGS" onClick={() => setActiveTab('rankings')} style={{ ...mainTabStyle(activeTab === 'rankings', 'rankings'), flex: 1, minWidth: '120px' }}>
-                                    CLASSIFICHE 🏆
-                                </button>
-                                <button
-                                    data-dna="1105-TAB-RADAR"
-                                    onClick={() => {
-                                        // Open in new tab with fullscreen mode
-                                        window.open(window.location.pathname + '?view=radar-fullscreen', '_blank');
-                                    }}
-                                    style={{ ...mainTabStyle(activeTab === 'radar', 'radar'), backgroundColor: activeTab === 'radar' ? '#00FFFF' : '#111', color: activeTab === 'radar' ? '#000' : '#fff', flex: 1, minWidth: '120px' }}
-                                >
-                                    RADAR 🛰️ {activeTab !== 'radar' && '↗'}
-                                </button>
-                                <button data-dna="1104-TAB-SETTINGS" onClick={() => setActiveTab('settings')} style={{ ...mainTabStyle(activeTab === 'settings', 'settings'), flex: 1, minWidth: '120px' }}>
-                                    IMPOSTAZIONI ⚙️
-                                </button>
-                                <button data-dna="1106-TAB-APP" onClick={() => setActiveTab('app_config')} style={{ ...mainTabStyle(activeTab === 'app_config', 'app_config'), flex: 1, minWidth: '120px' }}>
-                                    APP 📱
-                                </button>
+                            {/* MAIN TABS - MODERN HUD */}
+                            <div data-dna="1100-SECTION-NAV" style={{
+                                display: 'flex',
+                                gap: '5px',
+                                marginBottom: '40px',
+                                background: '#111',
+                                padding: '6px',
+                                borderRadius: '100px',
+                                border: '1px solid #222',
+                                width: 'fit-content'
+                            }}>
+                                {[
+                                    { id: 'registrations', label: 'ISCRIZIONI', count: registrations.length },
+                                    { id: 'messages', label: 'MSG', count: messages.length },
+                                    { id: 'rankings', label: 'CLASSIFICHE 🏆' },
+                                    { id: 'radar', label: 'RADAR 🛰️', special: true },
+                                    { id: 'settings', label: 'CONFIG ⚙️' },
+                                    { id: 'app_config', label: 'APP 📱' }
+                                ].map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => {
+                                            if (tab.id === 'radar') window.open(window.location.pathname + '?view=radar-fullscreen', '_blank');
+                                            else setActiveTab(tab.id);
+                                        }}
+                                        style={{
+                                            padding: '12px 25px',
+                                            borderRadius: '100px',
+                                            border: 'none',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 900,
+                                            cursor: 'pointer',
+                                            transition: '0.2s',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            background: activeTab === tab.id ? (tab.id === 'radar' ? '#00FFFF' : '#FFCC00') : 'transparent',
+                                            color: activeTab === tab.id ? '#000' : '#888'
+                                        }}
+                                    >
+                                        {tab.label} {tab.count !== undefined && <span style={{ opacity: 0.5, fontSize: '0.6rem' }}>{tab.count}</span>}
+                                    </button>
+                                ))}
                             </div>
 
-                            {/* 🔍 FILTER BAR */}
+                            {/* 🔍 FILTER & ACTION BAR - REORGANIZED */}
                             {activeTab === 'registrations' && (
-                                <div data-dna="1190-FILTER-BAR" style={{ display: 'flex', gap: '20px', marginBottom: '30px', alignItems: 'center', background: '#111', padding: '20px 40px', borderRadius: '20px', border: '1px solid #333' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>FORMULA:</span>
-                                        <select value={filterFormula} onChange={e => setFilterFormula(e.target.value)} style={selectFilterStyle}>
-                                            <option value="ALL">TUTTE</option>
-                                            <option value="CACCIA_ALL">CACCIA TUTTI</option>
-                                            <option value="Caccia_MCPS">CACCIA MCPS</option>
-                                            <option value="Caccia_NON_MCPS">CACCIA NON MCPS</option>
-                                            <option value="Discovery">DISCOVERY</option>
-                                            <option value="4x4">4x4</option>
-                                        </select>
+                                <div data-dna="1190-FILTER-BAR" style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    background: '#111',
+                                    padding: '25px 30px',
+                                    borderRadius: '32px',
+                                    border: '1px solid #222',
+                                    marginBottom: '30px',
+                                    flexWrap: 'wrap',
+                                    gap: '20px'
+                                }}>
+                                    {/* LEFT SIDE: FILTERS */}
+                                    <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#444', letterSpacing: '1px' }}>FORMULA</span>
+                                            <select value={filterFormula} onChange={e => setFilterFormula(e.target.value)} style={{ ...selectFilterStyle, minWidth: '140px' }}>
+                                                <option value="ALL">TUTTE</option>
+                                                <option value="CACCIA_ALL">CACCIA TUTTI</option>
+                                                <option value="Caccia_MCPS">CACCIA MCPS</option>
+                                                <option value="Caccia_NON_MCPS">CACCIA NON MCPS</option>
+                                                <option value="Discovery">DISCOVERY</option>
+                                                <option value="4x4">4x4</option>
+                                            </select>
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#444', letterSpacing: '1px' }}>STATO</span>
+                                            <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ ...selectFilterStyle, minWidth: '140px' }}>
+                                                <option value="ALL">TUTTI</option>
+                                                <option value="PAID">PAGATI</option>
+                                                <option value="NOT_PAID">NON PAGATI</option>
+                                                <option value="WAITING">LISTA ATTESA</option>
+                                                <option value="REJECTED">RIFIUTATI</option>
+                                                <option value="VERIFY">IN VERIFICA</option>
+                                            </select>
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#444', letterSpacing: '1px' }}>ORDINA</span>
+                                            <select value={sortType} onChange={e => setSortType(e.target.value)} style={{ ...selectFilterStyle, minWidth: '140px' }}>
+                                                <option value="DEFAULT">RECENTI</option>
+                                                <option value="BIB">PUNTI/BIB</option>
+                                                <option value="TIME">PARTENZA</option>
+                                                <option value="TEAM">TEAM</option>
+                                                <option value="COGNOME">COGNOME</option>
+                                            </select>
+                                        </div>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                            <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#444', letterSpacing: '1px' }}>TEAM</span>
+                                            <select value={filterTeamStatus} onChange={e => setFilterTeamStatus(e.target.value)} style={{ ...selectFilterStyle, minWidth: '140px' }}>
+                                                <option value="ALL">TUTTI</option>
+                                                <option value="SINGLE">🔴 LUPI</option>
+                                                <option value="PENDING">🟠 PENDENTI</option>
+                                                <option value="CONFIRMED">🟢 TEAM OK</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>STATO/PAGAMENTO:</span>
-                                        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={selectFilterStyle}>
-                                            <option value="ALL">TUTTI</option>
-                                            <option value="PAID">PAGATI</option>
-                                            <option value="NOT_PAID">NON PAGATI</option>
-                                            <option value="WAITING">SOLO LISTA ATTESA</option>
-                                            <option value="REJECTED">SOLO RIFIUTATI</option>
-                                            <option value="VERIFY">IN VERIFICA</option>
-                                        </select>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>ORDINA PER:</span>
-                                        <select value={sortType} onChange={e => setSortType(e.target.value)} style={selectFilterStyle}>
-                                            <option value="DEFAULT">PIÙ RECENTI</option>
-                                            <option value="TIME">ORARIO PARTENZA</option>
-                                            <option value="BIB">NUMERO GARA</option>
-                                            <option value="TEAM">NOME TEAM</option>
-                                            <option value="COGNOME">COGNOME PILOTA</option>
-                                            <option value="STAFF">GRUPPO STAFF</option>
-                                            <option value="LUNCH">OSPITI PRANZO</option>
-                                        </select>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>ACCOPPIAMENTO:</span>
-                                        <select value={filterTeamStatus} onChange={e => setFilterTeamStatus(e.target.value)} style={selectFilterStyle}>
-                                            <option value="ALL">TUTTI</option>
-                                            <option value="SINGLE">🔴 LUPI SOLITARI</option>
-                                            <option value="PENDING">🟠 PENDENTI</option>
-                                            <option value="CONFIRMED">🟢 TEAM OK</option>
-                                        </select>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+
+                                    {/* RIGHT SIDE: GLOBAL ACTIONS */}
+                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                                         <button
-                                            onClick={() => setFilterTeamStatus(filterTeamStatus === 'SINGLE' ? 'ALL' : 'SINGLE')}
-                                            style={{
-                                                ...filterBtnStyle,
-                                                backgroundColor: filterTeamStatus === 'SINGLE' ? '#F44336' : '#222',
-                                                color: '#fff',
-                                                border: filterTeamStatus === 'SINGLE' ? 'none' : '1px solid #444',
-                                                padding: '10px 20px',
-                                                fontSize: '0.75rem'
+                                            onClick={async () => {
+                                                try {
+                                                    const res = await fetch('/api/crm/update-pairings', { method: 'POST' });
+                                                    const data = await res.json();
+                                                    if (data.success) {
+                                                        Swal.fire({ icon: 'success', title: 'OK', text: data.message, background: '#111', color: '#fff' });
+                                                        fetchAllData();
+                                                    }
+                                                } catch (err) { }
                                             }}
+                                            style={{ ...filterBtnStyle, backgroundColor: '#00E5FF', color: '#000', border: 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.75rem', fontWeight: 900 }}
                                         >
-                                            {filterTeamStatus === 'SINGLE' ? '👀 MOSTRA TUTTI' : '🕵️ MOSTRA SOLO ORFANI'}
+                                            🤝 COPPIE
+                                        </button>
+
+                                        <button
+                                            onClick={handleAutoAssign}
+                                            style={{ ...filterBtnStyle, backgroundColor: '#E6007E', color: '#fff', border: 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.75rem', fontWeight: 900 }}
+                                        >
+                                            🚀 PETTORALI
+                                        </button>
+
+                                        <button
+                                            onClick={() => setShowPDFPreview(true)}
+                                            style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', color: '#000', border: 'none', padding: '12px 20px', borderRadius: '14px', fontSize: '0.75rem', fontWeight: 900 }}
+                                        >
+                                            🖨️ PDF STAMPA
                                         </button>
                                     </div>
-                                    <div style={{ flex: 1 }}></div>
-                                    <button
-                                        onClick={async () => {
-                                            try {
-                                                const res = await fetch('/api/crm/update-pairings', { method: 'POST' });
-                                                const data = await res.json();
-                                                if (data.success) {
-                                                    await Swal.fire({
-                                                        icon: 'success',
-                                                        title: 'ACCOPPIAMENTI AGGIORNATI',
-                                                        text: data.message,
-                                                        background: '#111',
-                                                        color: '#fff',
-                                                        confirmButtonColor: '#4CAF50'
-                                                    });
-                                                    fetchAllData();
-                                                } else {
-                                                    throw new Error(data.error);
-                                                }
-                                            } catch (err) {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'ERRORE',
-                                                    text: err.message,
-                                                    background: '#111',
-                                                    color: '#fff'
-                                                });
-                                            }
-                                        }}
-                                        style={{ ...filterBtnStyle, backgroundColor: '#00E5FF', border: 'none', color: '#000' }}
-                                    >
-                                        🤝 AGGIORNA ACCOPPIAMENTI
-                                    </button>
-                                    <div style={{ width: '20px' }}></div>
-                                    <button
-                                        onClick={handleAutoAssign}
-                                        style={{ ...filterBtnStyle, backgroundColor: '#E6007E', border: 'none', color: '#fff' }}
-                                    >
-                                        🚀 ASSEGNA PETTORALI
-                                    </button>
-                                    <div style={{ width: '20px' }}></div>
-                                    <button
-                                        onClick={() => setShowPDFPreview(true)}
-                                        style={{ ...filterBtnStyle, backgroundColor: '#4CAF50', border: 'none', color: '#000' }}
-                                    >
-                                        🖨️ ANTEPRIMA & STAMPA
-                                    </button>
                                 </div>
                             )}
 
@@ -888,8 +902,33 @@ function App() {
     );
 }
 
-const selectFilterStyle = { background: '#222', color: '#fff', border: '1px solid #444', padding: '10px 15px', borderRadius: '10px', fontSize: '0.9rem', outline: 'none' };
-const filterBtnStyle = { padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 800, border: '1px solid #444', transition: '0.3s', userSelect: 'none' };
+const selectFilterStyle = {
+    background: '#1a1a1f',
+    color: '#fff',
+    border: '1px solid #333',
+    padding: '12px 20px',
+    borderRadius: '16px',
+    fontSize: '0.85rem',
+    fontWeight: 700,
+    outline: 'none',
+    cursor: 'pointer',
+    appearance: 'none',
+    transition: '0.3s'
+};
+
+const filterBtnStyle = {
+    padding: '12px 25px',
+    borderRadius: '16px',
+    cursor: 'pointer',
+    fontSize: '0.8rem',
+    fontWeight: 900,
+    border: '1px solid #333',
+    transition: '0.3s',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    userSelect: 'none'
+};
 
 const btnGhostStyle = { background: '#1a1a1f', border: '1px solid #333', color: '#fff', padding: '12px 25px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 900, cursor: 'pointer' };
 const btnBackStyle = { marginBottom: '40px', backgroundColor: '#FFCC00', color: '#000', border: 'none', padding: '18px 40px', borderRadius: '50px', fontWeight: 900, fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 20px 40px rgba(255,204,0,0.3)' };
