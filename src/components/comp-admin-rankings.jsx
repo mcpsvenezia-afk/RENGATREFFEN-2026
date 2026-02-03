@@ -223,7 +223,7 @@ export function RankingsTab({ registrations, onRefresh }) {
 
                             <div style={{ textAlign: 'center', padding: '0 20px' }}>
                                 <div style={{ fontSize: '0.7rem', color: '#666', fontWeight: 900 }}>PROVE</div>
-                                <div style={{ fontSize: '1.2rem', color: '#FFCC00', fontWeight: 900 }}>{team.photoCount} / 6</div>
+                                <div style={{ fontSize: '1.2rem', color: '#FFCC00', fontWeight: 900 }}>{team.photoCount} / 4</div>
                             </div>
 
                             <div style={{ transform: expandedTeamId === team.id ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.3s', color: '#666' }}>
@@ -248,7 +248,7 @@ export function RankingsTab({ registrations, onRefresh }) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {[1, 2, 3, 4, 5, 6].map(num => {
+                                            {[1, 2, 3, 4].map(num => {
                                                 const log = getLogDetails(team, num);
 
                                                 // SOURCE OF TRUTH: target_times from registration

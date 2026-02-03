@@ -130,7 +130,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
                     const targets = {};
                     if (isCaccia) {
-                        [0, 1, 2, 3, 4, 5].forEach((idx) => {
+                        [0, 1, 2, 3].forEach((idx) => {
                             const totalMinutesFromBase = offsets[idx] || 0;
                             const targetDate = new Date();
                             targetDate.setHours(baseH, baseM + totalMinutesFromBase, 0, 0);
@@ -326,7 +326,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     {/* COLONNA ROSSA */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <label style={{ ...labelStyle, color: '#ff4444', textAlign: 'center' }}>SCHEDA ROSSA</label>
-                        {[1, 2, 3, 4, 5, 6].map(num => (
+                        {[1, 2, 3, 4].map(num => (
                             <div key={`red_${num}`}>
                                 <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>STEP {num} (MIN)</label>
                                 <input
@@ -342,7 +342,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     {/* COLONNA GIALLA */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <label style={{ ...labelStyle, color: '#FFCC00', textAlign: 'center' }}>SCHEDA GIALLA</label>
-                        {[1, 2, 3, 4, 5, 6].map(num => (
+                        {[1, 2, 3, 4].map(num => (
                             <div key={`yellow_${num}`}>
                                 <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>STEP {num} (MIN)</label>
                                 <input
@@ -358,7 +358,7 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     {/* COLONNA VIOLA */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <label style={{ ...labelStyle, color: '#E6007E', textAlign: 'center' }}>SCHEDA VIOLA</label>
-                        {[1, 2, 3, 4, 5, 6].map(num => (
+                        {[1, 2, 3, 4].map(num => (
                             <div key={`purple_${num}`}>
                                 <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>STEP {num} (MIN)</label>
                                 <input
