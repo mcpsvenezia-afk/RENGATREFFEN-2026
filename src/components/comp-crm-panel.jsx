@@ -10,6 +10,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { sendWelcomeEmail, sendApprovalEmail, sendWaitlistEmail, sendRejectionEmail } from '../core/logic-email-v1.js';
+import { TeamPairingIndicator } from './comp-team-status-badge';
 
 export function CRMDetail({ item, type, onBack, onRefresh }) {
     const [localItem, setLocalItem] = useState(item);
@@ -328,6 +329,7 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                         <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                                 <h2 style={{ fontSize: '3.4rem', color: primaryColor, margin: 0, fontWeight: 900, lineHeight: 1, letterSpacing: '-1px' }}>{localItem.team_name || localItem.name || localItem.nome}</h2>
+                                {type === 'registration' && <TeamPairingIndicator registration={localItem} />}
 
                                 {/* AUTO-SAVE INDICATOR */}
                                 <div style={{ fontSize: '0.9rem', fontWeight: 700, transition: '0.3s', opacity: saveStatus === 'idle' ? 0 : 1, color: saveStatus === 'saving' ? '#aaa' : saveStatus === 'saved' ? '#4CAF50' : '#E6007E', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.3)', padding: '8px 15px', borderRadius: '12px' }}>

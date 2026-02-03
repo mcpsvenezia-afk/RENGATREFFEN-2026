@@ -8,30 +8,33 @@ import React from 'react';
 
 export function TeamStatusBadge({ status, teamId, partnerName }) {
     const getStatusConfig = () => {
-        switch (status) {
-            case 'PAIRED':
-                return {
-                    color: '#4CAF50',
-                    icon: '✓',
-                    label: 'ACCOPPIATO',
-                    tooltip: `Team completo${partnerName ? ` con ${partnerName}` : ''}`
-                };
-            case 'PENDING':
-                return {
-                    color: '#FF9800',
-                    icon: '⚠',
-                    label: 'PARZIALE',
-                    tooltip: 'Partner indicato non ha ricambiato'
-                };
-            case 'SINGLE':
-            default:
-                return {
-                    color: '#F44336',
-                    icon: '○',
-                    label: 'SINGOLO',
-                    tooltip: 'Nessun partner indicato'
-                };
+        // Normalizziamo lo stato per evitare problemi di Case Sensitivity
+        const s = (status || '').toUpperCase();
+
+        if (s === 'CONFIRMED' || s === 'PAIRED' || teamId) {
+            return {
+                color: '#4CAF50',
+                icon: '🏁',
+                label: 'TEAM OK',
+                tooltip: `Team completo${partnerName ? ` con ${partnerName}` : ''}`
+            };
         }
+
+        if (s === 'PENDING') {
+            return {
+                color: '#FF9800',
+                icon: '⏳',
+                label: 'PENDENTE',
+                tooltip: 'Partner indicato non ha ancora ricambiato'
+            };
+        }
+
+        return {
+            color: '#F44336',
+            icon: '👤',
+            label: 'LUPO SOLITARIO',
+            tooltip: 'Nessun partner indicato'
+        };
     };
 
     const config = getStatusConfig();

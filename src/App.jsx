@@ -26,7 +26,7 @@ function App() {
     // Filters & Sorting v7.2.7
     const [filterFormula, setFilterFormula] = useState('ALL');
     const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PAID, NOT_PAID, WAITING, REJECTED, VERIFY
-    const [filterTeamStatus, setFilterTeamStatus] = useState('ALL'); // ALL, SINGLE, PENDING, PAIRED
+    const [filterTeamStatus, setFilterTeamStatus] = useState('ALL'); // ALL, SINGLE, PENDING, CONFIRMED
     const [sortType, setSortType] = useState('BIB'); // DEFAULT, TIME, BIB, TEAM, COGNOME, STAFF, LUNCH
     const [showPDFPreview, setShowPDFPreview] = useState(false);
     const [previewType, setPreviewType] = useState('FULL'); // FULL, ONLY_4X4, ONLY_PAID, TOTALS
@@ -83,8 +83,8 @@ function App() {
                 list = list.filter(r => !r.team_status || r.team_status === 'SINGLE');
             } else if (filterTeamStatus === 'PENDING') {
                 list = list.filter(r => r.team_status === 'PENDING');
-            } else if (filterTeamStatus === 'PAIRED') {
-                list = list.filter(r => r.team_status === 'PAIRED');
+            } else if (filterTeamStatus === 'PAIRED' || filterTeamStatus === 'CONFIRMED') {
+                list = list.filter(r => r.team_status === 'PAIRED' || r.team_status === 'CONFIRMED');
             }
         }
 
@@ -93,7 +93,7 @@ function App() {
         const teamSortMap = {};
         if (sortType !== 'DEFAULT') {
             list.forEach(r => {
-                if (r.team_id && r.team_status === 'PAIRED') {
+                if (r.team_id && (r.team_status === 'PAIRED' || r.team_status === 'CONFIRMED')) {
                     let val;
                     switch (sortType) {
                         case 'BIB': val = r.bib_number || '9999'; break;
@@ -121,8 +121,8 @@ function App() {
             }
 
             // Priority 2: Team Grouping
-            const hasTeamA = a.team_id && a.team_status === 'PAIRED';
-            const hasTeamB = b.team_id && b.team_status === 'PAIRED';
+            const hasTeamA = a.team_id && (a.team_status === 'PAIRED' || a.team_status === 'CONFIRMED');
+            const hasTeamB = b.team_id && (b.team_status === 'PAIRED' || b.team_status === 'CONFIRMED');
 
             if (hasTeamA && hasTeamB && a.team_id === b.team_id) {
                 // Same team: sort internally by name
@@ -543,10 +543,25 @@ function App() {
                                         <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#888' }}>ACCOPPIAMENTO:</span>
                                         <select value={filterTeamStatus} onChange={e => setFilterTeamStatus(e.target.value)} style={selectFilterStyle}>
                                             <option value="ALL">TUTTI</option>
-                                            <option value="SINGLE">🔴 SOLO SINGOLI</option>
-                                            <option value="PENDING">🟠 PARZIALI</option>
-                                            <option value="PAIRED">🟢 ACCOPPIATI</option>
+                                            <option value="SINGLE">🔴 LUPI SOLITARI</option>
+                                            <option value="PENDING">🟠 PENDENTI</option>
+                                            <option value="CONFIRMED">🟢 TEAM OK</option>
                                         </select>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                        <button
+                                            onClick={() => setFilterTeamStatus(filterTeamStatus === 'SINGLE' ? 'ALL' : 'SINGLE')}
+                                            style={{
+                                                ...filterBtnStyle,
+                                                backgroundColor: filterTeamStatus === 'SINGLE' ? '#F44336' : '#222',
+                                                color: '#fff',
+                                                border: filterTeamStatus === 'SINGLE' ? 'none' : '1px solid #444',
+                                                padding: '10px 20px',
+                                                fontSize: '0.75rem'
+                                            }}
+                                        >
+                                            {filterTeamStatus === 'SINGLE' ? '👀 MOSTRA TUTTI' : '🕵️ MOSTRA SOLO ORFANI'}
+                                        </button>
                                     </div>
                                     <div style={{ flex: 1 }}></div>
                                     <button
