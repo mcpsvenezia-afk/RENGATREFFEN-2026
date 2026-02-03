@@ -65,7 +65,6 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             const { data: regs, error: errRegs } = await supabase
                 .from('registrations')
                 .select('*')
-                .eq('stato_iscrizione', 'Confermata')
                 .order('bib_number', { ascending: true });
 
             if (errRegs) throw errRegs;
@@ -104,14 +103,15 @@ export function SettingsTab({ isDevMode, onRefresh }) {
             const discovery = getSortedGroup(r => r.formula_partecipazione === 'Discovery');
             const x4 = getSortedGroup(r => r.formula_partecipazione === '4x4');
 
-            const photoBaseOffsets = [60, 120, 180, 240];
+            const photoBaseOffsets = [30, 60, 90, 120, 150, 180];
             let globalIdx = 0;
 
             const processGroup = (group, startTimeId) => {
                 let currentMinutes = parseTimeToMinutes(p[startTimeId] || '08:00');
 
                 group.forEach((team) => {
-                    const color = cardColors[globalIdx % 3]; // Rotation based on start order
+                    const colorOrder = ['ROSSA', 'GIALLA', 'VIOLA'];
+                    const color = colorOrder[globalIdx % 3];
                     const prefix = color.toLowerCase();
                     const depTime = formatTime(currentMinutes);
 
@@ -119,7 +119,9 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                         p?.[`offset_${prefix}_1`] || 0,
                         p?.[`offset_${prefix}_2`] || 0,
                         p?.[`offset_${prefix}_3`] || 0,
-                        p?.[`offset_${prefix}_4`] || 0
+                        p?.[`offset_${prefix}_4`] || 0,
+                        p?.[`offset_${prefix}_5`] || 0,
+                        p?.[`offset_${prefix}_6`] || 0
                     ];
 
                     const [h, m] = depTime.split(':').map(Number);
@@ -138,7 +140,6 @@ export function SettingsTab({ isDevMode, onRefresh }) {
 
                     updates.push({
                         id: team.id,
-                        // bib_number: team.bib_number, // DO NOT TOUCH BIB
                         departure_time: depTime,
                         card_color: color,
                         target_times: targets
@@ -321,14 +322,14 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     {/* COLONNA ROSSA */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <label style={{ ...labelStyle, color: '#ff4444', textAlign: 'center' }}>SCHEDA ROSSA</label>
-                        {[1, 2, 3, 4].map(num => (
+                        {[1, 2, 3, 4, 5, 6].map(num => (
                             <div key={`red_${num}`}>
-                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>OFFSET {num} (MIN)</label>
+                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>STEP {num} (MIN)</label>
                                 <input
                                     type="number"
                                     value={settings.race_params?.[`offset_red_${num}`] || 0}
                                     onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, [`offset_red_${num}`]: parseInt(e.target.value) } })}
-                                    style={{ ...inputStyle, borderColor: 'rgba(255,68,68,0.2)' }}
+                                    style={{ ...inputStyle, borderColor: 'rgba(255,68,68,0.2)', padding: '10px' }}
                                 />
                             </div>
                         ))}
@@ -337,14 +338,14 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     {/* COLONNA GIALLA */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <label style={{ ...labelStyle, color: '#FFCC00', textAlign: 'center' }}>SCHEDA GIALLA</label>
-                        {[1, 2, 3, 4].map(num => (
+                        {[1, 2, 3, 4, 5, 6].map(num => (
                             <div key={`yellow_${num}`}>
-                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>OFFSET {num} (MIN)</label>
+                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>STEP {num} (MIN)</label>
                                 <input
                                     type="number"
                                     value={settings.race_params?.[`offset_yellow_${num}`] || 0}
                                     onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, [`offset_yellow_${num}`]: parseInt(e.target.value) } })}
-                                    style={{ ...inputStyle, borderColor: 'rgba(255,204,0,0.2)' }}
+                                    style={{ ...inputStyle, borderColor: 'rgba(255,204,0,0.2)', padding: '10px' }}
                                 />
                             </div>
                         ))}
@@ -353,14 +354,14 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     {/* COLONNA VIOLA */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <label style={{ ...labelStyle, color: '#E6007E', textAlign: 'center' }}>SCHEDA VIOLA</label>
-                        {[1, 2, 3, 4].map(num => (
+                        {[1, 2, 3, 4, 5, 6].map(num => (
                             <div key={`purple_${num}`}>
-                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>OFFSET {num} (MIN)</label>
+                                <label style={{ fontSize: '0.6rem', color: '#444', fontWeight: 900 }}>STEP {num} (MIN)</label>
                                 <input
                                     type="number"
                                     value={settings.race_params?.[`offset_purple_${num}`] || 0}
                                     onChange={e => setSettings({ ...settings, race_params: { ...settings.race_params, [`offset_purple_${num}`]: parseInt(e.target.value) } })}
-                                    style={{ ...inputStyle, borderColor: 'rgba(230,0,126,0.2)' }}
+                                    style={{ ...inputStyle, borderColor: 'rgba(230,0,126,0.2)', padding: '10px' }}
                                 />
                             </div>
                         ))}

@@ -142,7 +142,8 @@ export function RankingsTab({ registrations, onRefresh }) {
                     totalPenalty += Math.floor(diffMs / 1000);
                 }
             } else if (log.validation_status === 'SALTATA') {
-                totalPenalty += 3600; // 1 hour penalty for skipped photo
+                const skipPenalty = eventParams?.race_params?.penalty_skipped_photo || 3600;
+                totalPenalty += skipPenalty;
             }
         });
         team.totalScore = totalPenalty;
