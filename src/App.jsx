@@ -13,6 +13,7 @@ import { AppConfigTab } from './components/comp-admin-app-config';
 import { RankingsTab } from './components/comp-admin-rankings';
 import { RadarTab } from './components/comp-admin-radar';
 import { AdminGatekeeper } from './components/comp-admin-gatekeeper';
+import { CRMChatThread } from './components/comp-crm-chat';
 
 function App() {
     const [registrations, setRegistrations] = useState([]);
@@ -31,6 +32,8 @@ function App() {
     const [printOrientation, setPrintOrientation] = useState('PORTRAIT'); // PORTRAIT, LANDSCAPE
     const [printMode, setPrintMode] = useState('COLOR'); // COLOR, BW
     const [showDna, setShowDna] = useState(true);
+    const [showChatModal, setShowChatModal] = useState(false);
+    const [chatMessage, setChatMessage] = useState(null);
 
     useEffect(() => {
         const isStored = localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true';
@@ -489,7 +492,10 @@ function App() {
                                 ) : activeTab === 'messages' ? (
                                     <MessageList
                                         data={messages}
-                                        onSelect={(msg) => setSelectedItem({ data: msg, type: 'message' })}
+                                        onSelect={(msg) => {
+                                            setChatMessage(msg);
+                                            setShowChatModal(true);
+                                        }}
                                         isDevMode={isDevMode}
                                         onInspect={(msg) => navigator.clipboard.writeText(JSON.stringify(msg, null, 2))}
                                     />
@@ -727,6 +733,18 @@ function App() {
                 }
             `}</style>
             </div>
+
+            {/* 💬 CRM CHAT MODAL */}
+            {showChatModal && chatMessage && (
+                <CRMChatThread
+                    message={chatMessage}
+                    onClose={() => {
+                        setShowChatModal(false);
+                        setChatMessage(null);
+                        fetchAllData();
+                    }}
+                />
+            )}
         </AdminGatekeeper>
     );
 }
