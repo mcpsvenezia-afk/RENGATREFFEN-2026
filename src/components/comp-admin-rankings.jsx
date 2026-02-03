@@ -160,27 +160,31 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
         // 2. Score each group
         const teamList = Object.values(groups).map(team => {
             const memberIds = team.members.map(m => m.id);
-            // 🛡️ FILTRO CAPITANO: Calcoliamo il punteggio sui log del Capitano (A) o quelli legacy (senza codice)
-            const teamLogs = logs.filter(l => memberIds.includes(l.registration_id) && (l.pilot_code === 'A' || !l.pilot_code));
+            // Prendo TUTTI i log del team per la visibilità globale
+            const teamLogs = logs.filter(l => memberIds.includes(l.registration_id));
 
             let totalPenalty = 0;
             let validCount = 0;
 
             [1, 2, 3, 4].forEach(num => {
-                const log = teamLogs.find(l => l.photo_number === num);
-                if (log) {
-                    // Contiamo la prova come "fatta" se c'è un log (anche se non ancora validato)
+                const stepLogs = teamLogs.filter(l => l.photo_number === num);
+                const officialLog = stepLogs.find(l => l.pilot_code === 'A' || !l.pilot_code);
+                const anyLog = stepLogs[0]; // Prendi il primo log disponibile per segnare la prova come fatta
+
+                if (anyLog) {
+                    // La prova è "fatta" se chiunque del team ha inviato qualcosa
                     validCount++;
 
-                    if (log.validation_status === 'VALID') {
+                    // Il punteggio si calcola SOLO sul log ufficiale (Capitano)
+                    if (officialLog && officialLog.validation_status === 'VALID') {
                         // Target lookup
                         const targetTimeStr = team.target_times?.[`photo_${num}`];
                         if (targetTimeStr) {
                             try {
                                 const [tH, tM, tS] = targetTimeStr.split(':').map(Number);
-                                const targetDate = new Date(log.recorded_at);
+                                const targetDate = new Date(officialLog.recorded_at);
                                 targetDate.setHours(tH, tM, tS || 0, 0);
-                                const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
+                                const diffMs = Math.abs(new Date(officialLog.recorded_at) - targetDate);
                                 totalPenalty += Math.floor(diffMs / 1000);
                             } catch (e) { console.warn("Invalid target time", targetTimeStr); }
                         } else {
@@ -190,12 +194,12 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                             if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
 
                             const [startH, startM] = baseTime.split(':').map(Number);
-                            const targetDate = new Date(log.recorded_at);
+                            const targetDate = new Date(officialLog.recorded_at);
                             targetDate.setHours(startH, startM, 0, 0);
-                            const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
+                            const diffMs = Math.abs(new Date(officialLog.recorded_at) - targetDate);
                             totalPenalty += Math.floor(diffMs / 1000);
                         }
-                    } else if (log.validation_status === 'SALTATA') {
+                    } else if (officialLog && officialLog.validation_status === 'SALTATA') {
                         const skipPenalty = eventParams?.race_params?.penalty_skipped_photo || 3600;
                         totalPenalty += skipPenalty;
                     }
@@ -319,8 +323,16 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                         <tbody>
                                             {[1, 2, 3, 4].map(num => {
                                                 const teamMemberIds = team.members.map(m => m.id);
-                                                // Priorità al log del Capitano (A) o legacy (senza codice)
-                                                const log = logs.find(l => teamMemberIds.includes(l.registration_id) && l.photo_number === num && (l.pilot_code === 'A' || !l.pilot_code));
+                                                const stepLogs = logs.filter(l => teamMemberIds.includes(l.registration_id) && l.photo_number === num);
+
+                                                // Log Ufficiale (A o null)
+                                                const official = stepLogs.find(l => l.pilot_code === 'A' || !l.pilot_code);
+                                                // Log Partner (B)
+                                                const partner = stepLogs.find(l => l.pilot_code === 'B');
+
+                                                // Visualizziamo l'ufficiale se c'è, altrimenti il partner (come referenza)
+                                                const log = official || partner;
+                                                const isPartnerRef = !official && partner;
 
                                                 // SOURCE OF TRUTH: target_times from team group
                                                 let targetTimeStr = "--:--";
@@ -362,14 +374,15 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                                         <td style={{ padding: '15px', fontWeight: 900, color: '#fff' }}>
                                                             STEP {num}
                                                         </td>
-                                                        <td style={{ padding: '15px', color: '#aaa', fontFamily: 'monospace' }}>
-                                                            {targetTimeStr}
+                                                        <td style={{ padding: '15px' }}>
+                                                            <div style={{ color: '#fff', fontWeight: 900 }}>{targetTimeStr}</div>
                                                         </td>
-                                                        <td style={{ padding: '15px', color: '#fff', fontWeight: 'bold', fontFamily: 'monospace' }}>
-                                                            {actualTimeStr}
+                                                        <td style={{ padding: '15px' }}>
+                                                            <div style={{ color: isPartnerRef ? '#666' : '#00E5FF', fontFamily: 'monospace' }}>{actualTimeStr}</div>
+                                                            {isPartnerRef && <div style={{ fontSize: '0.6rem', color: '#666', fontWeight: 900 }}>PARTNER (No Score)</div>}
                                                         </td>
-                                                        <td style={{ padding: '15px', color: diffColor, fontWeight: 900, fontFamily: 'monospace' }}>
-                                                            {diffStr}
+                                                        <td style={{ padding: '15px', color: isPartnerRef ? '#333' : diffColor, fontWeight: 900, fontFamily: 'monospace' }}>
+                                                            {isPartnerRef ? '--' : diffStr}
                                                         </td>
                                                         <td style={{ padding: '10px', textAlign: 'center' }}>
                                                             {log ? (
