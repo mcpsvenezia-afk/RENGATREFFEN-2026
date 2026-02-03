@@ -7,8 +7,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-    process.env.VITE_SUPABASE_URL,
-    process.env.VITE_SUPABASE_ANON_KEY
+    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
 );
 
 export default async function handler(req, res) {
@@ -38,55 +38,73 @@ export default async function handler(req, res) {
         }
 
         const { data: messages, error: msgError } = await messagesQuery;
-        if (msgError) throw msgError;
-
-        // 2. Get all replies for this user/message
-        let repliesQuery = supabase
-            .from('crm_replies')
-            .select('*')
-            .order('created_at', { ascending: true });
-
-        if (messageId) {
-            repliesQuery = repliesQuery.eq('message_id', messageId);
-        } else {
-            repliesQuery = repliesQuery.eq('user_email', email);
+        if (msgError) {
+            console.error('Messages query error:', msgError);
+            throw msgError;
         }
 
-        const { data: replies, error: repError } = await repliesQuery;
-        if (repError) throw repError;
+        // 2. Get all replies for this user/message (may not exist yet)
+        let replies = [];
+        try {
+            let repliesQuery = supabase
+                .from('crm_replies')
+                .select('*')
+                .order('created_at', { ascending: true });
+
+            if (messageId) {
+                repliesQuery = repliesQuery.eq('message_id', messageId);
+            } else {
+                repliesQuery = repliesQuery.eq('user_email', email);
+            }
+
+            const { data: repliesData, error: repError } = await repliesQuery;
+            if (!repError && repliesData) {
+                replies = repliesData;
+            } else {
+                console.warn('Replies query warning (table may not exist):', repError);
+            }
+        } catch (repErr) {
+            console.warn('Replies fetch failed (table may not exist yet):', repErr);
+        }
 
         // 3. Combine and format thread
-        messages.forEach(msg => {
-            thread.push({
-                id: msg.id,
-                type: 'message',
-                direction: 'inbound',
-                content: msg.message,
-                sender: msg.name,
-                email: msg.email,
-                attachments: msg.attachments || [],
-                created_at: msg.created_at
+        if (messages && messages.length > 0) {
+            messages.forEach(msg => {
+                thread.push({
+                    id: msg.id,
+                    type: 'message',
+                    direction: 'inbound',
+                    content: msg.message,
+                    sender: msg.name,
+                    email: msg.email,
+                    attachments: msg.attachments || [],
+                    created_at: msg.created_at
+                });
             });
-        });
+        }
 
-        replies.forEach(reply => {
-            thread.push({
-                id: reply.id,
-                type: 'reply',
-                direction: reply.direction,
-                content: reply.content,
-                sender: reply.direction === 'outbound' ? reply.admin_name : reply.user_email,
-                email: reply.user_email,
-                created_at: reply.created_at
+        if (replies && replies.length > 0) {
+            replies.forEach(reply => {
+                thread.push({
+                    id: reply.id,
+                    type: 'reply',
+                    direction: reply.direction,
+                    content: reply.content,
+                    sender: reply.direction === 'outbound' ? reply.admin_name : reply.user_email,
+                    email: reply.user_email,
+                    created_at: reply.created_at
+                });
             });
-        });
+        }
 
         // 4. Sort by date
         thread.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
+        console.log('Thread loaded successfully:', { messageCount: messages?.length || 0, replyCount: replies?.length || 0, totalThread: thread.length });
+
         res.status(200).json({ success: true, thread });
     } catch (error) {
         console.error('Thread history error:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: error.message, details: error.toString() });
     }
 }

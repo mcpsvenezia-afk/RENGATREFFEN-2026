@@ -27,13 +27,23 @@ export function CRMChatThread({ message, onClose }) {
     async function fetchThread() {
         setLoading(true);
         try {
+            console.log('Fetching thread for message:', message.id);
             const res = await fetch(`/api/crm/thread-history?messageId=${message.id}`);
+            console.log('API Response status:', res.status);
+
             const data = await res.json();
+            console.log('API Response data:', data);
+
             if (data.success) {
                 setThread(data.thread);
+                console.log('Thread loaded:', data.thread.length, 'messages');
+            } else {
+                console.error('API returned error:', data.error);
+                alert('Errore caricamento conversazione: ' + (data.error || 'Errore sconosciuto'));
             }
         } catch (err) {
             console.error('Fetch thread error:', err);
+            alert('Errore di connessione: ' + err.message);
         } finally {
             setLoading(false);
         }
