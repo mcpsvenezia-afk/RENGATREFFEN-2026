@@ -133,11 +133,11 @@ export function RankingsTab({ registrations, onRefresh }) {
                     const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
                     totalPenalty += Math.floor(diffMs / 1000);
                 } else {
-                    // Fallback basic calculation
+                    // Fallback using raw departure_time
                     const depTime = team.members[0].departure_time || "09:00";
                     const [startH, startM] = depTime.split(':').map(Number);
                     const targetDate = new Date(log.recorded_at);
-                    targetDate.setHours(startH, startM + (log.photo_number * 30), 0, 0);
+                    targetDate.setHours(startH, startM, 0, 0);
                     const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
                     totalPenalty += Math.floor(diffMs / 1000);
                 }
@@ -249,11 +249,11 @@ export function RankingsTab({ registrations, onRefresh }) {
                                                 if (team.members[0]?.target_times?.[`photo_${num}`]) {
                                                     targetTimeStr = team.members[0].target_times[`photo_${num}`].substring(0, 5);
                                                 } else {
-                                                    // Fallback calculation if not regenerated
+                                                    // Fallback calculation using raw departure_time
                                                     const depTime = team.members[0].departure_time || "09:00";
                                                     const [startH, startM] = depTime.split(':').map(Number);
                                                     const targetDate = new Date();
-                                                    targetDate.setHours(startH, startM + (num * 30), 0);
+                                                    targetDate.setHours(startH, startM, 0);
                                                     targetTimeStr = targetDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                                                 }
 

@@ -129,9 +129,9 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                     depDate.setHours(h, m, 0, 0);
 
                     const targets = {};
-                    photoBaseOffsets.forEach((baseOffset, idx) => {
-                        const multiplier = offsets[idx] || 0;
-                        const targetDate = new Date(depDate.getTime() + (baseOffset + multiplier) * 60000);
+                    [0, 1, 2, 3, 4, 5].forEach((idx) => {
+                        const totalMinutesFromStart = offsets[idx] || 0;
+                        const targetDate = new Date(depDate.getTime() + totalMinutesFromStart * 60000);
                         const timeStr = targetDate.toLocaleTimeString('it-IT', {
                             hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
                         });
