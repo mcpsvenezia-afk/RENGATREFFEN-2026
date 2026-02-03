@@ -88,17 +88,29 @@ function App() {
             }
         }
 
-        // 3. Advanced Sorting
+        // 3. Team-Aware Sorting v10.2
+        // Pre-calculate representative values for teams to keep them grouped
+        const teamSortMap = {};
+        if (sortType !== 'DEFAULT') {
+            list.forEach(r => {
+                if (r.team_id && r.team_status === 'PAIRED') {
+                    let val;
+                    switch (sortType) {
+                        case 'BIB': val = r.bib_number || '9999'; break;
+                        case 'TIME': val = r.departure_time || '99:99'; break;
+                        case 'TEAM': val = r.team_name || 'ZZZ'; break;
+                        case 'COGNOME': val = r.cognome || 'ZZZ'; break;
+                        default: val = r.id;
+                    }
+
+                    if (!teamSortMap[r.team_id] || val < teamSortMap[r.team_id]) {
+                        teamSortMap[r.team_id] = val;
+                    }
+                }
+            });
+        }
+
         list.sort((a, b) => {
-            // Priority 0: Group by team_id (paired teams stay together)
-            const hasTeamA = a.team_id && a.team_status === 'PAIRED';
-            const hasTeamB = b.team_id && b.team_status === 'PAIRED';
-
-            if (hasTeamA && hasTeamB && a.team_id === b.team_id) {
-                // Same team, keep them together (sort by name within team)
-                return (a.cognome || '').localeCompare(b.cognome || '');
-            }
-
             // Priority 1: STAFF grouping
             const isStaffA = (a.team_name || '').toLowerCase() === 'staff';
             const isStaffB = (b.team_name || '').toLowerCase() === 'staff';
@@ -108,24 +120,63 @@ function App() {
                 if (!isStaffA && isStaffB) return 1;
             }
 
+            // Priority 2: Team Grouping
+            const hasTeamA = a.team_id && a.team_status === 'PAIRED';
+            const hasTeamB = b.team_id && b.team_status === 'PAIRED';
+
+            if (hasTeamA && hasTeamB && a.team_id === b.team_id) {
+                // Same team: sort internally by name
+                return (a.cognome || '').localeCompare(b.cognome || '');
+            }
+
+            // Get sort values (using team representative if applicable)
+            let valA, valB;
+            if (sortType === 'DEFAULT') {
+                valA = new Date(a.created_at);
+                valB = new Date(b.created_at);
+                // For default (recent), we don't necessarily group unless asked, 
+                // but let's keep them together using the newest member's date
+                if (hasTeamA) {
+                    if (!teamSortMap[a.team_id]) {
+                        const members = list.filter(r => r.team_id === a.team_id);
+                        teamSortMap[a.team_id] = Math.max(...members.map(m => new Date(m.created_at)));
+                    }
+                    valA = teamSortMap[a.team_id];
+                }
+                if (hasTeamB) {
+                    if (!teamSortMap[b.team_id]) {
+                        const members = list.filter(r => r.team_id === b.team_id);
+                        teamSortMap[b.team_id] = Math.max(...members.map(m => new Date(m.created_at)));
+                    }
+                    valB = teamSortMap[b.team_id];
+                }
+                return valB - valA;
+            }
+
+            valA = hasTeamA ? teamSortMap[a.team_id] : null;
+            valB = hasTeamB ? teamSortMap[b.team_id] : null;
+
             switch (sortType) {
                 case 'TIME':
-                    return (a.departure_time || '99:99').localeCompare(b.departure_time || '99:99');
+                    valA = valA || (a.departure_time || '99:99');
+                    valB = valB || (b.departure_time || '99:99');
+                    return valA.localeCompare(valB);
                 case 'BIB':
-                    return (a.bib_number || '').localeCompare(b.bib_number || '', undefined, { numeric: true, sensitivity: 'base' });
+                    valA = valA || (a.bib_number || '9999');
+                    valB = valB || (b.bib_number || '9999');
+                    return valA.localeCompare(valB, undefined, { numeric: true });
                 case 'TEAM':
-                    // First by team_id (if paired), then by team_name
-                    if (hasTeamA && hasTeamB) {
-                        const teamCompare = (a.team_id || '').localeCompare(b.team_id || '');
-                        if (teamCompare !== 0) return teamCompare;
-                    }
-                    return (a.team_name || '').localeCompare(b.team_name || '');
+                    valA = valA || (a.team_name || 'ZZZ');
+                    valB = valB || (b.team_name || 'ZZZ');
+                    return valA.localeCompare(valB);
                 case 'COGNOME':
-                    return (a.cognome || '').localeCompare(b.cognome || '');
+                    valA = valA || (a.cognome || 'ZZZ');
+                    valB = valB || (b.cognome || 'ZZZ');
+                    return valA.localeCompare(valB);
                 case 'LUNCH':
                     return (parseInt(b.pranzo_accompagnatori) || 0) - (parseInt(a.pranzo_accompagnatori) || 0);
                 default:
-                    return new Date(b.created_at) - new Date(a.created_at);
+                    return 0;
             }
         });
 
