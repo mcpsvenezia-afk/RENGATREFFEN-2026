@@ -90,7 +90,16 @@ function App() {
 
         // 3. Advanced Sorting
         list.sort((a, b) => {
-            // Priority: STAFF grouping
+            // Priority 0: Group by team_id (paired teams stay together)
+            const hasTeamA = a.team_id && a.team_status === 'PAIRED';
+            const hasTeamB = b.team_id && b.team_status === 'PAIRED';
+
+            if (hasTeamA && hasTeamB && a.team_id === b.team_id) {
+                // Same team, keep them together (sort by name within team)
+                return (a.cognome || '').localeCompare(b.cognome || '');
+            }
+
+            // Priority 1: STAFF grouping
             const isStaffA = (a.team_name || '').toLowerCase() === 'staff';
             const isStaffB = (b.team_name || '').toLowerCase() === 'staff';
 
@@ -105,6 +114,11 @@ function App() {
                 case 'BIB':
                     return (a.bib_number || '').localeCompare(b.bib_number || '', undefined, { numeric: true, sensitivity: 'base' });
                 case 'TEAM':
+                    // First by team_id (if paired), then by team_name
+                    if (hasTeamA && hasTeamB) {
+                        const teamCompare = (a.team_id || '').localeCompare(b.team_id || '');
+                        if (teamCompare !== 0) return teamCompare;
+                    }
                     return (a.team_name || '').localeCompare(b.team_name || '');
                 case 'COGNOME':
                     return (a.cognome || '').localeCompare(b.cognome || '');
@@ -485,6 +499,39 @@ function App() {
                                     </div>
                                     <div style={{ flex: 1 }}></div>
                                     <button
+                                        onClick={async () => {
+                                            try {
+                                                const res = await fetch('/api/crm/update-pairings', { method: 'POST' });
+                                                const data = await res.json();
+                                                if (data.success) {
+                                                    await Swal.fire({
+                                                        icon: 'success',
+                                                        title: 'ACCOPPIAMENTI AGGIORNATI',
+                                                        text: data.message,
+                                                        background: '#111',
+                                                        color: '#fff',
+                                                        confirmButtonColor: '#4CAF50'
+                                                    });
+                                                    fetchAllData();
+                                                } else {
+                                                    throw new Error(data.error);
+                                                }
+                                            } catch (err) {
+                                                Swal.fire({
+                                                    icon: 'error',
+                                                    title: 'ERRORE',
+                                                    text: err.message,
+                                                    background: '#111',
+                                                    color: '#fff'
+                                                });
+                                            }
+                                        }}
+                                        style={{ ...filterBtnStyle, backgroundColor: '#00E5FF', border: 'none', color: '#000' }}
+                                    >
+                                        🤝 AGGIORNA ACCOPPIAMENTI
+                                    </button>
+                                    <div style={{ width: '20px' }}></div>
+                                    <button
                                         onClick={handleAutoAssign}
                                         style={{ ...filterBtnStyle, backgroundColor: '#E6007E', border: 'none', color: '#fff' }}
                                     >
@@ -559,153 +606,155 @@ function App() {
                 </main>
 
                 {/* 📄 PDF PREVIEW MODAL */}
-                {showPDFPreview && (
-                    <div
-                        data-dna="2300-PDF-PREVIEW-MODAL"
-                        style={{
-                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                            backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 2000,
-                            display: 'flex', flexDirection: 'column', padding: '40px'
-                        }}
-                    >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                            <h2 className="no-print" style={{ color: '#FFCC00', margin: 0 }}>ANTEPRIMA REPORT PDF</h2>
-                            <div style={{ display: 'flex', gap: '20px' }}>
-                                <select
-                                    value={printOrientation}
-                                    onChange={(e) => setPrintOrientation(e.target.value)}
-                                    style={{ ...selectFilterStyle, padding: '10px 30px' }}
-                                >
-                                    <option value="PORTRAIT">VERTICALE</option>
-                                    <option value="LANDSCAPE">ORIZZONTALE</option>
-                                </select>
-
-                                <select
-                                    value={printMode}
-                                    onChange={(e) => setPrintMode(e.target.value)}
-                                    style={{ ...selectFilterStyle, padding: '10px 30px' }}
-                                >
-                                    <option value="COLOR">A COLORI</option>
-                                    <option value="BW">BIANCO E NERO</option>
-                                </select>
-
-                                <button
-                                    onClick={() => { window.print(); setShowPDFPreview(false); }}
-                                    style={{ ...filterBtnStyle, backgroundColor: '#FFCC00', color: '#000' }}
-                                >
-                                    🖨️ CONFERMA & STAMPA
-                                </button>
-                                <button
-                                    onClick={() => setShowPDFPreview(false)}
-                                    style={{ ...filterBtnStyle, backgroundColor: '#444' }}
-                                >
-                                    CHIUDI
-                                </button>
-                            </div>
-                        </div>
-
+                {
+                    showPDFPreview && (
                         <div
-                            id="printable-area"
+                            data-dna="2300-PDF-PREVIEW-MODAL"
                             style={{
-                                backgroundColor: '#fff', color: '#000', flex: 1,
-                                borderRadius: '20px', padding: '50px', overflowY: 'auto',
-                                fontFamily: 'serif'
+                                position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                                backgroundColor: 'rgba(0,0,0,0.95)', zIndex: 2000,
+                                display: 'flex', flexDirection: 'column', padding: '40px'
                             }}
                         >
-                            <div style={{ textAlign: 'center', marginBottom: '40px', borderBottom: '2px solid #000', paddingBottom: '20px' }}>
-                                <h1 style={{ margin: 0, fontSize: '2.5rem' }}>RENGA TREFFEN 2026</h1>
-                                <p>Data Generazione: {new Date().toLocaleString()}</p>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                                <h2 className="no-print" style={{ color: '#FFCC00', margin: 0 }}>ANTEPRIMA REPORT PDF</h2>
+                                <div style={{ display: 'flex', gap: '20px' }}>
+                                    <select
+                                        value={printOrientation}
+                                        onChange={(e) => setPrintOrientation(e.target.value)}
+                                        style={{ ...selectFilterStyle, padding: '10px 30px' }}
+                                    >
+                                        <option value="PORTRAIT">VERTICALE</option>
+                                        <option value="LANDSCAPE">ORIZZONTALE</option>
+                                    </select>
+
+                                    <select
+                                        value={printMode}
+                                        onChange={(e) => setPrintMode(e.target.value)}
+                                        style={{ ...selectFilterStyle, padding: '10px 30px' }}
+                                    >
+                                        <option value="COLOR">A COLORI</option>
+                                        <option value="BW">BIANCO E NERO</option>
+                                    </select>
+
+                                    <button
+                                        onClick={() => { window.print(); setShowPDFPreview(false); }}
+                                        style={{ ...filterBtnStyle, backgroundColor: '#FFCC00', color: '#000' }}
+                                    >
+                                        🖨️ CONFERMA & STAMPA
+                                    </button>
+                                    <button
+                                        onClick={() => setShowPDFPreview(false)}
+                                        style={{ ...filterBtnStyle, backgroundColor: '#444' }}
+                                    >
+                                        CHIUDI
+                                    </button>
+                                </div>
                             </div>
 
-                            {activeTab === 'rankings' ? (
-                                <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                                    <thead>
-                                        <tr style={{ backgroundColor: '#f5f5f5' }}>
-                                            <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'center', width: '60px', color: '#000', fontWeight: 'bold' }}>POS</th>
-                                            <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', color: '#000', fontWeight: 'bold' }}>TEAM</th>
-                                            <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'center', width: '120px', color: '#000', fontWeight: 'bold' }}>PUNTEGGIO</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {(() => {
-                                            const teams = Array.from(new Set(registrations
-                                                .filter(r => r.team_name && r.team_name.toLowerCase() !== 'staff')
-                                                .map(r => r.team_name)
-                                            )).map(name => ({
-                                                name,
-                                                score: registrations.find(r => r.team_name === name)?.score_caccia || 0
-                                            })).sort((a, b) => b.score - a.score);
+                            <div
+                                id="printable-area"
+                                style={{
+                                    backgroundColor: '#fff', color: '#000', flex: 1,
+                                    borderRadius: '20px', padding: '50px', overflowY: 'auto',
+                                    fontFamily: 'serif'
+                                }}
+                            >
+                                <div style={{ textAlign: 'center', marginBottom: '40px', borderBottom: '2px solid #000', paddingBottom: '20px' }}>
+                                    <h1 style={{ margin: 0, fontSize: '2.5rem' }}>RENGA TREFFEN 2026</h1>
+                                    <p>Data Generazione: {new Date().toLocaleString()}</p>
+                                </div>
 
-                                            return teams.map((t, i) => (
-                                                <tr key={t.name}>
-                                                    <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#000' }}>{i + 1}</td>
-                                                    <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>{t.name.toUpperCase()}</td>
-                                                    <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: '#000' }}>{t.score}</td>
-                                                </tr>
-                                            ));
-                                        })()}
-                                    </tbody>
-                                </table>
-                            ) : (
-                                <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                                    <thead>
-                                        <tr style={{ backgroundColor: '#f5f5f5' }}>
-                                            <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>
-                                                {(() => {
-                                                    switch (sortType) {
-                                                        case 'TIME': return 'PARTENZA';
-                                                        case 'BIB': return '# GARA';
-                                                        case 'TEAM': return 'TEAM';
-                                                        case 'COGNOME': return 'PILOTA';
-                                                        case 'STAFF': return 'STAFF';
-                                                        case 'LUNCH': return 'OSPITI';
-                                                        default: return '# GARA';
-                                                    }
-                                                })()}
-                                            </th>
-                                            <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>TEAM / PILOTA</th>
-                                            <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>MOTO / VEICOLO</th>
-                                            <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>STATO</th>
-                                            <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>FORMULA</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {getPreviewData().map(r => (
-                                            <tr key={r.id} style={{ backgroundColor: printMode === 'COLOR' ? getTeamColor(r.team_name) : 'transparent' }}>
-                                                <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>
+                                {activeTab === 'rankings' ? (
+                                    <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: '#f5f5f5' }}>
+                                                <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'center', width: '60px', color: '#000', fontWeight: 'bold' }}>POS</th>
+                                                <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', color: '#000', fontWeight: 'bold' }}>TEAM</th>
+                                                <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'center', width: '120px', color: '#000', fontWeight: 'bold' }}>PUNTEGGIO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {(() => {
+                                                const teams = Array.from(new Set(registrations
+                                                    .filter(r => r.team_name && r.team_name.toLowerCase() !== 'staff')
+                                                    .map(r => r.team_name)
+                                                )).map(name => ({
+                                                    name,
+                                                    score: registrations.find(r => r.team_name === name)?.score_caccia || 0
+                                                })).sort((a, b) => b.score - a.score);
+
+                                                return teams.map((t, i) => (
+                                                    <tr key={t.name}>
+                                                        <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center', fontWeight: 'bold', color: '#000' }}>{i + 1}</td>
+                                                        <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>{t.name.toUpperCase()}</td>
+                                                        <td style={{ border: '1px solid #000', padding: '10px', textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem', color: '#000' }}>{t.score}</td>
+                                                    </tr>
+                                                ));
+                                            })()}
+                                        </tbody>
+                                    </table>
+                                ) : (
+                                    <table className="pdf-table" style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+                                        <thead>
+                                            <tr style={{ backgroundColor: '#f5f5f5' }}>
+                                                <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>
                                                     {(() => {
                                                         switch (sortType) {
-                                                            case 'TIME': return r.departure_time || '--:--';
-                                                            case 'BIB': return r.bib_number || '--';
-                                                            case 'TEAM': return r.team_name;
-                                                            case 'COGNOME': return r.cognome;
-                                                            case 'STAFF': return r.team_name;
-                                                            case 'LUNCH': return r.pranzo_accompagnatori || 0;
-                                                            default: return r.bib_number || '--';
+                                                            case 'TIME': return 'PARTENZA';
+                                                            case 'BIB': return '# GARA';
+                                                            case 'TEAM': return 'TEAM';
+                                                            case 'COGNOME': return 'PILOTA';
+                                                            case 'STAFF': return 'STAFF';
+                                                            case 'LUNCH': return 'OSPITI';
+                                                            default: return '# GARA';
                                                         }
                                                     })()}
-                                                </td>
-                                                <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
-                                                    <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
-                                                    <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{r.nome} {r.cognome}</div>
-                                                </td>
-                                                <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
-                                                    {r.moto_details || r.moto}
-                                                </td>
-                                                <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
-                                                    {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
-                                                </td>
-                                                <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
-                                                    {r.formula_partecipazione?.replace('_', ' ')}
-                                                </td>
+                                                </th>
+                                                <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>TEAM / PILOTA</th>
+                                                <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>MOTO / VEICOLO</th>
+                                                <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>STATO</th>
+                                                <th style={{ border: '1px solid #000', padding: '12px', textAlign: 'left', fontSize: '0.9rem', color: '#000', fontWeight: 'bold' }}>FORMULA</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            )}
+                                        </thead>
+                                        <tbody>
+                                            {getPreviewData().map(r => (
+                                                <tr key={r.id} style={{ backgroundColor: printMode === 'COLOR' ? getTeamColor(r.team_name) : 'transparent' }}>
+                                                    <td style={{ border: '1px solid #000', padding: '10px', fontWeight: 'bold', color: '#000' }}>
+                                                        {(() => {
+                                                            switch (sortType) {
+                                                                case 'TIME': return r.departure_time || '--:--';
+                                                                case 'BIB': return r.bib_number || '--';
+                                                                case 'TEAM': return r.team_name;
+                                                                case 'COGNOME': return r.cognome;
+                                                                case 'STAFF': return r.team_name;
+                                                                case 'LUNCH': return r.pranzo_accompagnatori || 0;
+                                                                default: return r.bib_number || '--';
+                                                            }
+                                                        })()}
+                                                    </td>
+                                                    <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
+                                                        <div style={{ fontWeight: 'bold' }}>{r.team_name}</div>
+                                                        <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>{r.nome} {r.cognome}</div>
+                                                    </td>
+                                                    <td style={{ border: '1px solid #000', padding: '10px', color: '#000', fontWeight: 'bold' }}>
+                                                        {r.moto_details || r.moto}
+                                                    </td>
+                                                    <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
+                                                        {r.is_paid === 'SI' ? 'PAGATO' : 'DA PAGARE'}
+                                                    </td>
+                                                    <td style={{ border: '1px solid #000', padding: '10px', fontSize: '0.8rem', color: '#000', fontWeight: 'bold' }}>
+                                                        {r.formula_partecipazione?.replace('_', ' ')}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
 
                 <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap');
@@ -753,20 +802,22 @@ function App() {
                     .pdf-table td, .pdf-table th { color: #000 !important; font-weight: bold !important; border: 1px solid #000 !important; }
                 }
             `}</style>
-            </div>
+            </div >
 
             {/* 💬 CRM CHAT MODAL */}
-            {showChatModal && chatMessage && (
-                <CRMChatThread
-                    message={chatMessage}
-                    onClose={() => {
-                        setShowChatModal(false);
-                        setChatMessage(null);
-                        fetchAllData();
-                    }}
-                />
-            )}
-        </AdminGatekeeper>
+            {
+                showChatModal && chatMessage && (
+                    <CRMChatThread
+                        message={chatMessage}
+                        onClose={() => {
+                            setShowChatModal(false);
+                            setChatMessage(null);
+                            fetchAllData();
+                        }}
+                    />
+                )
+            }
+        </AdminGatekeeper >
     );
 }
 
