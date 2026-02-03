@@ -52,7 +52,22 @@ export function CRMChatThread({ message, onClose }) {
     async function sendReply() {
         if (!replyText.trim()) return;
         setSending(true);
+
+        const tempReply = {
+            id: 'temp-' + Date.now(),
+            type: 'reply',
+            direction: 'outbound',
+            content: replyText,
+            sender: 'Admin',
+            email: message.email,
+            created_at: new Date().toISOString()
+        };
+
         try {
+            // Optimistic update: add reply immediately to UI
+            setThread(prev => [...prev, tempReply]);
+            setReplyText('');
+
             const res = await fetch('/api/crm/send-reply', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -60,19 +75,28 @@ export function CRMChatThread({ message, onClose }) {
                     messageId: message.id,
                     userEmail: message.email,
                     userName: message.name,
-                    content: replyText,
+                    content: tempReply.content,
                     adminName: 'Admin'
                 })
             });
 
             const data = await res.json();
+
             if (data.success) {
-                setReplyText('');
-                fetchThread(); // Refresh thread
+                console.log('Reply sent successfully:', data.message);
+                // Refresh thread to get server version
+                await fetchThread();
+            } else {
+                console.error('API returned error:', data.error);
+                alert('Errore invio risposta: ' + (data.error || 'Errore sconosciuto'));
+                // Remove optimistic update on error
+                setThread(prev => prev.filter(item => item.id !== tempReply.id));
             }
         } catch (err) {
             console.error('Send reply error:', err);
-            alert('Errore invio risposta');
+            alert('Errore di connessione: ' + err.message);
+            // Remove optimistic update on error
+            setThread(prev => prev.filter(item => item.id !== tempReply.id));
         } finally {
             setSending(false);
         }
