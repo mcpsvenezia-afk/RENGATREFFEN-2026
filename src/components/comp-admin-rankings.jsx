@@ -125,86 +125,97 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
         return logs.filter(l => l.registration_id === teamRegId);
     };
 
-    // Group registrations by Team (ONLY CACCIA for rankings)
-    const teams = registrations.reduce((acc, r) => {
-        if (!r.team_name || r.team_name.toLowerCase() === 'staff') return acc;
-        // Only Caccia formula participates in the competitive ranking
-        if (!r.formula_partecipazione?.startsWith('Caccia')) return acc;
+    // ---------------------------------------------------------
+    // 🧬 LOGICA AGGREGATIVA v10.16 (Pairing & Scoring)
+    // ---------------------------------------------------------
+    const processedTeams = React.useMemo(() => {
+        // 1. Group by team_id (if CONFIRMED) or name (case-insensitive)
+        const groups = {};
 
-        // Find existing team group
-        let group = acc.find(g => g.name === r.team_name);
-        if (!group) {
-            group = {
-                name: r.team_name,
-                id: r.id,
-                color: r.card_color,
-                members: [],
-                score: 0
-            };
-            acc.push(group);
-        }
-        group.members.push(r);
-        return acc;
-    }, []);
+        registrations.forEach(r => {
+            if (!r.team_name || r.team_name.toLowerCase() === 'staff') return;
+            if (!r.formula_partecipazione?.startsWith('Caccia')) return;
 
-    // Helper to get time details
-    const getLogDetails = (team, attemptNumber) => {
-        // Collect ALL logs for this team (from any member)
-        const teamMemberIds = team.members.map(m => m.id);
-        const teamLogs = logs.filter(l => teamMemberIds.includes(l.registration_id) && l.photo_number === attemptNumber);
+            // Priority key: team_id, fallback to name
+            const key = (r.team_id && r.team_status === 'CONFIRMED') ? r.team_id : r.team_name.toLowerCase().trim();
 
-        // Return the "best" or most relevant log (e.g., first one usually)
-        return teamLogs[0];
-    };
-
-    // Calculate Scores (Based on VALID photos and offsets)
-    teams.forEach(team => {
-        const teamMemberIds = team.members.map(m => m.id);
-        const teamLogs = logs.filter(l => teamMemberIds.includes(l.registration_id));
-
-        // Photo Count = Only VALIDATED ones or PENDING (for organizer to see work)
-        // Skipped photos also count as "processed" but with penalty
-        const processedCount = teamLogs.filter(l => l.validation_status === 'VALID' || l.validation_status === 'SALTATA').length;
-        team.photoCount = processedCount;
-
-        // TOTAL SCORE CALCULATION (Simplified: absolute diff in seconds for valid logs)
-        let totalPenalty = 0;
-        teamLogs.forEach(log => {
-            if (log.validation_status === 'VALID') {
-                const targetTimeStr = team.members[0]?.target_times?.[`photo_${log.photo_number}`];
-                if (targetTimeStr) {
-                    const [tH, tM, tS] = targetTimeStr.split(':').map(Number);
-                    const targetDate = new Date(log.recorded_at);
-                    targetDate.setHours(tH, tM, tS || 0, 0);
-                    const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
-                    totalPenalty += Math.floor(diffMs / 1000);
-                } else {
-                    // Fallback using category base from settings
-                    const formula = team.members[0]?.formula_partecipazione || "";
-                    let baseTime = "09:00";
-                    if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
-                    else if (formula === "Discovery") baseTime = eventParams?.race_params?.start_time_discovery || "22:30";
-                    else if (formula === "4x4") baseTime = eventParams?.race_params?.start_time_4x4 || "23:00";
-
-                    const [startH, startM] = baseTime.split(':').map(Number);
-                    const targetDate = new Date(log.recorded_at);
-                    targetDate.setHours(startH, startM, 0, 0);
-                    const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
-                    totalPenalty += Math.floor(diffMs / 1000);
-                }
-            } else if (log.validation_status === 'SALTATA') {
-                const skipPenalty = eventParams?.race_params?.penalty_skipped_photo || 3600;
-                totalPenalty += skipPenalty;
+            if (!groups[key]) {
+                groups[key] = {
+                    key: key,
+                    name: r.team_name,
+                    color: r.card_color || 'ROSSA',
+                    members: [],
+                    target_times: r.target_times || {},
+                    id: r.id, // reference for expansion
+                    status: r.team_status || 'SINGLE'
+                };
+            }
+            groups[key].members.push(r);
+            // Collect target_times from anyone in the team who has them
+            if (r.target_times && Object.keys(r.target_times).length > 0) {
+                groups[key].target_times = r.target_times;
             }
         });
-        team.totalScore = totalPenalty;
-    });
 
-    // Sort teams by SCORE (Lower is better)
-    teams.sort((a, b) => a.totalScore - b.totalScore);
+        // 2. Score each group
+        const teamList = Object.values(groups).map(team => {
+            const memberIds = team.members.map(m => m.id);
+            const teamLogs = logs.filter(l => memberIds.includes(l.registration_id));
 
-    const toggleExpand = (teamId) => {
-        setExpandedTeamId(expandedTeamId === teamId ? null : teamId);
+            let totalPenalty = 0;
+            let validCount = 0;
+
+            [1, 2, 3, 4].forEach(num => {
+                const log = teamLogs.find(l => l.photo_number === num);
+                if (log) {
+                    if (log.validation_status === 'VALID') {
+                        validCount++;
+                        // Target lookup
+                        const targetTimeStr = team.target_times?.[`photo_${num}`];
+                        if (targetTimeStr) {
+                            try {
+                                const [tH, tM, tS] = targetTimeStr.split(':').map(Number);
+                                const targetDate = new Date(log.recorded_at);
+                                targetDate.setHours(tH, tM, tS || 0, 0);
+                                const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
+                                totalPenalty += Math.floor(diffMs / 1000);
+                            } catch (e) { console.warn("Invalid target time", targetTimeStr); }
+                        } else {
+                            // FALLBACK: Category Start Time
+                            const formula = team.members[0]?.formula_partecipazione || "";
+                            let baseTime = "21:30";
+                            if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
+
+                            const [startH, startM] = baseTime.split(':').map(Number);
+                            const targetDate = new Date(log.recorded_at);
+                            targetDate.setHours(startH, startM, 0, 0);
+                            const diffMs = Math.abs(new Date(log.recorded_at) - targetDate);
+                            totalPenalty += Math.floor(diffMs / 1000);
+                        }
+                    } else if (log.validation_status === 'SALTATA') {
+                        const skipPenalty = eventParams?.race_params?.penalty_skipped_photo || 3600;
+                        totalPenalty += skipPenalty;
+                    }
+                }
+            });
+
+            return {
+                ...team,
+                photoCount: validCount,
+                totalScore: totalPenalty
+            };
+        });
+
+        // 3. Final Sort
+        return teamList.sort((a, b) => {
+            // Priority: more photos, then lower score
+            if (b.photoCount !== a.photoCount) return b.photoCount - a.photoCount;
+            return a.totalScore - b.totalScore;
+        });
+    }, [registrations, logs, eventParams]);
+
+    const toggleExpand = (teamKey) => {
+        setExpandedTeamId(expandedTeamId === teamKey ? null : teamKey);
     };
 
     return (
@@ -234,19 +245,19 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                {teams.map((team, index) => (
-                    <div key={team.id} style={{ background: '#111', borderRadius: '24px', border: '1px solid #222', overflow: 'hidden' }}>
+                {processedTeams.map((team, index) => (
+                    <div key={team.key} style={{ background: '#111', borderRadius: '24px', border: '1px solid #222', overflow: 'hidden' }}>
 
                         {/* HEADER RIGA TEAM */}
                         <div
-                            onClick={() => toggleExpand(team.id)}
+                            onClick={() => toggleExpand(team.key)}
                             style={{
                                 padding: '20px 30px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '20px',
                                 cursor: 'pointer',
-                                background: expandedTeamId === team.id ? 'rgba(255,255,255,0.02)' : 'transparent',
+                                background: expandedTeamId === team.key ? 'rgba(255,255,255,0.02)' : 'transparent',
                                 transition: '0.2s'
                             }}
                         >
@@ -264,6 +275,7 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                     <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px', border: `1px solid ${team.color === 'GIALLA' ? '#FFCC00' : '#E6007E'}`, color: team.color === 'GIALLA' ? '#FFCC00' : '#E6007E' }}>
                                         {team.color}
                                     </span>
+                                    {team.status === 'CONFIRMED' && <span style={{ fontSize: '0.6rem', background: '#4CAF50', color: '#000', padding: '1px 8px', borderRadius: '100px', fontWeight: 900 }}>TEAM VERIFICATO ✓</span>}
                                 </div>
                                 <div style={{ fontSize: '0.8rem', color: '#888', marginTop: '4px' }}>
                                     {team.members.map(m => `${m.nome} ${m.cognome} (${m.bib_number})`).join(' • ')}
@@ -286,7 +298,7 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                         </div>
 
                         {/* DETTAGLIO ESPANSO (TABELLA TEMPI E FOTO) */}
-                        {expandedTeamId === team.id && (
+                        {expandedTeamId === team.key && (
                             <div style={{ padding: '0 30px 30px 30px', borderTop: '1px solid #222' }}>
                                 <h4 style={{ color: '#00E5FF', margin: '20px 0 15px 0', textTransform: 'uppercase', fontSize: '0.9rem' }}>🔍 Dettaglio Prove & Passaggi</h4>
 
@@ -303,24 +315,19 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                         </thead>
                                         <tbody>
                                             {[1, 2, 3, 4].map(num => {
-                                                const log = getLogDetails(team, num);
+                                                const teamMemberIds = team.members.map(m => m.id);
+                                                const log = logs.find(l => teamMemberIds.includes(l.registration_id) && l.photo_number === num);
 
-                                                // SOURCE OF TRUTH: target_times from registration
+                                                // SOURCE OF TRUTH: target_times from team group
                                                 let targetTimeStr = "--:--";
-                                                if (team.members[0]?.target_times?.[`photo_${num}`]) {
-                                                    targetTimeStr = team.members[0].target_times[`photo_${num}`].substring(0, 5);
+                                                if (team.target_times?.[`photo_${num}`]) {
+                                                    targetTimeStr = team.target_times[`photo_${num}`].substring(0, 5);
                                                 } else {
-                                                    // Fallback using category base from settings
+                                                    // Fallback
                                                     const formula = team.members[0]?.formula_partecipazione || "";
-                                                    let baseTime = "09:00";
+                                                    let baseTime = "21:30";
                                                     if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
-                                                    else if (formula === "Discovery") baseTime = eventParams?.race_params?.start_time_discovery || "22:30";
-                                                    else if (formula === "4x4") baseTime = eventParams?.race_params?.start_time_4x4 || "23:00";
-
-                                                    const [startH, startM] = baseTime.split(':').map(Number);
-                                                    const targetDate = new Date();
-                                                    targetDate.setHours(startH, startM, 0);
-                                                    targetTimeStr = targetDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                                    targetTimeStr = baseTime;
                                                 }
 
                                                 const actualTimeStr = log ? new Date(log.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--:--:--';
