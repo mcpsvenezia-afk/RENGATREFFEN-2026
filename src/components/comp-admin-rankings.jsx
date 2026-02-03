@@ -179,8 +179,10 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                     // La prova è "fatta" se chiunque del team ha inviato qualcosa
                     validCount++;
 
-                    // Il punteggio si calcola SOLO sul log ufficiale (Capitano)
-                    if (officialLog && officialLog.validation_status === 'VALID') {
+                    // Il punteggio si calcola sul log ufficiale (Capitano)
+                    // 🛡️ FIX: Calcoliamo il punteggio SEMPRE se c'è un log del capitano, 
+                    // a meno che non sia stato esplicitamente RIFIUTATO o SALTATA (che ha la sua penale)
+                    if (officialLog && officialLog.validation_status !== 'REJECTED' && officialLog.validation_status !== 'SALTATA') {
                         // Target lookup
                         const targetTimeStr = team.target_times?.[`photo_${num}`];
                         if (targetTimeStr) {
