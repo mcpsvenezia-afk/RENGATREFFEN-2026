@@ -652,6 +652,7 @@ function App() {
                                     <RankingsTab
                                         registrations={registrations}
                                         onRefresh={fetchAllData}
+                                        isDevMode={isDevMode}
                                     />
                                 ) : activeTab === 'radar' ? (
                                     <RadarTab />

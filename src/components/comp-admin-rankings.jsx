@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
-export function RankingsTab({ registrations, onRefresh }) {
+export function RankingsTab({ registrations, onRefresh, isDevMode }) {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [expandedTeamId, setExpandedTeamId] = useState(null);
@@ -62,6 +62,45 @@ export function RankingsTab({ registrations, onRefresh }) {
             await supabase.from('race_logs').delete().eq('id', logId);
             fetchRaceData();
         } catch (err) { alert("Errore: " + err.message); }
+    };
+
+    const handleRestartRace = async () => {
+        const result = await Swal.fire({
+            title: 'RESET TOTALE GARA?',
+            text: "ATTENZIONE: Questa operazione eliminerà definitivamente TUTTI i log di gara (foto, salti, validazioni) e azzererà i punteggi. Sei in MODALITÀ DEV.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff4444',
+            confirmButtonText: 'SÌ, RESETTA TUTTO',
+            cancelButtonText: 'ANNULLA',
+            background: '#111',
+            color: '#fff'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            setLoading(true);
+            // Delete all logs using a range or common field if eq('id', ...) is not viable for bulk
+            // Assuming supabase.from('race_logs').delete().neq('id', '000...000') works for all
+            const { error: errLogs } = await supabase.from('race_logs').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+            if (errLogs) throw errLogs;
+
+            await fetchRaceData();
+            if (onRefresh) onRefresh();
+
+            Swal.fire({
+                title: 'GARA RESETTATA',
+                text: "Tutti i dati agonistici sono stati eliminati.",
+                icon: 'success',
+                background: '#111',
+                color: '#fff'
+            });
+        } catch (err) {
+            Swal.fire({ title: 'ERRORE', text: err.message, icon: 'error' });
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSkipPhoto = async (team, photoNum) => {
@@ -170,13 +209,23 @@ export function RankingsTab({ registrations, onRefresh }) {
                     <h2 style={{ color: '#00E5FF', fontSize: '2.4rem', fontWeight: 950, margin: 0, letterSpacing: '-1px' }}>CLASSIFICA & VERIFICA</h2>
                     <p style={{ color: '#666', margin: '5px 0 0 0', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.8rem' }}>LIVE RANKING • PHOTO VALIDATION • TIME CHECK</p>
                 </div>
-                <button
-                    onClick={fetchRaceData}
-                    disabled={loading}
-                    style={{ background: '#111', color: '#00E5FF', border: '1px solid #333', padding: '12px 25px', borderRadius: '50px', fontWeight: 900, cursor: 'pointer' }}
-                >
-                    {loading ? '...' : '🔄 AGGIORNA LIVE'}
-                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    {isDevMode && (
+                        <button
+                            onClick={handleRestartRace}
+                            style={{ background: 'rgba(255,68,68,0.1)', color: '#ff4444', border: '1px solid rgba(255,68,68,0.3)', padding: '12px 25px', borderRadius: '50px', fontWeight: 900, cursor: 'pointer', fontSize: '0.8rem' }}
+                        >
+                            🔄 RIAVVIA CACCIA (DEV)
+                        </button>
+                    )}
+                    <button
+                        onClick={fetchRaceData}
+                        disabled={loading}
+                        style={{ background: '#111', color: '#00E5FF', border: '1px solid #333', padding: '12px 25px', borderRadius: '50px', fontWeight: 900, cursor: 'pointer' }}
+                    >
+                        {loading ? '...' : '🔄 AGGIORNA LIVE'}
+                    </button>
+                </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
