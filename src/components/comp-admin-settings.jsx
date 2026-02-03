@@ -112,7 +112,8 @@ export function SettingsTab({ isDevMode, onRefresh }) {
                 group.forEach((team) => {
                     const colorOrder = ['ROSSA', 'GIALLA', 'VIOLA'];
                     const color = colorOrder[globalIdx % 3];
-                    const prefix = color.toLowerCase();
+                    const prefixMap = { 'ROSSA': 'red', 'GIALLA': 'yellow', 'VIOLA': 'purple' };
+                    const prefix = prefixMap[color];
                     const depTime = formatTime(currentMinutes);
 
                     const offsets = [
