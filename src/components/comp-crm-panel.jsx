@@ -7,7 +7,7 @@
  * 4. Reactive DB Sync
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { sendWelcomeEmail, sendApprovalEmail, sendWaitlistEmail, sendRejectionEmail } from '../core/logic-email-v1.js';
 
@@ -18,6 +18,10 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     const [newNote, setNewNote] = useState('');
     const [editingNoteId, setEditingNoteId] = useState(null);
     const [activeTab, setActiveTab] = useState(type === 'registration' ? 'management' : 'm');
+
+    // Prevent auto-save loop
+    const isSavingRef = useRef(false);
+    const lastSavedRef = useRef(null);
 
     // UI Theme Settings
     const isMsg = type === 'message';
@@ -36,20 +40,30 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
     useEffect(() => {
         if (item) {
             setLocalItem(item);
+            lastSavedRef.current = JSON.stringify(item);
             fetchNotes();
             fetchAttachments();
         }
-    }, [item, type]);
+    }, [item?.id]); // Only re-run when item ID changes, not on every item update
 
-    // AUTO-SAVE LOGIC (Debounced 1.5s)
+    // AUTO-SAVE LOGIC (Debounced 2s with loop prevention)
     useEffect(() => {
-        const hasChanged = JSON.stringify(localItem) !== JSON.stringify(item);
+        // Skip if already saving
+        if (isSavingRef.current) return;
+
+        const currentState = JSON.stringify(localItem);
+        const hasChanged = currentState !== lastSavedRef.current;
+
         if (!hasChanged) return;
 
         setSaveStatus('saving');
         const timer = setTimeout(() => {
-            commitAllChanges(true); // true = silent save
-        }, 1500);
+            isSavingRef.current = true;
+            commitAllChanges(true).finally(() => {
+                isSavingRef.current = false;
+                lastSavedRef.current = JSON.stringify(localItem);
+            });
+        }, 2000); // Increased to 2 seconds
 
         return () => clearTimeout(timer);
     }, [localItem]);
@@ -103,8 +117,10 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
             if (error) throw error;
 
             setSaveStatus('saved');
-            if (!silent) showToast('success', 'SINCRONIZZATO');
-            onRefresh();
+            if (!silent) {
+                showToast('success', 'SINCRONIZZATO');
+                onRefresh(); // Only refresh on manual saves, not auto-saves
+            }
 
             // Reset "saved" status after 3 seconds
             setTimeout(() => setSaveStatus(prev => prev === 'saved' ? 'idle' : prev), 3000);
