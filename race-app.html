@@ -612,7 +612,8 @@
                 padding-bottom: 10px;
                 border-radius: 20px 20px 0 0;
                 /* Arrotondato sopra */
-                margin-bottom: 15px;
+                margin-bottom: 5px;
+                /* Margine ridotto */
             }
 
             .chrono-bar {
@@ -622,6 +623,8 @@
                 padding: 10px 0;
                 border-bottom: 1px solid rgba(0, 229, 255, 0.1);
                 border-radius: 20px 20px 0 0;
+                position: relative;
+                /* Per posizionare il sync btn */
             }
 
             #race-chrono {
@@ -635,11 +638,32 @@
                 line-height: 1;
             }
 
+            /* SYNC BTN INTEGRATO */
+            .sync-btn-integrated {
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: transparent;
+                border: none;
+                font-size: 1.2rem;
+                cursor: pointer;
+                opacity: 0.7;
+                transition: opacity 0.3s, transform 0.3s;
+                padding: 5px;
+            }
+
+            .sync-btn-integrated:active {
+                opacity: 1;
+                transform: translateY(-50%) rotate(180deg);
+            }
+
             .controls-row {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 15px 15px 5px 15px;
+                padding: 10px 15px 5px 15px;
+                /* Compact padding */
                 width: 100%;
                 box-sizing: border-box;
             }
@@ -657,12 +681,12 @@
                 font-weight: 900;
                 color: #fff;
                 text-transform: uppercase;
-                margin: 5px 0;
+                margin: 3px 0;
             }
 
             .badge-pill-small {
                 font-size: 0.6rem;
-                padding: 4px 12px;
+                padding: 3px 10px;
                 border-radius: 4px;
                 font-weight: 800;
                 text-transform: uppercase;
@@ -671,16 +695,17 @@
             }
 
             .btn-race-icon {
-                width: 50px;
-                height: 50px;
-                border-radius: 14px;
+                width: 44px;
+                height: 44px;
+                /* Slightly smaller controls */
+                border-radius: 12px;
                 border: 1px solid #333;
                 background: #1a1a1a;
                 color: #ccc;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.5rem;
+                font-size: 1.4rem;
                 cursor: pointer;
             }
 
@@ -716,9 +741,10 @@
 
         <!-- HEADER CONTAINER -->
         <div id="race-header-info" class="race-header-container">
-            <!-- 1. CHRONO BAR -->
+            <!-- 1. CHRONO BAR + SYNC -->
             <div class="chrono-bar">
                 <div id="race-chrono">--:--</div>
+                <button onclick="syncOfflineData()" class="sync-btn-integrated" title="Sincronizza">🔄</button>
             </div>
 
             <!-- 2. MAIN CONTROLS -->
@@ -744,11 +770,6 @@
             </div>
         </div>
 
-
-        <!-- SYNC MINI (Alto DX sulla griglia) -->
-        <button onclick="syncOfflineData()" class="sync-mini-btn" title="Sincronizza Dati">
-            🔄
-        </button>
 
         <!-- GRID FOTO 4 SLOT (Senza occhio centrale) -->
         <div class="photo-grid">
