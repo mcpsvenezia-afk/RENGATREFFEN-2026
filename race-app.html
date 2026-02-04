@@ -357,474 +357,450 @@
                 </div>
 
                 <!-- Status GPS -->
-                <style>
-                    /* RACE HEADER PRO STYLES */
-                    .race-header-container {
-                        display: none;
-                        /* Gestito da JS */
-                        flex-direction: column;
-                        width: 100%;
-                        background: linear-gradient(to bottom, #000000, #111111);
-                        border-bottom: 1px solid #222;
-                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-                        margin-bottom: 5px;
-                        padding-bottom: 10px;
-                        position: relative;
-                        z-index: 50;
-                    }
-
-                    .chrono-bar {
-                        width: 100%;
-                        text-align: center;
-                        background: rgba(0, 30, 40, 0.6);
-                        padding: 8px 0;
-                        border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-                    }
-
-                    #race-chrono {
-                        font-family: 'Courier New', monospace;
-                        font-size: 2.2rem;
-                        font-weight: 900;
-                        color: #00E5FF;
-                        text-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
-                        letter-spacing: 2px;
-                        line-height: 1;
-                    }
-
-                    .controls-row {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 10px 15px 0 15px;
-                        width: 100%;
-                        box-sizing: border-box;
-                    }
-
-                    .team-center-box {
-                        flex: 1;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        padding: 0 10px;
-                    }
-
-                    #header-team-name {
-                        font-size: 1.1rem;
-                        font-weight: 900;
-                        color: #fff;
-                        text-transform: uppercase;
-                        margin: 4px 0;
-                        text-align: center;
-                        line-height: 1.1;
-                    }
-
-                    .badge-pill-small {
-                        font-size: 0.6rem;
-                        padding: 3px 10px;
-                        border-radius: 4px;
-                        font-weight: 800;
-                        text-transform: uppercase;
-                        color: #000;
-                        background: #FFCC00;
-                        display: inline-block;
-                        box-shadow: 0 0 10px rgba(255, 204, 0, 0.2);
-                    }
-
-                    .btn-race-icon {
-                        width: 44px;
-                        height: 44px;
-                        border-radius: 12px;
-                        border: 1px solid #333;
-                        background: #1a1a1a;
-                        color: #ccc;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 1.4rem;
-                        cursor: pointer;
-                        transition: all 0.2s;
-                    }
-
-                    .btn-race-icon:active {
-                        transform: scale(0.95);
-                        background: #333;
-                    }
-
-                    .btn-exit {
-                        color: #ff4444;
-                        border-color: rgba(255, 68, 68, 0.3);
-                    }
-
-                    .pilot-info-row {
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        gap: 15px;
-                        margin-top: 5px;
-                    }
-
-                    .pilot-name-small {
-                        font-size: 0.7rem;
-                        color: #888;
-                        font-weight: 700;
-                        text-transform: uppercase;
-                    }
-
-                    .gps-status-small {
-                        font-size: 0.65rem;
-                        color: #4CAF50;
-                        font-weight: 700;
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                    }
-
-                    /* Hide legacy stuff */
-                    #wake-status {
-                        display: none !important;
-                    }
-                </style>
-
-                <header>
-                    <!-- PWA BANNER (Hidden by default, managed by JS) -->
-                    <div id="install-banner" onClick="installPWA()"
-                        style="display:none; position:absolute; top:0; left:0; width:100%; background:#FFCC00; color:#000; text-align:center; font-size:0.7rem; font-weight:800; padding:5px; z-index:100; cursor:pointer;">
-                        📲 INSTALLA APP
-                    </div>
-
-                    <!-- NUOVO HEADER PRO (mostrato dopo il login) -->
-                    <div id="race-header-info" class="race-header-container">
-
-                        <!-- 1. CHRONO BAR -->
-                        <div class="chrono-bar">
-                            <div id="race-chrono">--:--</div>
-                        </div>
-
-                        <!-- 2. MAIN CONTROLS -->
-                        <div class="controls-row">
-                            <!-- SX: STOP -->
-                            <button onclick="confirmLogout()" class="btn-race-icon btn-exit">🛑</button>
-
-                            <!-- CENTER: TEAM -->
-                            <div class="team-center-box">
-                                <div id="team-badge" class="badge-pill-small">...</div>
-                                <div id="header-team-name">TEAM</div>
-                            </div>
-
-                            <!-- DX: MUTE -->
-                            <button onclick="toggleMute()" class="btn-race-icon">
-                                <span id="mute-icon">🔔</span>
-                            </button>
-                        </div>
-
-                        <!-- 3. PILOT & GPS -->
-                        <div class="pilot-info-row">
-                            <div id="header-pilot-name" class="pilot-name-small">Pilota</div>
-                            <div class="gps-status-small">
-                                <span style="font-size:10px;">●</span> GPS ON
-                            </div>
-                        </div>
-
-                        <!-- HIDDEN COMPATIBILITY ELEMENTS (Prevents JS Crash) -->
-                        <div style="display:none;">
-                            <span id="penalty-status"></span>
-                            <span id="penalty-timer"></span>
-                        </div>
-                    </div>
-                </header>
-
-                <!-- UI MODERNA BOTTOM-FIXED -->
-                <style>
-                    .auth-card-clean {
-                        position: fixed;
-                        bottom: 0;
-                        left: 0;
-                        width: 100%;
-                        padding: 60px 20px 40px 20px;
-                        /* Padding top maggiore per sfumatura */
-                        background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.8) 40%, transparent 100%);
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        z-index: 100;
-                        box-sizing: border-box;
-                    }
-
-                    .btn-start-hero {
-                        background: #FFCC00;
-                        color: #000;
-                        border: none;
-                        padding: 22px;
-                        border-radius: 16px;
-                        /* Meno arrotondato, più tech */
-                        font-size: 1.1rem;
-                        font-weight: 900;
-                        text-transform: uppercase;
-                        letter-spacing: 2px;
-                        width: 100%;
-                        max-width: 400px;
-                        box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
-                        cursor: pointer;
-                        transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        /* gap rimosso */
-                    }
-
-                    .btn-start-hero:active {
-                        transform: scale(0.96);
-                    }
-
-                    /* --- NUOVA DASHBOARD GARA 2.1 --- */
-                    .photo-grid {
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        gap: 15px;
-                        position: relative;
-                        margin: 10px auto 20px auto;
-                        /* Alzato: margine top ridotto */
-                        max-width: 400px;
-                        padding: 10px;
-                    }
-
-                    .photo-slot {
-                        aspect-ratio: 4/3;
-                        background: #111;
-                        border: 2px solid #333;
-                        border-radius: 12px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        position: relative;
-                        overflow: hidden;
-                    }
-
-                    .photo-slot.active {
-                        border-color: var(--accent-yellow);
-                        box-shadow: 0 0 15px rgba(255, 204, 0, 0.25);
-                    }
-
-                    .photo-slot.done {
-                        border-color: #4CAF50;
-                    }
-
-                    .photo-slot .num {
-                        font-size: 3rem;
-                        font-weight: 900;
-                        color: rgba(255, 255, 255, 0.1);
-                        font-family: 'Arial Black', sans-serif;
-                    }
-
-                    .photo-slot img {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                    }
-
-                    .slot-check {
-                        position: absolute;
-                        bottom: 5px;
-                        right: 5px;
-                        background: #4CAF50;
-                        color: #fff;
-                        border-radius: 50%;
-                        width: 24px;
-                        height: 24px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 0.9rem;
-                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-                        z-index: 5;
-                    }
-
-                    /* Pulsante SINCRONIZZA MINI (Icona alto dx) */
-                    .sync-mini-btn {
-                        position: absolute;
-                        top: -45px;
-                        /* Nello spazio tra header e griglia */
-                        right: 15px;
-                        background: rgba(255, 204, 0, 0.2);
-                        border: 1px solid rgba(255, 204, 0, 0.5);
-                        color: #FFCC00;
-                        width: 36px;
-                        height: 36px;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 1.2rem;
-                        cursor: pointer;
-                        z-index: 20;
-                        backdrop-filter: blur(5px);
-                    }
-
-                    /* Pulsante OCCHIO GIGANTE (Bottom) */
-                    .shoot-container {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        margin-top: 10px;
-                        padding-bottom: 20px;
-                    }
-
-                    .shoot-eye-btn-large {
-                        width: 110px;
-                        height: 110px;
-                        background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e0e0e0 60%, #b0b0b0 100%);
-                        border-radius: 50%;
-                        border: 8px solid rgba(255, 255, 255, 0.1);
-                        box-shadow: 0 0 40px rgba(255, 255, 255, 0.3), inset 0 -5px 15px rgba(0, 0, 0, 0.2);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 3.5rem;
-                        cursor: pointer;
-                        color: #000;
-                        position: relative;
-                        transition: transform 0.1s;
-                    }
-
-                    .shoot-eye-btn-large:active {
-                        transform: scale(0.92);
-                    }
-
-                    .shoot-eye-btn-large::after {
-                        content: '';
-                        position: absolute;
-                        inset: -12px;
-                        border-radius: 50%;
-                        border: 2px dashed rgba(255, 255, 255, 0.3);
-                        animation: rotate-ring 10s linear infinite;
-                    }
-
-                    @keyframes rotate-ring {
-                        from {
-                            transform: rotate(0deg);
-                        }
-
-                        to {
-                            transform: rotate(360deg);
-                        }
-                    }
-
-                    /* CRONOMETRO */
-                    .chrono-widget {
-                        background: rgba(0, 0, 0, 0.6);
-                        border: 2px solid #00E5FF;
-                        color: #00E5FF;
-                        padding: 5px 10px;
-                        border-radius: 8px;
-                        font-family: 'Courier New', monospace;
-                        font-weight: 900;
-                        font-size: 1.2rem;
-                        text-shadow: 0 0 10px #00E5FF;
-                        box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
-                        display: inline-block;
-                    }
-                </style>
-
-                <div id="auth-ui" class="auth-card-clean" data-dna="4000-AUTH" data-component="LOGIN">
-                    <!-- SCHERMATA INIZIALE -->
-                    <div id="login-step-1" style="text-align: center; width: 100%;">
-                        <button onclick="toggleLogin(true)" class="btn-start-hero">
-                            VAI ALLA GARA
-                        </button>
-                        <div
-                            style="font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 20px; text-transform: uppercase; font-weight: 700; letter-spacing: 2px;">
-                            ACCESSO RISERVATO AI TEAM
-                        </div>
-                    </div>
-
-                    <!-- SCHERMATA INPUT (Dentro auth-ui per gestire toggle) -->
-                    <div id="login-step-2" style="display:none; width: 100%; text-align: center;">
-                        <div class="input-group">
-                            <label style="color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Numero Gara +
-                                Pilota</label>
-                            <input type="text" id="bib-number" class="bib-input" placeholder="es: 1A o 2B"
-                                data-dna="4001-BIB-INPUT" autocomplete="off"
-                                style="border-color: rgba(255,204,0,0.5); background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
-                        </div>
-                        <button onclick="handleLogin()" class="btn-main btn-yellow"
-                            style="padding: 15px; font-size: 1rem; width: 100%; box-shadow: 0 5px 20px rgba(0,0,0,0.5);"
-                            data-dna="4002-LOGIN-BTN">
-                            ENTRA ORA
-                        </button>
-                        <div onclick="toggleLogin(false)"
-                            style="text-align:center; margin-top: 20px; color:#fff; font-size:0.7rem; cursor:pointer; text-transform:uppercase; font-weight:900; text-decoration: underline;">
-                            Indietro
-                        </div>
-                    </div>
-                </div>
+                <!-- Wake Status Placeholder (Legacy) -->
+                <div id="wake-status" style="display:none;"></div>
             </div>
 
-            <!-- RACE SCREEN -->
-            <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
-            <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE"
-                style="position: relative; padding-top: 10px;">
+            <!-- PWA BANNER (Legacy Pos) -->
+            <div id="install-banner" onClick="installPWA()" style="display:none;"></div>
 
-                <!-- SYNC MINI (Alto DX sulla griglia) -->
-                <button onclick="syncOfflineData()" class="sync-mini-btn" title="Sincronizza Dati">
-                    🔄
-                </button>
 
-                <!-- GRID FOTO 4 SLOT (Senza occhio centrale) -->
-                <div class="photo-grid">
-                    <div class="photo-slot" id="slot-1">
-                        <div class="num">1</div>
-                    </div>
-                    <div class="photo-slot" id="slot-2">
-                        <div class="num">2</div>
-                    </div>
-                    <div class="photo-slot" id="slot-3">
-                        <div class="num">3</div>
-                    </div>
-                    <div class="photo-slot" id="slot-4">
-                        <div class="num">4</div>
-                    </div>
-                </div>
+            <!-- UI MODERNA BOTTOM-FIXED -->
+            <style>
+                .auth-card-clean {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    padding: 60px 20px 40px 20px;
+                    /* Padding top maggiore per sfumatura */
+                    background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.8) 40%, transparent 100%);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    z-index: 100;
+                    box-sizing: border-box;
+                }
 
-                <!-- Hidden Input -->
-                <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
-                    onchange="processCameraSelection(event)">
+                .btn-start-hero {
+                    background: #FFCC00;
+                    color: #000;
+                    border: none;
+                    padding: 22px;
+                    border-radius: 16px;
+                    /* Meno arrotondato, più tech */
+                    font-size: 1.1rem;
+                    font-weight: 900;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    width: 100%;
+                    max-width: 400px;
+                    box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+                    cursor: pointer;
+                    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    /* gap rimosso */
+                }
 
-                <!-- BIG SHOOT BUTTON (Bottom Central) -->
-                <div class="shoot-container">
-                    <button onclick="triggerCamera()" class="shoot-eye-btn-large" id="shoot-btn" data-dna="5003-SHOOT">
-                        👁️
+                .btn-start-hero:active {
+                    transform: scale(0.96);
+                }
+
+                /* --- NUOVA DASHBOARD GARA 2.1 --- */
+                .photo-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 15px;
+                    position: relative;
+                    margin: 10px auto 20px auto;
+                    /* Alzato: margine top ridotto */
+                    max-width: 400px;
+                    padding: 10px;
+                }
+
+                .photo-slot {
+                    aspect-ratio: 4/3;
+                    background: #111;
+                    border: 2px solid #333;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .photo-slot.active {
+                    border-color: var(--accent-yellow);
+                    box-shadow: 0 0 15px rgba(255, 204, 0, 0.25);
+                }
+
+                .photo-slot.done {
+                    border-color: #4CAF50;
+                }
+
+                .photo-slot .num {
+                    font-size: 3rem;
+                    font-weight: 900;
+                    color: rgba(255, 255, 255, 0.1);
+                    font-family: 'Arial Black', sans-serif;
+                }
+
+                .photo-slot img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                }
+
+                .slot-check {
+                    position: absolute;
+                    bottom: 5px;
+                    right: 5px;
+                    background: #4CAF50;
+                    color: #fff;
+                    border-radius: 50%;
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.9rem;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+                    z-index: 5;
+                }
+
+                /* Pulsante SINCRONIZZA MINI (Icona alto dx) */
+                .sync-mini-btn {
+                    position: absolute;
+                    top: -45px;
+                    /* Nello spazio tra header e griglia */
+                    right: 15px;
+                    background: rgba(255, 204, 0, 0.2);
+                    border: 1px solid rgba(255, 204, 0, 0.5);
+                    color: #FFCC00;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.2rem;
+                    cursor: pointer;
+                    z-index: 20;
+                    backdrop-filter: blur(5px);
+                }
+
+                /* Pulsante OCCHIO GIGANTE (Bottom) */
+                .shoot-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    margin-top: 10px;
+                    padding-bottom: 20px;
+                }
+
+                .shoot-eye-btn-large {
+                    width: 110px;
+                    height: 110px;
+                    background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e0e0e0 60%, #b0b0b0 100%);
+                    border-radius: 50%;
+                    border: 8px solid rgba(255, 255, 255, 0.1);
+                    box-shadow: 0 0 40px rgba(255, 255, 255, 0.3), inset 0 -5px 15px rgba(0, 0, 0, 0.2);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 3.5rem;
+                    cursor: pointer;
+                    color: #000;
+                    position: relative;
+                    transition: transform 0.1s;
+                }
+
+                .shoot-eye-btn-large:active {
+                    transform: scale(0.92);
+                }
+
+                .shoot-eye-btn-large::after {
+                    content: '';
+                    position: absolute;
+                    inset: -12px;
+                    border-radius: 50%;
+                    border: 2px dashed rgba(255, 255, 255, 0.3);
+                    animation: rotate-ring 10s linear infinite;
+                }
+
+                @keyframes rotate-ring {
+                    from {
+                        transform: rotate(0deg);
+                    }
+
+                    to {
+                        transform: rotate(360deg);
+                    }
+                }
+
+                /* CRONOMETRO */
+                .chrono-widget {
+                    background: rgba(0, 0, 0, 0.6);
+                    border: 2px solid #00E5FF;
+                    color: #00E5FF;
+                    padding: 5px 10px;
+                    border-radius: 8px;
+                    font-family: 'Courier New', monospace;
+                    font-weight: 900;
+                    font-size: 1.2rem;
+                    text-shadow: 0 0 10px #00E5FF;
+                    box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+                    display: inline-block;
+                }
+            </style>
+
+            <div id="auth-ui" class="auth-card-clean" data-dna="4000-AUTH" data-component="LOGIN">
+                <!-- SCHERMATA INIZIALE -->
+                <div id="login-step-1" style="text-align: center; width: 100%;">
+                    <button onclick="toggleLogin(true)" class="btn-start-hero">
+                        VAI ALLA GARA
                     </button>
                     <div
-                        style="margin-top: 12px; font-size: 0.8rem; font-weight: 900; color: #fff; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,0.5);">
-                        SCATTA FOTO
+                        style="font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 20px; text-transform: uppercase; font-weight: 700; letter-spacing: 2px;">
+                        ACCESSO RISERVATO AI TEAM
                     </div>
                 </div>
 
-                <!-- Info discreta -->
-                <div
-                    style="text-align: center; color: #555; font-size: 0.6rem; margin-top: 15px; font-weight: 700; text-transform: uppercase;">
-                    Invio automatico • Ricalcolo live
+                <!-- SCHERMATA INPUT (Dentro auth-ui per gestire toggle) -->
+                <div id="login-step-2" style="display:none; width: 100%; text-align: center;">
+                    <div class="input-group">
+                        <label style="color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Numero Gara +
+                            Pilota</label>
+                        <input type="text" id="bib-number" class="bib-input" placeholder="es: 1A o 2B"
+                            data-dna="4001-BIB-INPUT" autocomplete="off"
+                            style="border-color: rgba(255,204,0,0.5); background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
+                    </div>
+                    <button onclick="handleLogin()" class="btn-main btn-yellow"
+                        style="padding: 15px; font-size: 1rem; width: 100%; box-shadow: 0 5px 20px rgba(0,0,0,0.5);"
+                        data-dna="4002-LOGIN-BTN">
+                        ENTRA ORA
+                    </button>
+                    <div onclick="toggleLogin(false)"
+                        style="text-align:center; margin-top: 20px; color:#fff; font-size:0.7rem; cursor:pointer; text-transform:uppercase; font-weight:900; text-decoration: underline;">
+                        Indietro
+                    </div>
                 </div>
+            </div>
+    </div>
 
-                <!-- Legacy Hidden References for JS Compatibility -->
-                <div id="photo-display" style="display:none;"></div>
-                <div id="pilot-badge" style="display:none;"></div>
-                <div id="team-badge-hidden" style="display:none;"></div>
+    <!-- RACE SCREEN -->
+    <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
+    <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE"
+        style="position: relative; padding-top: 0;">
 
-                <button id="reset-btn" onclick="resetTestMode()"
-                    style="display:block; margin: 30px auto; background:transparent; border:1px dashed #444; color:#444; padding:6px 14px; border-radius:50px; cursor:pointer; font-size:0.6rem; font-weight:700; text-transform:uppercase;">
-                    ⚠️ RESET TEST DATA
-                </button>
+        <style>
+            /* RACE HEADER PRO STYLES - EMBEDDED IN RACE-UI */
+            .race-header-container {
+                display: flex;
+                /* VISIBLE BY DEFAULT IN RACE UI */
+                flex-direction: column;
+                width: 100%;
+                background: linear-gradient(to bottom, #111, #000);
+                border-bottom: 1px solid #333;
+                padding-bottom: 10px;
+                border-radius: 20px 20px 0 0;
+                /* Arrotondato sopra */
+                margin-bottom: 15px;
+            }
+
+            .chrono-bar {
+                width: 100%;
+                text-align: center;
+                background: rgba(0, 40, 50, 0.4);
+                padding: 10px 0;
+                border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+                border-radius: 20px 20px 0 0;
+            }
+
+            #race-chrono {
+                font-family: 'Courier New', monospace;
+                font-size: 2.8rem;
+                /* BIGGER */
+                font-weight: 900;
+                color: #00E5FF;
+                text-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
+                letter-spacing: 2px;
+                line-height: 1;
+            }
+
+            .controls-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 15px 5px 15px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .team-center-box {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #header-team-name {
+                font-size: 1.0rem;
+                font-weight: 900;
+                color: #fff;
+                text-transform: uppercase;
+                margin: 5px 0;
+            }
+
+            .badge-pill-small {
+                font-size: 0.6rem;
+                padding: 4px 12px;
+                border-radius: 4px;
+                font-weight: 800;
+                text-transform: uppercase;
+                color: #000;
+                background: #FFCC00;
+            }
+
+            .btn-race-icon {
+                width: 50px;
+                height: 50px;
+                border-radius: 14px;
+                border: 1px solid #333;
+                background: #1a1a1a;
+                color: #ccc;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+
+            .btn-exit {
+                color: #ff4444;
+                border-color: rgba(255, 68, 68, 0.2);
+            }
+
+            .pilot-info-row {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 15px;
+                margin-top: 5px;
+            }
+
+            .pilot-name-small {
+                font-size: 0.7rem;
+                color: #666;
+                font-weight: 700;
+                text-transform: uppercase;
+            }
+
+            .gps-status-small {
+                font-size: 0.65rem;
+                color: #4CAF50;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+        </style>
+
+        <!-- HEADER CONTAINER -->
+        <div id="race-header-info" class="race-header-container">
+            <!-- 1. CHRONO BAR -->
+            <div class="chrono-bar">
+                <div id="race-chrono">--:--</div>
             </div>
 
-            <footer class="footer">
-                v7.9.1 DEV-GUARD | powered by MotoReporter
-            </footer>
+            <!-- 2. MAIN CONTROLS -->
+            <div class="controls-row">
+                <button onclick="confirmLogout()" class="btn-race-icon btn-exit">🛑</button>
+                <div class="team-center-box">
+                    <div id="team-badge" class="badge-pill-small">...</div>
+                    <div id="header-team-name">TEAM</div>
+                </div>
+                <button onclick="toggleMute()" class="btn-race-icon"><span id="mute-icon">🔔</span></button>
+            </div>
+
+            <!-- 3. PILOT & GPS -->
+            <div class="pilot-info-row">
+                <div id="header-pilot-name" class="pilot-name-small">Pilota</div>
+                <div class="gps-status-small"><span style="font-size:10px;">●</span> GPS ON</div>
+            </div>
+
+            <!-- HIDDEN COMPATIBILITY ELEMENTS -->
+            <div style="display:none;">
+                <span id="penalty-status"></span>
+                <span id="penalty-timer"></span>
+            </div>
+        </div>
+
+
+        <!-- SYNC MINI (Alto DX sulla griglia) -->
+        <button onclick="syncOfflineData()" class="sync-mini-btn" title="Sincronizza Dati">
+            🔄
+        </button>
+
+        <!-- GRID FOTO 4 SLOT (Senza occhio centrale) -->
+        <div class="photo-grid">
+            <div class="photo-slot" id="slot-1">
+                <div class="num">1</div>
+            </div>
+            <div class="photo-slot" id="slot-2">
+                <div class="num">2</div>
+            </div>
+            <div class="photo-slot" id="slot-3">
+                <div class="num">3</div>
+            </div>
+            <div class="photo-slot" id="slot-4">
+                <div class="num">4</div>
+            </div>
+        </div>
+
+        <!-- Hidden Input -->
+        <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
+            onchange="processCameraSelection(event)">
+
+        <!-- BIG SHOOT BUTTON (Bottom Central) -->
+        <div class="shoot-container">
+            <button onclick="triggerCamera()" class="shoot-eye-btn-large" id="shoot-btn" data-dna="5003-SHOOT">
+                👁️
+            </button>
+            <div
+                style="margin-top: 12px; font-size: 0.8rem; font-weight: 900; color: #fff; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,0.5);">
+                SCATTA FOTO
+            </div>
+        </div>
+
+        <!-- Info discreta -->
+        <div
+            style="text-align: center; color: #555; font-size: 0.6rem; margin-top: 15px; font-weight: 700; text-transform: uppercase;">
+            Invio automatico • Ricalcolo live
+        </div>
+
+        <!-- Legacy Hidden References for JS Compatibility -->
+        <div id="photo-display" style="display:none;"></div>
+        <div id="pilot-badge" style="display:none;"></div>
+        <div id="team-badge-hidden" style="display:none;"></div>
+
+        <button id="reset-btn" onclick="resetTestMode()"
+            style="display:block; margin: 30px auto; background:transparent; border:1px dashed #444; color:#444; padding:6px 14px; border-radius:50px; cursor:pointer; font-size:0.6rem; font-weight:700; text-transform:uppercase;">
+            ⚠️ RESET TEST DATA
+        </button>
+    </div>
+
+    <footer class="footer">
+        v7.9.1 DEV-GUARD | powered by MotoReporter
+    </footer>
     </div>
 
     <script type="module">
