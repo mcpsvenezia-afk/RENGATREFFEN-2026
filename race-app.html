@@ -651,8 +651,8 @@
         <div id="team-badge-hidden" style="display:none;"></div>
 
         <button id="reset-btn" onclick="resetTestMode()"
-            style="display:none; background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:20px; cursor:pointer; font-size:0.7rem; font-weight:900;">
-            🧹 RESET GARA
+            style="display:block; margin: 40px auto; background:transparent; border:1px dashed #555; color:#555; padding:8px 16px; border-radius:50px; cursor:pointer; font-size:0.6rem; font-weight:700; text-transform:uppercase;">
+            ⚠️ RESET TEST DATA
         </button>
     </div>
 
@@ -1411,9 +1411,12 @@
                 file = originalFile;
             }
 
-            btn.innerText = 'CARICAMENTO...';
+            // Upload Logic (Storage) - Placeholder se non attivo
+            // Per ora salviamo solo il log, l'immagine è locale nel form (pending upload se volessimo)
+            let publicUrl = null;
+            // TODO: Implement Storage Upload if needed for persistence
 
-            const saveData = async (pos, photoUrl = null) => {
+            const saveData = async (pos) => {
                 const newLog = {
                     registration_id: currentTeam.id,
                     photo_number: photoNumber,
@@ -1421,69 +1424,117 @@
                     gps_lat: pos ? pos.coords.latitude : null,
                     gps_lng: pos ? pos.coords.longitude : null,
                     gps_alt: pos ? pos.coords.altitude : null,
-                    photo_url: photoUrl,
+                    photo_url: publicUrl, // null per ora
                     client_timestamp: new Date().toISOString()
                 };
 
                 try {
-                    // Proviamo ad inviare subito se online, altrimenti coda (il log, non la foto)
+                    // Proviamo ad inviare subito se online
                     const { error } = await supabase.from('race_logs').insert([newLog]);
                     if (error) throw error;
 
+                    // Success Feedback (Toast)
                     Swal.fire({
-                        title: 'SUCCESSO!',
-                        text: `Foto ${photoNumber} registrata correttamente.`,
+                        toast: true,
+                        position: 'center',
+                        title: 'FOTO OK',
                         icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false
+                        timer: 1500,
+                        showConfirmButton: false,
+                        background: '#111', color: '#4CAF50'
                     });
+
+                    // Mark slot as permanently done (green check)
+                    const slot = document.getElementById(`slot-${photoNumber}`);
+                    if (slot) {
+                        const sp = slot.querySelector('#temp-spinner');
+                        if (sp) { sp.innerText = '✔'; sp.id = ''; }
+                    }
+
                 } catch (err) {
                     console.warn("Offline o Errore DB, salvo localmente:", err);
                     pendingLogs.push(newLog);
                     localStorage.setItem('RENGATREFFEN_PENDING_LOGS', JSON.stringify(pendingLogs));
                 }
 
-                photoNumber++;
+                // Incremento SOLO SE era l'ultima
+                if (photoNumber < 4) {
+                    photoNumber++;
+                } else {
+                    // Gara finita?
+                    Swal.fire({ title: 'GARA COMPLETATA!', text: 'Hai scattato tutte le 4 foto.', icon: 'success' });
+                }
+
                 updateUI();
                 btn.disabled = false;
-                btn.innerText = '📸 SCATTA E REGISTRA';
-                fileInput.value = ""; // Pulisci per il prossimo scatto
-                syncOfflineData();
+                btn.style.opacity = '1';
+                // btn.innerHTML = ... NEW ICON? No keep eye.
+                fileInput.value = "";
             };
 
-            // 1. Upload Storage (se online)
-            let photoUrl = null;
-            if (navigator.onLine) {
-                try {
-                    // Always JPG after compression
-                    const fileName = `${currentTeam.bib_number}${currentPilot}_P${photoNumber}_${Date.now()}.jpg`;
-
-                    const { data, error } = await supabase.storage
-                        .from('race_photos')
-                        .upload(fileName, file);
-
-                    if (error) throw error;
-
-                    const { data: publicUrl } = supabase.storage
-                        .from('race_photos')
-                        .getPublicUrl(fileName);
-
-                    photoUrl = publicUrl.publicUrl;
-                } catch (err) {
-                    console.error("Storage upload failed:", err);
-                }
+            // Get Pos & Save
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => saveData(pos), () => saveData(null), { timeout: 5000 });
+            } else {
+                saveData(null);
             }
-
-            // 2. Get GPS e salva log
-            navigator.geolocation.getCurrentPosition(
-                (pos) => saveData(pos, photoUrl),
-                (err) => {
-                    console.warn("GPS fallito, procedo solo con foto:", err);
-                    saveData(null, photoUrl);
-                },
-                { enableHighAccuracy: true, timeout: 7000 }
-            );
         }
+
+        // --- MANAJEMENT FUNCTIONS ---
+
+        // Rendi gli slot cliccabili per "tornare indietro"
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.photo-slot').forEach(slot => {
+                slot.onclick = function () {
+                    const num = parseInt(this.id.split('-')[1]);
+                    // Cambio foto corrente
+                    photoNumber = num;
+                    updateUI();
+
+                    Swal.fire({
+                        toast: true, position: 'top', icon: 'info',
+                        title: `Selezionata Foto ${num}`, showConfirmButton: false, timer: 1000,
+                        background: '#222', color: '#FFCC00'
+                    });
+                }
+            });
+        });
+
+        // Funzione Reset (da chiamare col tasto nascosto)
+        window.resetTestMode = async function () {
+            if (!currentTeam) return;
+
+            const confirm = await Swal.fire({
+                title: 'RESET FOTO?',
+                text: "Vuoi cancellare tutte le foto scattate e ripartire dalla n.1?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sì, Reset',
+                cancelButtonText: 'Annulla',
+                background: '#000', color: '#fff'
+            });
+
+            if (!confirm.isConfirmed) return;
+
+            // Delete from DB
+            await supabase.from('race_logs').delete().eq('registration_id', currentTeam.id).eq('pilot_code', currentPilot);
+
+            // Clear Local
+            pendingLogs = [];
+            localStorage.setItem('RENGATREFFEN_PENDING_LOGS', '[]');
+
+            // Reset Vars
+            photoNumber = 1;
+
+            // Clear UI
+            document.querySelectorAll('.photo-slot img').forEach(i => i.remove());
+            document.querySelectorAll('.photo-slot .slot-check').forEach(i => i.remove());
+            document.querySelectorAll('.photo-slot .num').forEach(n => n.style.display = 'block');
+            document.querySelectorAll('.photo-slot').forEach(s => s.classList.remove('done', 'active'));
+
+            updateUI();
+        }
+
 
         window.logout = function () {
             if (!confirm("VUOI USCIRE DALLA SESSIONE DI GARA?")) return;
