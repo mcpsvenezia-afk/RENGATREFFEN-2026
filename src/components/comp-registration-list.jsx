@@ -11,16 +11,16 @@ const getTeamColor = (teamId, teamStatus) => {
     // Team singoli o senza team_id: sfondo quasi trasparente
     if (!teamId || teamStatus === 'SINGLE') return 'rgba(255, 255, 255, 0.02)';
 
-    // 🎨 PALETTE COLORI ALTERNATI per team accoppiati
+    // 🎨 PALETTE COLORI VIVACI & ALTERNATI (High Visibility)
     const colorPalette = [
-        'hsla(45, 70%, 20%, 0.35)',   // Giallino
-        'hsla(0, 65%, 25%, 0.35)',    // Rossello
-        'hsla(140, 60%, 20%, 0.35)',  // Verdino
-        'hsla(210, 70%, 25%, 0.35)',  // Bluino
-        'hsla(280, 65%, 25%, 0.35)',  // Violetto
-        'hsla(25, 70%, 25%, 0.35)',   // Arancionino
-        'hsla(180, 60%, 20%, 0.35)',  // Ciano
-        'hsla(320, 65%, 25%, 0.35)',  // Fucsia
+        'hsla(45, 90%, 35%, 0.5)',   // Giallo Oro Intenso
+        'hsla(0, 80%, 35%, 0.5)',    // Rosso Acceso
+        'hsla(140, 80%, 30%, 0.5)',  // Verde Smeraldo
+        'hsla(210, 90%, 35%, 0.5)',  // Blu Reale
+        'hsla(280, 80%, 35%, 0.5)',  // Viola Vivido
+        'hsla(25, 90%, 40%, 0.5)',   // Arancione Forte
+        'hsla(180, 80%, 30%, 0.5)',  // Turchese
+        'hsla(330, 85%, 35%, 0.5)',  // Magenta
     ];
 
     // Genera indice basato su team_id (stesso team_id = stesso colore)
