@@ -884,86 +884,104 @@
         }
 
         window.handleLogin = async function () {
-            let rawBib = document.getElementById('bib-number').value.trim().toUpperCase();
-            if (!rawBib) return;
+            const btn = document.querySelector('button[data-dna="4002-LOGIN-BTN"]');
+            const originalText = btn.innerText;
 
-            // DNA-DEEP-CLEAN: Remove duplicate letters (e.g. 1AA -> 1A)
-            const cleanBib = rawBib.replace(/([A-Z])\1+/gi, '$1');
-            if (rawBib !== cleanBib) {
-                console.log(`[DNA-CLEAN] ID ORIGINALE: ${rawBib} -> ID PULITO: ${cleanBib}`);
-                rawBib = cleanBib;
-            }
+            try {
+                let rawBib = document.getElementById('bib-number').value.trim().toUpperCase();
+                if (!rawBib) return;
 
-            // Parsing: 1A -> bib=1, pilot=A
-            const match = rawBib.match(/^(\d+)([AB])$/);
-            if (!match) {
+                // Feedback Visivo
+                btn.innerText = "⏳ VERIFICA...";
+                btn.style.opacity = "0.7";
+                btn.disabled = true;
+
+                // DNA-DEEP-CLEAN: Remove duplicate letters (e.g. 1AA -> 1A)
+                const cleanBib = rawBib.replace(/([A-Z])\1+/gi, '$1');
+                if (rawBib !== cleanBib) {
+                    console.log(`[DNA-CLEAN] ID ORIGINALE: ${rawBib} -> ID PULITO: ${cleanBib}`);
+                    rawBib = cleanBib;
+                }
+
+                // Parsing: 1A -> bib=1, pilot=A
+                const match = rawBib.match(/^(\d+)([AB])$/);
+                if (!match) {
+                    throw new Error("FORMATO_NON_VALIDO");
+                }
+
+                const bib = match[1];
+                currentPilot = match[2];
+
+                // FIX: Ora cerchiamo il numero COMPLETO (es: "1A") perché nel DB sono salvati così
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .select('*')
+                    .eq('bib_number', rawBib)
+                    .limit(1);
+
+                if (error || !data || data.length === 0) {
+                    console.group("❌ Login Failed");
+                    console.log("Input Bib:", rawBib);
+                    console.log("Supabase Error:", error);
+                    console.groupEnd();
+
+                    Swal.fire({
+                        title: 'TEAM NON TROVATO',
+                        text: `Il numero gara "${rawBib}" non risulta assegnato nel database. \n\nPROVA COSÌ:\n1. Vai nel pannello Admin > Impostazioni\n2. Clicca su "🚀 ASSEGNA PETTORALI"\n3. Assicurati che lo stato sia "Confermata" o "Verifica".`,
+                        icon: 'error',
+                        background: '#111',
+                        color: '#fff'
+                    });
+                    return;
+                }
+
+                currentTeam = data[0];
+
+                // Save Session
+                localStorage.setItem('RENGATREFFEN_SESSION', JSON.stringify({
+                    team: currentTeam,
+                    pilot: currentPilot
+                }));
+
+                // 🧬 Recupara il numero foto corretto per questo pilota
+                // Se sono Capitano (A), conto i log 'A' + quelli legacy (senza codice)
+                // Se sono Partner (B), conto solo i log 'B'
+                const pilotFilter = currentPilot === 'A'
+                    ? 'pilot_code.eq.A,pilot_code.is.null'
+                    : 'pilot_code.eq.B';
+
+                const { count } = await supabase
+                    .from('race_logs')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('registration_id', currentTeam.id)
+                    .or(pilotFilter);
+
+                const localCountForTeam = pendingLogs.filter(l =>
+                    l.registration_id === currentTeam.id &&
+                    (currentPilot === 'A' ? (l.pilot_code === 'A' || !l.pilot_code) : l.pilot_code === 'B')
+                ).length;
+
+                photoNumber = (count || 0) + localCountForTeam + 1;
+                updateUI();
+                startLiveTracking();
+                requestWakeLock();
+                syncOfflineData();
+            } catch (error) {
+                console.error("Login Error:", error);
                 Swal.fire({
-                    title: 'CODICE ERRATO',
-                    text: 'Inserisci il numero seguito dalla lettera (es: 22A o 22B)',
-                    icon: 'warning',
-                    background: '#111',
-                    color: '#fff'
-                });
-                return;
-            }
-
-            const bib = match[1];
-            currentPilot = match[2];
-
-            // FIX: Ora cerchiamo il numero COMPLETO (es: "1A") perché nel DB sono salvati così
-            const { data, error } = await supabase
-                .from('registrations')
-                .select('*')
-                .eq('bib_number', rawBib) // Use rawBib (e.g. "1A") instead of bib ("1")
-                .limit(1);
-
-            if (error || !data || data.length === 0) {
-                console.group("❌ Login Failed");
-                console.log("Input Bib:", rawBib);
-                console.log("Supabase Error:", error);
-                console.groupEnd();
-
-                Swal.fire({
-                    title: 'TEAM NON TROVATO',
-                    text: `Il numero gara "${rawBib}" non risulta assegnato nel database. \n\nPROVA COSÌ:\n1. Vai nel pannello Admin > Impostazioni\n2. Clicca su "🚀 ASSEGNA PETTORALI"\n3. Assicurati che lo stato sia "Confermata" o "Verifica".`,
+                    title: 'ERRORE ACCESSO',
+                    text: error.message || 'Errore di connessione o codice non valido.',
                     icon: 'error',
                     background: '#111',
                     color: '#fff'
                 });
-                return;
+            } finally {
+                if (btn) {
+                    btn.innerText = originalText;
+                    btn.style.opacity = "1";
+                    btn.disabled = false;
+                }
             }
-
-            currentTeam = data[0];
-
-            // Save Session
-            localStorage.setItem('RENGATREFFEN_SESSION', JSON.stringify({
-                team: currentTeam,
-                pilot: currentPilot
-            }));
-
-            // 🧬 Recupara il numero foto corretto per questo pilota
-            // Se sono Capitano (A), conto i log 'A' + quelli legacy (senza codice)
-            // Se sono Partner (B), conto solo i log 'B'
-            const pilotFilter = currentPilot === 'A'
-                ? 'pilot_code.eq.A,pilot_code.is.null'
-                : 'pilot_code.eq.B';
-
-            const { count } = await supabase
-                .from('race_logs')
-                .select('*', { count: 'exact', head: true })
-                .eq('registration_id', currentTeam.id)
-                .or(pilotFilter);
-
-            const localCountForTeam = pendingLogs.filter(l =>
-                l.registration_id === currentTeam.id &&
-                (currentPilot === 'A' ? (l.pilot_code === 'A' || !l.pilot_code) : l.pilot_code === 'B')
-            ).length;
-
-            photoNumber = (count || 0) + localCountForTeam + 1;
-            updateUI();
-            startLiveTracking();
-            requestWakeLock();
-            syncOfflineData();
         }
 
         function updateUI() {
