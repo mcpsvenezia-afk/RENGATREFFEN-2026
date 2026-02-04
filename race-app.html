@@ -371,27 +371,34 @@
 
             <!-- INFO GARA ATTIVA (Visualizzate dopo Login) -->
             <div id="race-header-info"
-                style="display:none; width: 90%; align-items:center; justify-content: space-between; margin-top: 15px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                <div style="flex:1;">
+                style="display:none; width: 95%; align-items:start; justify-content: space-between; margin-top: 15px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+
+                <!-- SX: Logout & Status -->
+                <div style="display: flex; gap: 8px; flex-direction: column; align-items: center;">
+                    <button onclick="confirmLogout()" class="mute-btn"
+                        style="width: 42px; height: 42px; color: #ff4444; border-color: #ff4444; font-size: 1.2rem; background: rgba(255,0,0,0.1);">🛑</button>
+                    <div class="status-pill" style="font-size: 0.5rem; padding: 2px 6px;">🟢 GPS</div>
+                </div>
+
+                <!-- CX: Team Info -->
+                <div style="flex:1; text-align: center; padding: 0 10px;">
+                    <div id="team-badge" class="card-badge"
+                        style="display:inline-block; font-size:0.65rem; padding: 4px 10px; margin-bottom:5px; width: auto;">
+                        ...</div>
                     <div id="header-team-name"
-                        style="font-size: 1rem; font-weight: 900; color: var(--accent-yellow); text-transform: uppercase; line-height: 1;">
+                        style="font-size: 0.9rem; font-weight: 900; color: var(--accent-yellow); text-transform: uppercase; line-height: 1.1; margin-bottom: 2px;">
                         TEAM</div>
                     <div id="header-pilot-name"
-                        style="font-size: 0.65rem; color: #ccc; margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">
-                        Pilota
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <div class="status-pill" style="font-size: 0.6rem; padding: 2px 8px;">🟢 ON</div>
-                        <div id="penalty-status" style="font-size: 0.6rem; color: #ffbc00; font-weight: 800;">⚠️ <span
-                                id="penalty-timer">00:00</span></div>
+                        style="font-size: 0.6rem; color: #ccc; text-transform: uppercase; font-weight: 700;">Pilota
                     </div>
                 </div>
-                <div style="display: flex; gap: 8px;">
+
+                <!-- DX: Chrono & Mute -->
+                <div style="display: flex; gap: 8px; flex-direction: column; align-items: center;">
+                    <div class="chrono-widget" id="race-chrono">--:--</div>
                     <button class="mute-btn" onclick="toggleMute()"
-                        style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"><span
-                            id="mute-icon">🔊</span></button>
-                    <button onclick="confirmLogout()" class="mute-btn"
-                        style="width: 38px; height: 38px; color: #E6007E; border-color: #E6007E;">🚪</button>
+                        style="width: 32px; height: 32px; font-size: 1rem; border: none;"><span
+                            id="mute-icon">🔔</span></button>
                 </div>
             </div>
         </header>
@@ -438,6 +445,125 @@
             .btn-start-hero:active {
                 transform: scale(0.96);
             }
+
+            /* --- NUOVA DASHBOARD GARA --- */
+            .photo-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                position: relative;
+                margin: 20px auto;
+                max-width: 400px;
+                padding: 10px;
+            }
+
+            .photo-slot {
+                aspect-ratio: 4/3;
+                background: #111;
+                border: 2px solid #333;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .photo-slot.active {
+                border-color: var(--accent-yellow);
+                box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+            }
+
+            .photo-slot.done {
+                border-color: #4CAF50;
+            }
+
+            .photo-slot .num {
+                font-size: 3rem;
+                font-weight: 900;
+                color: rgba(255, 255, 255, 0.1);
+                font-family: 'Arial Black', sans-serif;
+            }
+
+            .photo-slot img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .slot-check {
+                position: absolute;
+                bottom: 5px;
+                right: 5px;
+                background: #4CAF50;
+                color: #fff;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.8rem;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Pulsante OCCHIO Centrale */
+            .shoot-eye-btn {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 80px;
+                height: 80px;
+                background: #fff;
+                border-radius: 50%;
+                border: 6px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2.5rem;
+                cursor: pointer;
+                z-index: 10;
+                color: #000;
+                animation: pulse-eye 2s infinite;
+            }
+
+            .shoot-eye-btn:active {
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+
+            @keyframes pulse-eye {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+                }
+
+                70% {
+                    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+                }
+            }
+
+            /* CRONOMETRO */
+            .chrono-widget {
+                background: rgba(0, 0, 0, 0.6);
+                border: 2px solid #00E5FF;
+                color: #00E5FF;
+                padding: 5px 10px;
+                border-radius: 8px;
+                font-family: 'Courier New', monospace;
+                font-weight: 900;
+                font-size: 1.2rem;
+                text-shadow: 0 0 10px #00E5FF;
+                box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+                display: inline-block;
+            }
         </style>
 
         <div id="auth-ui" class="auth-card-clean" data-dna="4000-AUTH" data-component="LOGIN">
@@ -476,52 +602,57 @@
     <!-- RACE SCREEN -->
     <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
     <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE">
-        <div class="team-info">
-            <!-- Badge Colorato -->
-            <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA DI CACCIA ...</div>
 
-            <div id="photo-display-label"
-                style="font-size: 0.8rem; color: #666; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
-                Foto da scattare</div>
-            <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">1</div>
+        <!-- GRID FOTO 4 SLOT -->
+        <div class="photo-grid">
+            <div class="photo-slot" id="slot-1">
+                <div class="num">1</div>
+            </div>
+            <div class="photo-slot" id="slot-2">
+                <div class="num">2</div>
+            </div>
+            <div class="photo-slot" id="slot-3">
+                <div class="num">3</div>
+            </div>
+            <div class="photo-slot" id="slot-4">
+                <div class="num">4</div>
+            </div>
 
-            <div id="pilot-badge"
-                style="font-size: 0.75rem; font-weight: 900; color: #888; margin: 10px 0; letter-spacing: 1px; text-transform: uppercase;">
-                PILOTA: ...</div>
+            <!-- CENTRAL EYE BUTTON -->
+            <button onclick="triggerCamera()" class="shoot-eye-btn" id="shoot-btn" data-dna="5003-SHOOT">
+                👁️
+            </button>
         </div>
 
-        <!-- CAMERA INPUT NASCOSTO -->
+        <!-- Hidden Input -->
         <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
             onchange="processCameraSelection(event)">
 
-        <!-- Pulsante Scatta Circolare -->
-        <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot" data-dna="5003-SHOOT">
-            <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
-                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                <path fill-rule="evenodd"
-                    d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
-                    clip-rule="evenodd" />
-            </svg>
-        </button>
-
-        <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: center;">
+        <!-- Sync & Info -->
+        <div style="display: flex; flex-direction: column; width: 100%; align-items: center; margin-top:10px;">
             <button onclick="syncOfflineData()" class="btn-main btn-yellow"
-                style="font-size: 0.65rem; padding: 12px 25px; width: auto;" data-dna="5004-SYNC">🔄 SINCRONIZZA
-                DATI</button>
+                style="font-size: 0.75rem; padding: 12px 25px; width: 100%; max-width: 300px; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);"
+                data-dna="5004-SYNC">
+                🔄 SINCRONIZZA DATI
+            </button>
+            <div
+                style="text-align: center; color: #555; font-size: 0.6rem; margin-top: 8px; font-weight: 800; text-transform: uppercase;">
+                L'invio delle foto è automatico e invisibile.
+            </div>
+
+            <p style="text-align: center; font-size: 0.65rem; color: #444; margin-top: 10px; line-height: 1.2;">
+                Il ricalcolo orario è automatico.<br>Guida con prudenza.
+            </p>
         </div>
 
-        <div
-            style="text-align: center; color: #444; font-size: 0.6rem; margin-top: 20px; font-weight: 800; text-transform: uppercase;">
-            L'invio delle foto è automatico e invisibile.
-        </div>
-
-        <p style="text-align: center; font-size: 0.7rem; color: #555; margin-top: 20px;">
-            Il ricalcolo orario è automatico e invisibile.<br>Calcola i tuoi tempi con cura.
-        </p>
+        <!-- Legacy Hidden References for JS -->
+        <div id="photo-display" style="display:none;"></div>
+        <div id="pilot-badge" style="display:none;"></div>
+        <div id="team-badge-hidden" style="display:none;"></div>
 
         <button id="reset-btn" onclick="resetTestMode()"
-            style="display:none; background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:40px; cursor:pointer; font-size:0.7rem; font-weight:900;">
-            🧹 RESET GARA (SOLO TEST)
+            style="display:none; background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:20px; cursor:pointer; font-size:0.7rem; font-weight:900;">
+            🧹 RESET GARA
         </button>
     </div>
 
@@ -990,13 +1121,64 @@
             }
         }
 
+        let chronoInterval = null;
+
+        function startRaceTimer() {
+            if (chronoInterval) clearInterval(chronoInterval);
+
+            if (!currentTeam || !currentTeam.departure_time) {
+                document.getElementById('race-chrono').innerText = "--:--";
+                return;
+            }
+
+            const updateChrono = () => {
+                // Parse departure_time "HH:MM:SS" -> Date Object for TODAY
+                const [hh, mm, ss] = currentTeam.departure_time.split(':');
+                const now = new Date();
+                const departure = new Date();
+                departure.setHours(parseInt(hh), parseInt(mm), parseInt(ss || 0), 0);
+
+                const diff = now - departure; // millisecondi
+
+                const element = document.getElementById('race-chrono');
+                if (!element) return;
+
+                if (diff < 0) {
+                    // Conto alla rovescia (Futuro)
+                    const absDiff = Math.abs(diff);
+                    const m = Math.floor((absDiff / 1000 / 60) % 60);
+                    const s = Math.floor((absDiff / 1000) % 60);
+                    element.innerText = `-${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                    element.style.color = '#ff4444'; // Rosso attesa
+                } else {
+                    // Gara in corso
+                    const h = Math.floor(diff / (1000 * 60 * 60));
+                    const m = Math.floor((diff / 1000 / 60) % 60);
+                    const s = Math.floor((diff / 1000) % 60);
+
+                    if (h > 0) {
+                        element.innerText = `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                    } else {
+                        element.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                    }
+                    element.style.color = '#00E5FF'; // Ciano Gara
+                }
+            };
+
+            updateChrono(); // Subito
+            chronoInterval = setInterval(updateChrono, 1000);
+        }
+
         function updateUI() {
             if (!currentTeam) return;
 
-            const color = currentTeam.card_color || 'ROSSA';
+            const color = currentTeam.card_color || 'GIALLA';
             const badge = document.getElementById('team-badge');
-            badge.innerText = `SCHEDA DI CACCIA ${color}`;
-            badge.style.color = color === 'ROSSA' ? '#ff4444' : (color === 'GIALLA' ? '#FFCC00' : '#E6007E');
+            if (badge) {
+                badge.innerText = `SCHEDA ${color}`;
+                badge.style.backgroundColor = color === 'ROSSA' ? '#ff4444' : (color === 'GIALLA' ? '#FFCC00' : '#E6007E');
+                badge.style.color = '#000'; // Nero su colore vivido
+            }
 
             // Header Updates
             const pilotName = currentPilot === 'A'
@@ -1006,27 +1188,43 @@
             document.getElementById('header-team-name').innerText = (currentTeam.team_name || 'SENZA NOME').toUpperCase();
             document.getElementById('header-pilot-name').innerText = `Ciao ${pilotName || 'Pilota'}`;
 
-            document.getElementById('race-header-info').style.display = 'block';
+            // IMPORTANT: Use FLEX for layout
+            const headerInfo = document.getElementById('race-header-info');
+            if (headerInfo) headerInfo.style.display = 'flex';
+
             document.getElementById('race-title-group').style.display = 'none';
 
-            document.getElementById('pilot-badge').innerText = `PILOTA: ${currentPilot === 'A' ? 'CAPITANO (A)' : 'PARTNER (B)'}`;
-            document.getElementById('pilot-badge').style.color = '#888';
+            // GESTIONE GRIGLIA FOTO
+            document.querySelectorAll('.photo-slot').forEach(el => el.classList.remove('active'));
+            const currentSlot = document.getElementById(`slot-${photoNumber}`);
+            if (currentSlot) {
+                currentSlot.classList.add('active');
+            }
 
-            // Penalty Timer Update
-            const pMin = Math.floor(separationSeconds / 60);
-            const pSec = separationSeconds % 60;
-            document.getElementById('penalty-timer').innerText = `${pMin.toString().padStart(2, '0')}:${pSec.toString().padStart(2, '0')}`;
-            document.getElementById('penalty-status').style.display = separationSeconds > 0 ? 'flex' : 'none';
+            // Mark previous slots as done
+            for (let i = 1; i < photoNumber; i++) {
+                const s = document.getElementById(`slot-${i}`);
+                if (s && !s.classList.contains('done')) {
+                    s.classList.add('done');
+                    if (!s.querySelector('.slot-check')) s.innerHTML += '<div class="slot-check">✔</div>';
+                }
+            }
 
-            document.getElementById('photo-display').innerText = photoNumber;
+            // Main UI Switch
             document.getElementById('auth-ui').style.display = 'none';
             document.getElementById('race-ui').style.display = 'block';
             document.body.classList.remove('login-bg');
             updateSyncStatus();
 
-            // Icona Muto corretta
-            document.getElementById('mute-icon').innerText = isMuted ? '🔕' : '🔔';
+            // Mute Icon
+            const muteIcon = document.getElementById('mute-icon');
+            if (muteIcon) muteIcon.innerText = isMuted ? '🔕' : '🔔';
+
+            // Start Chrono
+            startRaceTimer();
         }
+
+
 
         // Restore Session on Startup
         async function checkAutoLogin() {
@@ -1121,9 +1319,30 @@
             }
         }
 
-        window.processCameraSelection = function (event) {
+        window.processCameraSelection = async function (event) {
             const file = event.target.files[0];
             if (file) {
+                // 📸 SHOW PREVIEW IN SLOT IMMEDIATE
+                try {
+                    const slot = document.getElementById(`slot-${photoNumber}`);
+                    if (slot) {
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(file);
+
+                        // Clean previous num
+                        const numDiv = slot.querySelector('.num');
+                        if (numDiv) numDiv.style.display = 'none';
+                        const oldImg = slot.querySelector('img');
+                        if (oldImg) oldImg.remove();
+                        const oldCh = slot.querySelector('.slot-check');
+                        if (oldCh) oldCh.remove();
+
+                        slot.appendChild(img);
+                        slot.classList.add('done'); // Bordo verde momentaneo
+                        slot.innerHTML += '<div class="slot-check" id="temp-spinner">⏳</div>';
+                    }
+                } catch (e) { console.warn("Preview error", e); }
+
                 handleShoot();
             }
         }
@@ -1181,7 +1400,7 @@
             }
 
             btn.disabled = true;
-            btn.innerText = 'COMPRESSIONE...';
+            btn.style.opacity = '0.5';
 
             // 📉 Compress before anything else
             let file;
