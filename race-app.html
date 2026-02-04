@@ -610,10 +610,13 @@
                 background: linear-gradient(to bottom, #111, #000);
                 border-bottom: 1px solid #333;
                 padding-bottom: 10px;
-                border-radius: 20px 20px 0 0;
+                border-radius: 0;
+                /* SQUADRATO SOPRA PER RECUPERARE SPAZIO */
                 /* Arrotondato sopra */
                 margin-bottom: 5px;
                 /* Margine ridotto */
+                margin-top: -20px;
+                /* Pull up to cover any body margin/padding if present */
             }
 
             .chrono-bar {
@@ -622,7 +625,8 @@
                 background: rgba(0, 40, 50, 0.4);
                 padding: 10px 0;
                 border-bottom: 1px solid rgba(0, 229, 255, 0.1);
-                border-radius: 20px 20px 0 0;
+                border-radius: 0;
+                /* Flat top */
                 position: relative;
                 /* Per posizionare il sync btn */
             }
