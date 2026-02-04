@@ -600,7 +600,34 @@ export function CRMDetail({ item, type, onBack, onRefresh }) {
                                         )}
                                     </select>
                                 ) : (
-                                    <input type={k.includes('date') ? 'date' : 'text'} value={localItem[k] || ''} onChange={e => setLocalItem({ ...localItem, [k]: e.target.value })} style={premiumInput} />
+                                    <input
+                                        type={k.includes('date') ? 'date' : 'text'}
+                                        value={localItem[k] || ''}
+                                        onChange={e => {
+                                            let value = e.target.value;
+
+                                            // 🛡️ NORMALIZZAZIONE CELLULARE: Auto +39 e rimozione spazi
+                                            if (k === 'telefono' || k === 'secondo_cellulare') {
+                                                // Rimuovi tutti gli spazi
+                                                value = value.replace(/\s+/g, '');
+
+                                                // Se inizia con un numero (non con +), aggiungi +39
+                                                if (value && /^[0-9]/.test(value)) {
+                                                    value = '+39' + value;
+                                                }
+                                            }
+
+                                            setLocalItem({ ...localItem, [k]: value });
+                                        }}
+                                        required={k === 'telefono' || k === 'secondo_cellulare'}
+                                        style={{
+                                            ...premiumInput,
+                                            ...(k === 'telefono' || k === 'secondo_cellulare' ? {
+                                                border: '2px solid #FFCC00',
+                                                boxShadow: '0 0 15px rgba(255,204,0,0.2)'
+                                            } : {})
+                                        }}
+                                    />
                                 )}
                             </div>
                         ))}
