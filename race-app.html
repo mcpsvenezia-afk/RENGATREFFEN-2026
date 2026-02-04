@@ -817,10 +817,7 @@
         <div id="pilot-badge" style="display:none;"></div>
         <div id="team-badge-hidden" style="display:none;"></div>
 
-        <button id="reset-btn" onclick="resetTestMode()"
-            style="display:block; margin: 30px auto; background:transparent; border:1px dashed #444; color:#444; padding:6px 14px; border-radius:50px; cursor:pointer; font-size:0.6rem; font-weight:700; text-transform:uppercase;">
-            ⚠️ RESET TEST DATA
-        </button>
+        <!-- Reset removed for production safety -->
     </div>
 
     <footer class="footer">
@@ -1514,12 +1511,12 @@
             }
         }
 
-        // 📉 IMAGE COMPRESSION ENGINE
+        // 📉 IMAGE COMPRESSION ENGINE (ULTRA-LIGHT)
         async function compressImage(file) {
             return new Promise((resolve) => {
-                const maxWidth = 1280;
-                const maxHeight = 1280;
-                const quality = 0.7; // 70%
+                const maxWidth = 1024; // Abbassato da 1280
+                const maxHeight = 1024;
+                const quality = 0.5;   // Abbassato da 0.7 (Qualità minima necessaria)
 
                 const reader = new FileReader();
                 reader.readAsDataURL(file);

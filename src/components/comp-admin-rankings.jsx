@@ -68,6 +68,27 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
         } catch (err) { alert("Errore: " + err.message); }
     };
 
+    const handleResetTeam = async (team) => {
+        const confirmText = `⚠️ ATTENZIONE ⚠️\n\nStai per cancellare TUTTE LE FOTO e i log di gara del Team: ${team.team_name}.\n\nQuesta operazione è IRREVERSIBILE.\nI piloti dovranno ricominciare da zero.\n\nSei SICURO?`;
+        if (!confirm(confirmText)) return;
+
+        try {
+            setLoading(true);
+            const memberIds = team.members.map(m => m.id);
+            const { error } = await supabase.from('race_logs').delete().in('registration_id', memberIds);
+            if (error) throw error;
+
+            await fetchRaceData();
+            if (onRefresh) onRefresh();
+            alert(`Reset completato per il team ${team.team_name}`);
+        } catch (err) {
+            console.error("Errore reset:", err);
+            alert("Errore reset: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleRestartRace = async () => {
         const result = await Swal.fire({
             title: 'RESET TOTALE GARA?',
@@ -313,7 +334,28 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                         {/* DETTAGLIO ESPANSO (TABELLA TEMPI E FOTO) */}
                         {expandedTeamId === team.key && (
                             <div style={{ padding: '0 30px 30px 30px', borderTop: '1px solid #222' }}>
-                                <h4 style={{ color: '#00E5FF', margin: '20px 0 15px 0', textTransform: 'uppercase', fontSize: '0.9rem' }}>🔍 Dettaglio Prove & Passaggi</h4>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '20px 0 15px 0' }}>
+                                    <h4 style={{ color: '#00E5FF', textTransform: 'uppercase', fontSize: '0.9rem', margin: 0 }}>🔍 Dettaglio Prove & Passaggi</h4>
+
+                                    {isDevMode && (
+                                        <button
+                                            onClick={() => handleResetTeam(team)}
+                                            style={{
+                                                background: 'transparent',
+                                                border: '1px solid #ff4444',
+                                                color: '#ff4444',
+                                                padding: '5px 15px',
+                                                borderRadius: '20px',
+                                                fontWeight: 800,
+                                                fontSize: '0.65rem',
+                                                cursor: 'pointer',
+                                                textTransform: 'uppercase'
+                                            }}
+                                        >
+                                            ⚠️ RESET TEAM LOGS
+                                        </button>
+                                    )}
+                                </div>
 
                                 <div style={{ overflowX: 'auto' }}>
                                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
