@@ -8,17 +8,29 @@ import { TeamPairingIndicator } from './comp-team-status-badge';
 
 // Helper for team colors - usa team_id per accoppiare i colori
 const getTeamColor = (teamId, teamStatus) => {
-    // Team singoli o senza team_id: sfondo trasparente
+    // Team singoli o senza team_id: sfondo quasi trasparente
     if (!teamId || teamStatus === 'SINGLE') return 'rgba(255, 255, 255, 0.02)';
 
-    // Team accoppiati: genera colore basato su team_id
+    // 🎨 PALETTE COLORI ALTERNATI per team accoppiati
+    const colorPalette = [
+        'hsla(45, 70%, 20%, 0.35)',   // Giallino
+        'hsla(0, 65%, 25%, 0.35)',    // Rossello
+        'hsla(140, 60%, 20%, 0.35)',  // Verdino
+        'hsla(210, 70%, 25%, 0.35)',  // Bluino
+        'hsla(280, 65%, 25%, 0.35)',  // Violetto
+        'hsla(25, 70%, 25%, 0.35)',   // Arancionino
+        'hsla(180, 60%, 20%, 0.35)',  // Ciano
+        'hsla(320, 65%, 25%, 0.35)',  // Fucsia
+    ];
+
+    // Genera indice basato su team_id (stesso team_id = stesso colore)
     let hash = 0;
     const idStr = teamId.toString();
     for (let i = 0; i < idStr.length; i++) {
         hash = idStr.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const h = Math.abs(hash % 360);
-    return `hsla(${h}, 60%, 15%, 0.4)`;
+    const colorIndex = Math.abs(hash) % colorPalette.length;
+    return colorPalette[colorIndex];
 };
 
 export function RegistrationList({ data, onSelect, onInspect, onDelete, isDevMode }) {
