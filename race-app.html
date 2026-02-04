@@ -374,8 +374,12 @@
                 style="display:none; width: 90%; align-items:center; justify-content: space-between; margin-top: 15px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <div style="flex:1;">
                     <div id="header-team-name"
-                        style="font-size: 1rem; font-weight: 900; color: var(--accent-yellow); text-transform: uppercase;">
+                        style="font-size: 1rem; font-weight: 900; color: var(--accent-yellow); text-transform: uppercase; line-height: 1;">
                         TEAM</div>
+                    <div id="header-pilot-name"
+                        style="font-size: 0.65rem; color: #ccc; margin-bottom: 4px; text-transform: uppercase; font-weight: 700;">
+                        Pilota
+                    </div>
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <div class="status-pill" style="font-size: 0.6rem; padding: 2px 8px;">🟢 ON</div>
                         <div id="penalty-status" style="font-size: 0.6rem; color: #ffbc00; font-weight: 800;">⚠️ <span
@@ -383,7 +387,9 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <button class="mute-btn" onclick="toggleMute()" style="width: 38px; height: 38px;">🔊</button>
+                    <button class="mute-btn" onclick="toggleMute()"
+                        style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"><span
+                            id="mute-icon">🔊</span></button>
                     <button onclick="confirmLogout()" class="mute-btn"
                         style="width: 38px; height: 38px; color: #E6007E; border-color: #E6007E;">🚪</button>
                 </div>
