@@ -41,6 +41,10 @@
         {
             "source": "/race",
             "destination": "/race-app.html"
+        },
+        {
+            "source": "/race-app",
+            "destination": "/race-app.html"
         }
     ]
 }
