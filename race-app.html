@@ -446,13 +446,14 @@
                 transform: scale(0.96);
             }
 
-            /* --- NUOVA DASHBOARD GARA --- */
+            /* --- NUOVA DASHBOARD GARA 2.1 --- */
             .photo-grid {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: 15px;
                 position: relative;
-                margin: 20px auto;
+                margin: 10px auto 20px auto;
+                /* Alzato: margine top ridotto */
                 max-width: 400px;
                 padding: 10px;
             }
@@ -471,7 +472,7 @@
 
             .photo-slot.active {
                 border-color: var(--accent-yellow);
-                box-shadow: 0 0 15px rgba(255, 204, 0, 0.2);
+                box-shadow: 0 0 15px rgba(255, 204, 0, 0.25);
             }
 
             .photo-slot.done {
@@ -501,52 +502,84 @@
                 background: #4CAF50;
                 color: #fff;
                 border-radius: 50%;
-                width: 20px;
-                height: 20px;
+                width: 24px;
+                height: 24px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 0.8rem;
+                font-size: 0.9rem;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+                z-index: 5;
             }
 
-            /* Pulsante OCCHIO Centrale */
-            .shoot-eye-btn {
+            /* Pulsante SINCRONIZZA MINI (Icona alto dx) */
+            .sync-mini-btn {
                 position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 80px;
-                height: 80px;
-                background: #fff;
+                top: -45px;
+                /* Nello spazio tra header e griglia */
+                right: 15px;
+                background: rgba(255, 204, 0, 0.2);
+                border: 1px solid rgba(255, 204, 0, 0.5);
+                color: #FFCC00;
+                width: 36px;
+                height: 36px;
                 border-radius: 50%;
-                border: 6px solid rgba(255, 255, 255, 0.2);
-                box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 2.5rem;
+                font-size: 1.2rem;
                 cursor: pointer;
-                z-index: 10;
+                z-index: 20;
+                backdrop-filter: blur(5px);
+            }
+
+            /* Pulsante OCCHIO GIGANTE (Bottom) */
+            .shoot-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin-top: 10px;
+                padding-bottom: 20px;
+            }
+
+            .shoot-eye-btn-large {
+                width: 110px;
+                height: 110px;
+                background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e0e0e0 60%, #b0b0b0 100%);
+                border-radius: 50%;
+                border: 8px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 0 40px rgba(255, 255, 255, 0.3), inset 0 -5px 15px rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3.5rem;
+                cursor: pointer;
                 color: #000;
-                animation: pulse-eye 2s infinite;
+                position: relative;
+                transition: transform 0.1s;
             }
 
-            .shoot-eye-btn:active {
-                transform: translate(-50%, -50%) scale(0.9);
+            .shoot-eye-btn-large:active {
+                transform: scale(0.92);
             }
 
-            @keyframes pulse-eye {
-                0% {
-                    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+            .shoot-eye-btn-large::after {
+                content: '';
+                position: absolute;
+                inset: -12px;
+                border-radius: 50%;
+                border: 2px dashed rgba(255, 255, 255, 0.3);
+                animation: rotate-ring 10s linear infinite;
+            }
+
+            @keyframes rotate-ring {
+                from {
+                    transform: rotate(0deg);
                 }
 
-                70% {
-                    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
-                }
-
-                100% {
-                    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+                to {
+                    transform: rotate(360deg);
                 }
             }
 
@@ -601,9 +634,15 @@
 
     <!-- RACE SCREEN -->
     <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
-    <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE">
+    <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE"
+        style="position: relative; padding-top: 10px;">
 
-        <!-- GRID FOTO 4 SLOT -->
+        <!-- SYNC MINI (Alto DX sulla griglia) -->
+        <button onclick="syncOfflineData()" class="sync-mini-btn" title="Sincronizza Dati">
+            🔄
+        </button>
+
+        <!-- GRID FOTO 4 SLOT (Senza occhio centrale) -->
         <div class="photo-grid">
             <div class="photo-slot" id="slot-1">
                 <div class="num">1</div>
@@ -617,41 +656,36 @@
             <div class="photo-slot" id="slot-4">
                 <div class="num">4</div>
             </div>
-
-            <!-- CENTRAL EYE BUTTON -->
-            <button onclick="triggerCamera()" class="shoot-eye-btn" id="shoot-btn" data-dna="5003-SHOOT">
-                👁️
-            </button>
         </div>
 
         <!-- Hidden Input -->
         <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
             onchange="processCameraSelection(event)">
 
-        <!-- Sync & Info -->
-        <div style="display: flex; flex-direction: column; width: 100%; align-items: center; margin-top:10px;">
-            <button onclick="syncOfflineData()" class="btn-main btn-yellow"
-                style="font-size: 0.75rem; padding: 12px 25px; width: 100%; max-width: 300px; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);"
-                data-dna="5004-SYNC">
-                🔄 SINCRONIZZA DATI
+        <!-- BIG SHOOT BUTTON (Bottom Central) -->
+        <div class="shoot-container">
+            <button onclick="triggerCamera()" class="shoot-eye-btn-large" id="shoot-btn" data-dna="5003-SHOOT">
+                👁️
             </button>
             <div
-                style="text-align: center; color: #555; font-size: 0.6rem; margin-top: 8px; font-weight: 800; text-transform: uppercase;">
-                L'invio delle foto è automatico e invisibile.
+                style="margin-top: 12px; font-size: 0.8rem; font-weight: 900; color: #fff; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,0.5);">
+                SCATTA FOTO
             </div>
-
-            <p style="text-align: center; font-size: 0.65rem; color: #444; margin-top: 10px; line-height: 1.2;">
-                Il ricalcolo orario è automatico.<br>Guida con prudenza.
-            </p>
         </div>
 
-        <!-- Legacy Hidden References for JS -->
+        <!-- Info discreta -->
+        <div
+            style="text-align: center; color: #555; font-size: 0.6rem; margin-top: 15px; font-weight: 700; text-transform: uppercase;">
+            Invio automatico • Ricalcolo live
+        </div>
+
+        <!-- Legacy Hidden References for JS Compatibility -->
         <div id="photo-display" style="display:none;"></div>
         <div id="pilot-badge" style="display:none;"></div>
         <div id="team-badge-hidden" style="display:none;"></div>
 
         <button id="reset-btn" onclick="resetTestMode()"
-            style="display:block; margin: 40px auto; background:transparent; border:1px dashed #555; color:#555; padding:8px 16px; border-radius:50px; cursor:pointer; font-size:0.6rem; font-weight:700; text-transform:uppercase;">
+            style="display:block; margin: 30px auto; background:transparent; border:1px dashed #444; color:#444; padding:6px 14px; border-radius:50px; cursor:pointer; font-size:0.6rem; font-weight:700; text-transform:uppercase;">
             ⚠️ RESET TEST DATA
         </button>
     </div>
