@@ -326,26 +326,40 @@
             ⚠️ ATTENZIONE: FOTO IN CODA! SINCRONIZZA PRIMA DI SPEGNERE.
         </div>
 
-        <header class="header" style="padding-bottom: 20px;">
+        <header class="header" style="padding-bottom: 10px; padding-top: 10px;">
             <div id="dev-pill" class="dev-pill">
                 <div class="dev-dot"></div> MODO DEV ATTIVO
             </div>
 
             <!-- AUTH HEADER (Titolo Evento) -->
-            <div id="race-title-group" style="display: flex; align-items: center; gap: 15px;">
-                <div
-                    style="width: 45px; height: 45px; background: var(--accent-yellow); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);">
-                    RT</div>
-                <div>
-                    <div style="font-size: 0.9rem; font-weight: 900; color: #fff; letter-spacing: 1px;">RENGA
-                        TREFFEN 2026
+            <div id="race-title-group" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div
+                        style="width: 45px; height: 45px; background: var(--accent-yellow); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);">
+                        RT
                     </div>
-                    <div id="wake-status"
-                        style="font-size: 0.6rem; color: #4CAF50; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px; margin-top: 3px;">
-                        <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
-                            <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-                        </svg> GPS PRONTO
+                    <div>
+                        <div
+                            style="font-size: 1.2rem; font-weight: 900; color: #fff; letter-spacing: 1px; line-height: 1;">
+                            RENGA
+                            TREFFEN 2026
+                        </div>
+                        <div id="wake-status"
+                            style="font-size: 0.6rem; color: #4CAF50; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px; margin-top: 3px;">
+                            <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
+                                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
+                            </svg> GPS PRONTO
+                        </div>
                     </div>
+                </div>
+
+                <!-- NUOVO TITOLO MEMORIAL -->
+                <div style="margin-top: 5px; text-align: center;">
+                    <span
+                        style="font-size: 0.8rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.8);">
+                        2° Memorial <span style="color: #FFCC00; text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);">Antonio
+                            Armellin</span>
+                    </span>
                 </div>
             </div>
 
@@ -389,11 +403,12 @@
         </div>
 
         <!-- AUTH SCREEN -->
-        <div id="auth-ui" class="auth-card" data-dna="4000-AUTH" data-component="LOGIN">
+        <div id="auth-ui" class="auth-card" data-dna="4000-AUTH" data-component="LOGIN"
+            style="margin-top: auto; margin-bottom: 40px;">
             <!-- SCHERMATA INIZIALE -->
-            <div id="login-step-1">
+            <div id="login-step-1" style="text-align: center;">
                 <button onclick="toggleLogin(true)" class="btn-main btn-yellow"
-                    style="font-size: 1rem; letter-spacing: 1px;">
+                    style="font-size: 0.9rem; letter-spacing: 1px; padding: 15px 30px; width: 85%; margin-top: 100px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                     ACCEDI ALLA CACCIA AL TESORO
                 </button>
             </div>
