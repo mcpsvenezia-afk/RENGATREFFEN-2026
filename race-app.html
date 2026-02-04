@@ -326,125 +326,119 @@
             ⚠️ ATTENZIONE: FOTO IN CODA! SINCRONIZZA PRIMA DI SPEGNERE.
         </div>
 
-        <header class="header" style="padding-bottom: 10px; padding-top: 10px;">
+        <header class="header"
+            style="padding: 15px 0 0 0; display: flex; flex-direction: column; align-items: center; z-index: 10;">
             <div id="dev-pill" class="dev-pill">
-                <div class="dev-dot"></div> MODO DEV ATTIVO
+                <div class="dev-dot"></div> DEV
             </div>
 
-            <!-- AUTH HEADER (Titolo Evento) -->
-            <div id="race-title-group" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
-                <div style="display: flex; align-items: center; gap: 15px;">
+            <!-- AUTH HEADER COMPATTO -->
+            <div id="race-title-group"
+                style="text-align: center; width: 100%; display: flex; flex-direction: column; align-items: center;">
+
+                <!-- Logo + Titolo in linea -->
+                <div style="display: inline-flex; align-items: center; gap: 10px; padding: 5px; border-radius: 50px;">
                     <div
-                        style="width: 45px; height: 45px; background: var(--accent-yellow); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);">
-                        RT
-                    </div>
-                    <div>
-                        <div
-                            style="font-size: 1.2rem; font-weight: 900; color: #fff; letter-spacing: 1px; line-height: 1;">
-                            RENGA
-                            TREFFEN 2026
-                        </div>
-                        <div id="wake-status"
-                            style="font-size: 0.6rem; color: #4CAF50; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px; margin-top: 3px;">
-                            <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor">
-                                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" />
-                            </svg> GPS PRONTO
-                        </div>
-                    </div>
+                        style="width: 38px; height: 38px; background: var(--accent-yellow); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #000; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                        RT</div>
+                    <div
+                        style="font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                        RENGA TREFFEN '26</div>
                 </div>
 
-                <!-- NUOVO TITOLO MEMORIAL -->
-                <div style="margin-top: 5px; text-align: center;">
+                <!-- Memorial Sottile -->
+                <div style="margin-top: 2px;">
                     <span
-                        style="font-size: 0.8rem; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.8);">
-                        2° Memorial <span style="color: #FFCC00; text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);">Antonio
-                            Armellin</span>
+                        style="font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.9); text-shadow: 0 2px 5px rgba(0,0,0,0.8);">
+                        2° Memorial <span style="color: #FFCC00;">Antonio Armellin</span>
                     </span>
                 </div>
+
+                <!-- Status GPS -->
+                <div id="wake-status"
+                    style="font-size: 0.65rem; color: #4CAF50; text-transform: uppercase; font-weight: 900; margin-top: 5px; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 4px; backdrop-filter: blur(4px);">
+                    GPS PRONTO
+                </div>
+            </div>
+
+            <!-- PWA BADGE (Discreto) -->
+            <div id="install-banner" onClick="installPWA()"
+                style="display:none; margin-top: 8px; background: rgba(255, 204, 0, 0.15); border: 1px solid rgba(255, 204, 0, 0.4); color:#FFCC00; padding:6px 14px; border-radius:30px; font-weight:800; cursor:pointer; font-size:0.65rem; text-transform:uppercase; backdrop-filter: blur(4px);">
+                📲 INSTALLA APP
             </div>
 
             <!-- INFO GARA ATTIVA (Visualizzate dopo Login) -->
             <div id="race-header-info"
-                style="display:none; flex: 1; align-items:center; justify-content: space-between; margin-left: 20px;">
+                style="display:none; width: 90%; align-items:center; justify-content: space-between; margin-top: 15px; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                 <div style="flex:1;">
                     <div id="header-team-name"
                         style="font-size: 1rem; font-weight: 900; color: var(--accent-yellow); text-transform: uppercase;">
                         TEAM</div>
-                    <div id="header-pilot-name" style="font-size: 0.75rem; color: #888; margin-top: 2px;">Pilota</div>
-                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
-                        <div class="status-pill" data-dna="SYSTEM-STATUS"
-                            style="font-size: 0.6rem; background: transparent; padding: 0; color: #4CAF50; display: flex; align-items: center; gap: 5px;">
-                            <div class="dot" style="width: 6px; height: 6px; background: #4CAF50; border-radius: 50%;">
-                            </div> PRONTO
-                        </div>
-                        <div id="penalty-status"
-                            style="font-size: 0.6rem; color: #ffbc00; text-transform: uppercase; font-weight: 800; display: flex; align-items: center; gap: 5px;">
-                            ⚠️ SEPARATI: <span id="penalty-timer">00:00</span>
-                        </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div class="status-pill" style="font-size: 0.6rem; padding: 2px 8px;">🟢 ON</div>
+                        <div id="penalty-status" style="font-size: 0.6rem; color: #ffbc00; font-weight: 800;">⚠️ <span
+                                id="penalty-timer">00:00</span></div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="mute-btn" onclick="toggleMute()" title="Silenzia Allarme"
-                        style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #FFCC00; cursor: pointer; display: flex; align-items: center; justify-content: center; outline: none;">
-                        <span id="mute-icon">🔊</span>
-                    </button>
-                    <button onclick="confirmLogout()" title="Esci e Spegni GPS"
-                        style="width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(230,0,126,0.3); background: rgba(230,0,126,0.1); color: #E6007E; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; outline: none;">
-                        🚪
-                    </button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="mute-btn" onclick="toggleMute()" style="width: 38px; height: 38px;">🔊</button>
+                    <button onclick="confirmLogout()" class="mute-btn"
+                        style="width: 38px; height: 38px; color: #E6007E; border-color: #E6007E;">🚪</button>
                 </div>
             </div>
         </header>
 
-        <!-- PWA INSTALL BANNER -->
-        <div id="install-banner"
-            style="display:none; background: #FFCC00; color:#000; padding:15px; border-radius:15px; margin: 10px 20px; font-weight:900; cursor:pointer; text-transform:uppercase; font-size:0.8rem; text-align:center;">
-            📲 AGGIUNGI ALLA HOME PER MASSIMA STABILITÀ
-        </div>
-
-        <!-- UI MODERNA SENZA BOX -->
+        <!-- UI MODERNA BOTTOM-FIXED -->
         <style>
-            /* Override pulito per Auth Card */
             .auth-card-clean {
-                background: transparent !important;
-                border: none !important;
-                box-shadow: none !important;
-                backdrop-filter: none !important;
-                margin-top: auto;
-                padding-bottom: 40px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
                 width: 100%;
+                padding: 60px 20px 40px 20px;
+                /* Padding top maggiore per sfumatura */
+                background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.8) 40%, transparent 100%);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                z-index: 100;
+                box-sizing: border-box;
+                pointer-events: none;
+                /* Lascia cliccare l'immagine sotto se necessario nella parte trasparente */
+            }
+
+            .auth-card-clean>* {
+                pointer-events: auto;
+                /* Riattiva click sui bottoni */
             }
 
             .btn-start-hero {
-                background: rgba(255, 204, 0, 0.95);
+                background: #FFCC00;
                 color: #000;
                 border: none;
-                padding: 20px 40px;
-                border-radius: 50px;
+                padding: 22px;
+                border-radius: 16px;
+                /* Meno arrotondato, più tech */
                 font-size: 1.1rem;
-                font-weight: 950;
+                font-weight: 900;
                 text-transform: uppercase;
                 letter-spacing: 2px;
-                width: 90%;
-                max-width: 350px;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 0 4px rgba(255, 204, 0, 0.3);
+                width: 100%;
+                max-width: 400px;
+                box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
                 cursor: pointer;
                 transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 15px;
+                gap: 12px;
             }
 
             .btn-start-hero:active {
-                transform: scale(0.95);
+                transform: scale(0.96);
             }
         </style>
 
-        <!-- AUTH SCREEN -->
         <div id="auth-ui" class="auth-card-clean" data-dna="4000-AUTH" data-component="LOGIN">
             <!-- SCHERMATA INIZIALE -->
             <div id="login-step-1" style="text-align: center; width: 100%;">
@@ -452,84 +446,87 @@
                     <span>🚀</span> VAI ALLA GARA
                 </button>
                 <div
-                    style="font-size: 0.7rem; color: rgba(255,255,255,0.6); margin-top: 15px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">
+                    style="font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 20px; text-transform: uppercase; font-weight: 700; letter-spacing: 2px;">
                     ACCESSO RISERVATO AI TEAM
                 </div>
             </div>
 
-            <!-- SCHERMATA INPUT -->
-            <div id="login-step-2" style="display:none">
+            <!-- SCHERMATA INPUT (Dentro auth-ui per gestire toggle) -->
+            <div id="login-step-2" style="display:none; width: 100%; text-align: center;">
                 <div class="input-group">
-                    <label>Inserisci Numero Gara + Pilota</label>
+                    <label style="color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Numero Gara + Pilota</label>
                     <input type="text" id="bib-number" class="bib-input" placeholder="es: 1A o 2B"
-                        data-dna="4001-BIB-INPUT" autocomplete="off">
+                        data-dna="4001-BIB-INPUT" autocomplete="off"
+                        style="border-color: rgba(255,204,0,0.5); background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);">
                 </div>
-                <button onclick="handleLogin()" class="btn-main btn-yellow" style="padding: 15px; font-size: 1rem;"
+                <button onclick="handleLogin()" class="btn-main btn-yellow"
+                    style="padding: 15px; font-size: 1rem; width: 100%; box-shadow: 0 5px 20px rgba(0,0,0,0.5);"
                     data-dna="4002-LOGIN-BTN">
                     ENTRA ORA
                 </button>
                 <div onclick="toggleLogin(false)"
-                    style="text-align:center; margin-top: 20px; color:rgba(255,255,255,0.4); font-size:0.7rem; cursor:pointer; text-transform:uppercase; font-weight:900;">
+                    style="text-align:center; margin-top: 20px; color:#fff; font-size:0.7rem; cursor:pointer; text-transform:uppercase; font-weight:900; text-decoration: underline;">
                     Indietro
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- RACE SCREEN -->
-        <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
-        <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE">
-            <div class="team-info">
-                <!-- Badge Colorato -->
-                <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA DI CACCIA ...</div>
+    <!-- RACE SCREEN -->
+    <!-- DNA: [URL:https://www.rengatreffen.it/race-app ID:5000-RACE-ENGINE] -->
+    <div id="race-ui" class="race-card" data-dna="5000-RACE-ENGINE" data-component="RACE-ENGINE">
+        <div class="team-info">
+            <!-- Badge Colorato -->
+            <div id="team-badge" class="card-badge" data-dna="5001-BADGE">SCHEDA DI CACCIA ...</div>
 
-                <div id="photo-display-label"
-                    style="font-size: 0.8rem; color: #666; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
-                    Foto da scattare</div>
-                <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">1</div>
+            <div id="photo-display-label"
+                style="font-size: 0.8rem; color: #666; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
+                Foto da scattare</div>
+            <div id="photo-display" class="photo-number" data-dna="5002-PHOTO-NUM">1</div>
 
-                <div id="pilot-badge"
-                    style="font-size: 0.75rem; font-weight: 900; color: #888; margin: 10px 0; letter-spacing: 1px; text-transform: uppercase;">
-                    PILOTA: ...</div>
-            </div>
-
-            <!-- CAMERA INPUT NASCOSTO -->
-            <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
-                onchange="processCameraSelection(event)">
-
-            <!-- Pulsante Scatta Circolare -->
-            <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot" data-dna="5003-SHOOT">
-                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
-                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                    <path fill-rule="evenodd"
-                        d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
-                        clip-rule="evenodd" />
-                </svg>
-            </button>
-
-            <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: center;">
-                <button onclick="syncOfflineData()" class="btn-main btn-yellow"
-                    style="font-size: 0.65rem; padding: 12px 25px; width: auto;" data-dna="5004-SYNC">🔄 SINCRONIZZA
-                    DATI</button>
-            </div>
-
-            <div
-                style="text-align: center; color: #444; font-size: 0.6rem; margin-top: 20px; font-weight: 800; text-transform: uppercase;">
-                L'invio delle foto è automatico e invisibile.
-            </div>
-
-            <p style="text-align: center; font-size: 0.7rem; color: #555; margin-top: 20px;">
-                Il ricalcolo orario è automatico e invisibile.<br>Calcola i tuoi tempi con cura.
-            </p>
-
-            <button id="reset-btn" onclick="resetTestMode()"
-                style="display:none; background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:40px; cursor:pointer; font-size:0.7rem; font-weight:900;">
-                🧹 RESET GARA (SOLO TEST)
-            </button>
+            <div id="pilot-badge"
+                style="font-size: 0.75rem; font-weight: 900; color: #888; margin: 10px 0; letter-spacing: 1px; text-transform: uppercase;">
+                PILOTA: ...</div>
         </div>
 
-        <footer class="footer">
-            v7.9.1 DEV-GUARD | powered by MotoReporter
-        </footer>
+        <!-- CAMERA INPUT NASCOSTO -->
+        <input type="file" accept="image/*" capture="camera" id="camera-input" style="display:none"
+            onchange="processCameraSelection(event)">
+
+        <!-- Pulsante Scatta Circolare -->
+        <button onclick="triggerCamera()" id="shoot-btn" class="btn-shoot" data-dna="5003-SHOOT">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                <path fill-rule="evenodd"
+                    d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 010-1.113zM17.25 12a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0z"
+                    clip-rule="evenodd" />
+            </svg>
+        </button>
+
+        <div style="display: flex; gap: 10px; margin-top: 10px; justify-content: center;">
+            <button onclick="syncOfflineData()" class="btn-main btn-yellow"
+                style="font-size: 0.65rem; padding: 12px 25px; width: auto;" data-dna="5004-SYNC">🔄 SINCRONIZZA
+                DATI</button>
+        </div>
+
+        <div
+            style="text-align: center; color: #444; font-size: 0.6rem; margin-top: 20px; font-weight: 800; text-transform: uppercase;">
+            L'invio delle foto è automatico e invisibile.
+        </div>
+
+        <p style="text-align: center; font-size: 0.7rem; color: #555; margin-top: 20px;">
+            Il ricalcolo orario è automatico e invisibile.<br>Calcola i tuoi tempi con cura.
+        </p>
+
+        <button id="reset-btn" onclick="resetTestMode()"
+            style="display:none; background:transparent; border:1px dashed #444; color:#444; padding:10px 20px; border-radius:50px; margin-top:40px; cursor:pointer; font-size:0.7rem; font-weight:900;">
+            🧹 RESET GARA (SOLO TEST)
+        </button>
+    </div>
+
+    <footer class="footer">
+        v7.9.1 DEV-GUARD | powered by MotoReporter
+    </footer>
     </div>
 
     <script type="module">
