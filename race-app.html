@@ -1578,10 +1578,41 @@
                 file = originalFile;
             }
 
-            // Upload Logic (Storage) - Placeholder se non attivo
-            // Per ora salviamo solo il log, l'immagine è locale nel form (pending upload se volessimo)
+            // 📤 UPLOAD REALE SU STORAGE
             let publicUrl = null;
-            // TODO: Implement Storage Upload if needed for persistence
+
+            try {
+                // Nome file univoco: TEAMID_PILOTA_PHOTO#_TIME.jpg
+                const fileName = `${currentTeam.id}_${currentPilot}_P${photoNumber}_${Date.now()}.jpg`;
+
+                // Feedback
+                btn.style.opacity = '0.7';
+                // Non cambiamo testo per non rompere UI occhio, usiamo toast
+                const toastUpload = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+                toastUpload.fire({ icon: 'info', title: 'Caricamento foto...' });
+
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('race_photos')
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (uploadError) throw uploadError;
+
+                // Ottieni URL Pubblico
+                const { data: urlData } = supabase.storage
+                    .from('race_photos')
+                    .getPublicUrl(fileName);
+
+                publicUrl = urlData.publicUrl;
+                console.log("Foto caricata:", publicUrl);
+
+            } catch (error) {
+                console.error("Errore Upload Foto:", error);
+                // Proseguiamo comunque per salvare il timestamp, ma senza foto
+                Swal.fire({ toast: true, icon: 'warning', title: 'Foto non caricata (Offline?), salvato solo orario.', position: 'top' });
+            }
 
             const saveData = async (pos) => {
                 const newLog = {
@@ -1591,7 +1622,7 @@
                     gps_lat: pos ? pos.coords.latitude : null,
                     gps_lng: pos ? pos.coords.longitude : null,
                     gps_alt: pos ? pos.coords.altitude : null,
-                    photo_url: publicUrl, // null per ora
+                    photo_url: publicUrl, // ORA È L'URL REALE
                     client_timestamp: new Date().toISOString()
                 };
 
