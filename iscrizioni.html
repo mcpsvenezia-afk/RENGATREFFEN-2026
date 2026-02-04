@@ -948,7 +948,11 @@
 
                                     <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3119-INP -->
 
-                                    <input type="tel" name="telefono" class="renga-input" required>
+                                    <input type="tel" name="telefono" class="renga-input" required oninput="
+                                            var val = this.value.replace(/\s+/g, '');
+                                            if (val && /^[0-9]/.test(val)) val = '+39' + val;
+                                            this.value = val;
+                                        " style="border: 2px solid #FFCC00; box-shadow: 0 0 15px rgba(255,204,0,0.2);">
 
                                 </div>
 
@@ -1012,7 +1016,11 @@
 
                                 <!-- URL:https://www.rengatreffen.it/iscrizioni ID 3124-INP -->
 
-                                <input type="tel" name="secondo_cellulare" class="renga-input">
+                                <input type="tel" name="secondo_cellulare" class="renga-input" required oninput="
+                                        var val = this.value.replace(/\s+/g, '');
+                                        if (val && /^[0-9]/.test(val)) val = '+39' + val;
+                                        this.value = val;
+                                    " style="border: 2px solid #FFCC00; box-shadow: 0 0 15px rgba(255,204,0,0.2);">
 
                                 <div class="help-text">Questo dato verrà utilizzato per collegare i due piloti</div>
 
