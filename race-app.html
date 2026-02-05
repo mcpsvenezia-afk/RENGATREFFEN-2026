@@ -1146,69 +1146,23 @@
             updateRaceScore();
         });
 
-        // 🧠 CALCOLO PENALITÀ (Mirroring Admin Dashboard Logic - Realtime)
+        // 🧠 LETTURA PENALITÀ (Mirroring Admin Dashboard Logic - PASSIVE MODE)
         async function updateRaceScore() {
             if (!currentTeam || !currentTeam.id) return;
 
             try {
-                // 1. Fetch Dati Freschi (Target Times + Logs + Config)
-                const [teamRes, logsRes, settingsRes] = await Promise.all([
-                    supabase.from('registrations').select('target_times').eq('id', currentTeam.id).single(),
-                    supabase.from('race_logs').select('*').eq('registration_id', currentTeam.id),
-                    supabase.from('settings').select('value').eq('id', 'event_params').single()
-                ]);
+                // L'APP LEGGE SOLO IL DATO CALCOLATO DALLA DASHBOARD (Source of Truth)
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .select('score_caccia')
+                    .eq('id', currentTeam.id)
+                    .single();
 
-                if (teamRes.error) throw teamRes.error;
+                if (error) throw error;
 
-                // Aggiorniamo i target times locali con quelli freschi dal DB 
-                // (utile se l'admin li ha cambiati durante la gara)
-                const liveTargetTimes = teamRes.data.target_times || {};
-                const logs = logsRes.data || [];
-                const raceParams = settingsRes.data?.value?.race_params || {};
+                const totalScore = data?.score_caccia || 0;
 
-                const penaltySkipped = raceParams.penalty_skipped_photo || 3600; // Default 1h
-
-                let totalScore = 0;
-
-                // 2. Calcola per ogni step 1,2,3,4
-                [1, 2, 3, 4].forEach(step => {
-                    const stepLogs = logs.filter(l => l.photo_number === step);
-                    // Priorità: Capitano > Partner > Primo
-                    const validLog = stepLogs.find(l => l.pilot_code === 'A') || stepLogs[0];
-
-                    if (validLog) {
-                        // REJECTED = Ignorato (o penalità specifica se volessimo)
-                        if (validLog.validation_status === 'REJECTED') return;
-
-                        // SALTATA = Penalità Parametrica
-                        if (validLog.validation_status === 'SALTATA') {
-                            totalScore += penaltySkipped;
-                            return;
-                        }
-
-                        // Calcolo diff oraria
-                        // Usa i log freschi
-                        let targetStr = liveTargetTimes[`photo_${step}`];
-
-                        // Se non c'è target, proviamo a stimare o skippiamo
-                        if (!targetStr) return;
-
-                        try {
-                            const [tH, tM, tS] = targetStr.split(':').map(Number);
-                            const logDate = new Date(validLog.client_timestamp || validLog.recorded_at);
-
-                            const targetDate = new Date(logDate);
-                            targetDate.setHours(tH, tM, tS || 0, 0);
-
-                            const diffMs = Math.abs(logDate - targetDate);
-                            totalScore += Math.floor(diffMs / 1000);
-                        } catch (e) {
-                            console.warn("Err calcolo step", step, e);
-                        }
-                    }
-                });
-
-                // 3. Aggiorna UI
+                // Aggiorna UI
                 const scoreEl = document.getElementById('race-penalty-display');
                 if (scoreEl) {
                     scoreEl.innerText = totalScore;
@@ -1217,7 +1171,7 @@
                 }
 
             } catch (err) {
-                console.warn("[SCORE] Errore calcolo live:", err);
+                console.warn("[SCORE] Errore sync:", err);
             }
         }
 

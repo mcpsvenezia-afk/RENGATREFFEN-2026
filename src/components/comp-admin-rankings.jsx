@@ -182,10 +182,9 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
             }
         });
 
-        // 2. Score each group
+        // 2. Score each group & AUTO-SAVE to DB (Source of Truth)
         const teamList = Object.values(groups).map(team => {
             const memberIds = team.members.map(m => String(m.id));
-            // Prendo TUTTI i log del team per la visibilità globale
             const teamLogs = logs.filter(l => memberIds.includes(String(l.registration_id)));
 
             let totalPenalty = 0;
@@ -194,15 +193,11 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
             [1, 2, 3, 4].forEach(num => {
                 const stepLogs = teamLogs.filter(l => l.photo_number === num);
                 const officialLog = stepLogs.find(l => l.pilot_code === 'A' || !l.pilot_code);
-                const anyLog = stepLogs[0]; // Prendi il primo log disponibile per segnare la prova come fatta
+                const anyLog = stepLogs[0];
 
                 if (anyLog) {
-                    // La prova è "fatta" se chiunque del team ha inviato qualcosa
                     validCount++;
-
-                    // Il punteggio si calcola sul log ufficiale (Capitano)
-                    // 🛡️ FIX: Calcoliamo il punteggio SEMPRE se c'è un log del capitano, 
-                    // a meno che non sia stato esplicitamente RIFIUTATO o SALTATA (che ha la sua penale)
+                    // Calcolo Punteggio
                     if (officialLog && officialLog.validation_status !== 'REJECTED' && officialLog.validation_status !== 'SALTATA') {
                         // Target lookup
                         const targetTimeStr = team.target_times?.[`photo_${num}`];
@@ -215,11 +210,10 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                 totalPenalty += Math.floor(diffMs / 1000);
                             } catch (e) { console.warn("Invalid target time", targetTimeStr); }
                         } else {
-                            // FALLBACK: Category Start Time
+                            // Fallback
                             const formula = team.members[0]?.formula_partecipazione || "";
                             let baseTime = "21:30";
                             if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
-
                             const [startH, startM] = baseTime.split(':').map(Number);
                             const targetDate = new Date(officialLog.recorded_at);
                             targetDate.setHours(startH, startM, 0, 0);
@@ -233,6 +227,23 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                 }
             });
 
+            // 🔥 AUTO-UPDATE DB if score changed
+            // Verifica lo score salvato sul PRIMO membro del team (tutti condividono lo stesso gruppo/score in teoria, o usiamo un campo team leader)
+            // Utilizziamo team.members[0].score_caccia come riferimento attuale su DB
+            const currentDbScore = team.members[0]?.score_caccia || 0;
+
+            if (totalPenalty !== currentDbScore) {
+                console.log(`[SYNC SCORE] Team ${team.team_name}: DB=${currentDbScore} -> CALC=${totalPenalty}. Updating...`);
+                // Update Async (Fire & Forget per non bloccare UI)
+                const teamIds = team.members.map(m => m.id);
+                supabase.from('registrations')
+                    .update({ score_caccia: totalPenalty })
+                    .in('id', teamIds)
+                    .then(({ error }) => {
+                        if (error) console.error("Error updating score", error);
+                    });
+            }
+
             return {
                 ...team,
                 photoCount: validCount,
@@ -242,7 +253,6 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
 
         // 3. Final Sort
         return teamList.sort((a, b) => {
-            // Priority: more photos, then lower score
             if (b.photoCount !== a.photoCount) return b.photoCount - a.photoCount;
             return a.totalScore - b.totalScore;
         });
