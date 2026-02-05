@@ -1146,58 +1146,57 @@
             updateRaceScore();
         });
 
-        // 🧠 CALCOLO PENALITÀ (Mirroring Admin Dashboard Logic)
+        // 🧠 CALCOLO PENALITÀ (Mirroring Admin Dashboard Logic - Realtime)
         async function updateRaceScore() {
             if (!currentTeam || !currentTeam.id) return;
 
-            // Se non abbiamo target times, inutile calcolare (o usiamo default)
-            // if (!currentTeam.target_times) return;
-
             try {
-                // 1. Scarica i log confermati per il team
-                const { data: logs, error } = await supabase
-                    .from('race_logs')
-                    .select('*')
-                    .eq('registration_id', currentTeam.id);
+                // 1. Fetch Dati Freschi (Target Times + Logs + Config)
+                const [teamRes, logsRes, settingsRes] = await Promise.all([
+                    supabase.from('registrations').select('target_times').eq('id', currentTeam.id).single(),
+                    supabase.from('race_logs').select('*').eq('registration_id', currentTeam.id),
+                    supabase.from('settings').select('value').eq('id', 'event_params').single()
+                ]);
 
-                if (error) throw error;
-                if (!logs) return;
+                if (teamRes.error) throw teamRes.error;
+
+                // Aggiorniamo i target times locali con quelli freschi dal DB 
+                // (utile se l'admin li ha cambiati durante la gara)
+                const liveTargetTimes = teamRes.data.target_times || {};
+                const logs = logsRes.data || [];
+                const raceParams = settingsRes.data?.value?.race_params || {};
+
+                const penaltySkipped = raceParams.penalty_skipped_photo || 3600; // Default 1h
 
                 let totalScore = 0;
 
                 // 2. Calcola per ogni step 1,2,3,4
                 [1, 2, 3, 4].forEach(step => {
-                    // Cerca log per questo step
                     const stepLogs = logs.filter(l => l.photo_number === step);
-                    // Logica prioritaria: Capitano (A) > Partner (B) > Chiunque
+                    // Priorità: Capitano > Partner > Primo
                     const validLog = stepLogs.find(l => l.pilot_code === 'A') || stepLogs[0];
 
                     if (validLog) {
-                        // Se è stata RIFIUTATA dall'admin, non la contiamo (o potremmo dare penalità fissa)
+                        // REJECTED = Ignorato (o penalità specifica se volessimo)
                         if (validLog.validation_status === 'REJECTED') return;
 
-                        // Saltata = Penalità Fissa (es 3600s)
+                        // SALTATA = Penalità Parametrica
                         if (validLog.validation_status === 'SALTATA') {
-                            totalScore += 3600;
+                            totalScore += penaltySkipped;
                             return;
                         }
 
                         // Calcolo diff oraria
-                        // Prendi target time dal JSON team, o default 21:30
-                        let targetStr = currentTeam.target_times?.[`photo_${step}`];
+                        // Usa i log freschi
+                        let targetStr = liveTargetTimes[`photo_${step}`];
 
-                        // Fallback logica complessa se manca target specifico
-                        if (!targetStr) {
-                            // Semplificato: se manca target, no penalità visualizzata per non spaventare
-                            return;
-                        }
+                        // Se non c'è target, proviamo a stimare o skippiamo
+                        if (!targetStr) return;
 
-                        // Parsing Time
                         try {
                             const [tH, tM, tS] = targetStr.split(':').map(Number);
-                            const logDate = new Date(validLog.client_timestamp || validLog.recorded_at); // Preferiamo client time se esiste
+                            const logDate = new Date(validLog.client_timestamp || validLog.recorded_at);
 
-                            // Crea target date allo stesso giorno del log
                             const targetDate = new Date(logDate);
                             targetDate.setHours(tH, tM, tS || 0, 0);
 
@@ -1213,13 +1212,12 @@
                 const scoreEl = document.getElementById('race-penalty-display');
                 if (scoreEl) {
                     scoreEl.innerText = totalScore;
-                    // Colora se > 0
-                    scoreEl.style.color = totalScore > 0 ? '#ff4444' : '#666'; // Grigio se pulito, Rosso se sporco
-                    if (totalScore === 0) scoreEl.style.color = '#4CAF50'; // Verde se perfetto
+                    scoreEl.style.color = totalScore > 0 ? '#ff4444' : '#666';
+                    if (totalScore === 0) scoreEl.style.color = '#4CAF50';
                 }
 
             } catch (err) {
-                console.warn("[SCORE] Errore calcolo locale:", err);
+                console.warn("[SCORE] Errore calcolo live:", err);
             }
         }
 
