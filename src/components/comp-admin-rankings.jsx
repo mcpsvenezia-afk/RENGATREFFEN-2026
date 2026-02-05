@@ -201,25 +201,43 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                     if (officialLog && officialLog.validation_status !== 'REJECTED' && officialLog.validation_status !== 'SALTATA') {
                         // Target lookup
                         const targetTimeStr = team.target_times?.[`photo_${num}`];
+                        let targetH, targetM;
+
                         if (targetTimeStr) {
-                            try {
-                                const [tH, tM, tS] = targetTimeStr.split(':').map(Number);
-                                const targetDate = new Date(officialLog.recorded_at);
-                                targetDate.setHours(tH, tM, tS || 0, 0);
-                                const diffMs = Math.abs(new Date(officialLog.recorded_at) - targetDate);
-                                totalPenalty += Math.floor(diffMs / 1000);
-                            } catch (e) { console.warn("Invalid target time", targetTimeStr); }
+                            [targetH, targetM] = targetTimeStr.split(':').map(Number);
                         } else {
                             // Fallback
                             const formula = team.members[0]?.formula_partecipazione || "";
                             let baseTime = "21:30";
                             if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
-                            const [startH, startM] = baseTime.split(':').map(Number);
-                            const targetDate = new Date(officialLog.recorded_at);
-                            targetDate.setHours(startH, startM, 0, 0);
-                            const diffMs = Math.abs(new Date(officialLog.recorded_at) - targetDate);
-                            totalPenalty += Math.floor(diffMs / 1000);
+                            [targetH, targetM] = baseTime.split(':').map(Number);
                         }
+
+                        // CALCOLO CON TOLLERANZA MINUTO "HH:MM:00" -> "HH:MM:59"
+                        const logDate = new Date(officialLog.recorded_at);
+
+                        // Finestra Start (HH:MM:00)
+                        const winStart = new Date(logDate);
+                        winStart.setHours(targetH, targetM, 0, 0);
+
+                        // Finestra End (HH:MM:59)
+                        const winEnd = new Date(winStart);
+                        winEnd.setSeconds(59);
+
+                        let stepPenalty = 0;
+
+                        if (logDate >= winStart && logDate <= winEnd) {
+                            stepPenalty = 0; // ✅ DENTRO IL MINUTO = ZERO PENALITÀ
+                        } else if (logDate < winStart) {
+                            // Anticipo (Distanza da :00)
+                            stepPenalty = Math.floor((winStart - logDate) / 1000);
+                        } else {
+                            // Ritardo (Distanza da :59)
+                            stepPenalty = Math.floor((logDate - winEnd) / 1000);
+                        }
+
+                        totalPenalty += stepPenalty;
+
                     } else if (officialLog && officialLog.validation_status === 'SALTATA') {
                         const skipPenalty = eventParams?.race_params?.penalty_skipped_photo || 3600;
                         totalPenalty += skipPenalty;
@@ -374,7 +392,7 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                                 <th style={{ padding: '10px', textAlign: 'left' }}>Obiettivo / Foto</th>
                                                 <th style={{ padding: '10px', textAlign: 'left' }}>Orario Previsto</th>
                                                 <th style={{ padding: '10px', textAlign: 'left' }}>Orario Effettivo</th>
-                                                <th style={{ padding: '10px', textAlign: 'left' }}>Scostamento</th>
+                                                <th style={{ padding: '10px', textAlign: 'left' }}>Penalità (Sec)</th>
                                                 <th style={{ padding: '10px', textAlign: 'center' }}>Prova Fotografica</th>
                                             </tr>
                                         </thead>
@@ -394,14 +412,18 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
 
                                                 // SOURCE OF TRUTH: target_times from team group
                                                 let targetTimeStr = "--:--";
+                                                let targetH = 21, targetM = 30; // defaults
+
                                                 if (team.target_times?.[`photo_${num}`]) {
                                                     targetTimeStr = team.target_times[`photo_${num}`].substring(0, 5);
+                                                    [targetH, targetM] = targetTimeStr.split(':').map(Number);
                                                 } else {
                                                     // Fallback
                                                     const formula = team.members[0]?.formula_partecipazione || "";
                                                     let baseTime = "21:30";
                                                     if (formula.startsWith("Caccia")) baseTime = eventParams?.race_params?.start_time_caccia || "21:30";
                                                     targetTimeStr = baseTime;
+                                                    [targetH, targetM] = baseTime.split(':').map(Number);
                                                 }
 
                                                 const actualTimeStr = log ? new Date(log.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '--:--:--';
@@ -410,37 +432,36 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                                                 let diffColor = "#666";
 
                                                 if (log && log.recorded_at) {
-                                                    const logTime = new Date(log.recorded_at);
-                                                    const [tH, tM] = targetTimeStr.split(':').map(Number);
-                                                    const targetDate = new Date(logTime);
-                                                    targetDate.setHours(tH, tM, 0, 0);
+                                                    const logDate = new Date(log.recorded_at);
+                                                    // Finestra Start (HH:MM:00)
+                                                    const winStart = new Date(logDate);
+                                                    winStart.setHours(targetH, targetM, 0, 0);
 
-                                                    const diffMs = logTime - targetDate;
-                                                    const diffSec = Math.floor(diffMs / 1000);
-                                                    const absDiff = Math.abs(diffSec);
+                                                    // Finestra End (HH:MM:59)
+                                                    const winEnd = new Date(winStart);
+                                                    winEnd.setSeconds(59);
 
-                                                    const sign = diffSec > 0 ? "+" : "-";
-                                                    const mm = Math.floor(absDiff / 60).toString().padStart(2, '0');
-                                                    const ss = (absDiff % 60).toString().padStart(2, '0');
+                                                    let stepPenalty = 0;
 
-                                                    diffStr = `${sign}${mm}:${ss}`;
-                                                    diffColor = absDiff < 60 ? '#4CAF50' : (absDiff < 300 ? '#FFCC00' : '#ff4444');
+                                                    if (logDate >= winStart && logDate <= winEnd) {
+                                                        stepPenalty = 0;
+                                                        diffStr = "OK";
+                                                        diffColor = "#4CAF50";
+                                                    } else if (logDate < winStart) {
+                                                        stepPenalty = Math.floor((winStart - logDate) / 1000);
+                                                        diffStr = `-${stepPenalty}`;
+                                                        diffColor = "#FFCC00";
+                                                    } else {
+                                                        stepPenalty = Math.floor((logDate - winEnd) / 1000);
+                                                        diffStr = `+${stepPenalty}`;
+                                                        diffColor = "#ff4444";
+                                                    }
                                                 }
 
-                                                // 🧬 Se è un log del Partner (senza ufficiale), visualizziamo comunque il tempo in arancione
-                                                if (isPartnerRef && log && log.recorded_at) {
-                                                    const logTime = new Date(log.recorded_at);
-                                                    const [tH, tM] = targetTimeStr.split(':').map(Number);
-                                                    const targetDate = new Date(logTime);
-                                                    targetDate.setHours(tH, tM, 0, 0);
-                                                    const diffMs = logTime - targetDate;
-                                                    const diffSec = Math.floor(diffMs / 1000);
-                                                    const absDiff = Math.abs(diffSec);
-                                                    const sign = diffSec > 0 ? "+" : "-";
-                                                    const mm = Math.floor(absDiff / 60).toString().padStart(2, '0');
-                                                    const ss = (absDiff % 60).toString().padStart(2, '0');
-                                                    diffStr = `${sign}${mm}:${ss}`;
-                                                    diffColor = '#FF9800'; // Arancione "Bozza" per il partner
+                                                // 🧬 Se è un log del Partner (senza ufficiale), visualizziamo comunque in arancione
+                                                if (isPartnerRef && log) {
+                                                    diffColor = '#FF9800';
+                                                    diffStr += ' (Ref)';
                                                 }
 
                                                 return (
