@@ -24,6 +24,7 @@ dependencies:
   sqflite: ^2.3.0
   path: ^1.8.3
   supabase_flutter: ^2.3.0
+  connectivity_plus: ^5.0.0
   
   # Auto-Update
   dio: ^5.4.0
@@ -37,5 +38,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/logo.png
+  # assets:
+  #   - assets/logo.png

@@ -288,14 +288,17 @@ export function RankingsTab({ registrations, onRefresh, isDevMode }) {
                     <p style={{ color: '#666', margin: '5px 0 0 0', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.8rem' }}>LIVE RANKING • PHOTO VALIDATION • TIME CHECK</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    {isDevMode && (
-                        <button
-                            onClick={handleRestartRace}
-                            style={{ background: 'rgba(255,68,68,0.1)', color: '#ff4444', border: '1px solid rgba(255,68,68,0.3)', padding: '12px 25px', borderRadius: '50px', fontWeight: 900, cursor: 'pointer', fontSize: '0.8rem' }}
-                        >
-                            🔄 RIAVVIA CACCIA (DEV)
-                        </button>
-                    )}
+                    <button
+                        onClick={() => {
+                            if (confirm("⚠️ ATTENZIONE: VUOI DAVVERO RESETTARE TUTTA LA GARA?\n\n- Cancella tutti i LOG\n- Cancella tutti gli ORARI\n- Azzera i punteggi\n\nQuesta operazione è IRREVERSIBILE.")) {
+                                handleRestartRace();
+                            }
+                        }}
+                        style={{ background: 'rgba(255, 0, 0, 0.2)', color: '#ff4444', border: '1px solid #ff4444', padding: '10px 20px', borderRadius: '8px', fontWeight: 900, cursor: 'pointer', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                    >
+                        ☢️ RESET GARA
+                    </button>
+
                     <button
                         onClick={fetchRaceData}
                         disabled={loading}

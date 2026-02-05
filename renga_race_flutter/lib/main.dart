@@ -9,11 +9,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dio/dio.dart';
 import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 // CONFIGURAZIONE
 const String RACE_APP_URL = "https://www.rengatreffen.it/race-app.html";
@@ -132,43 +132,121 @@ class RengaRaceApp extends StatefulWidget {
 
 class _RengaRaceAppState extends State<RengaRaceApp> {
   late final WebViewController controller;
+  
+  // STATO SENSORI
+  String _networkState = "Init...";
+  Color _networkColor = Colors.grey;
+  
+  double _gpsAccuracy = 999.0;
+  Color _gpsColor = Colors.red;
+  
+  StreamSubscription? _netSub;
+  StreamSubscription? _gpsSub;
 
   @override
   void initState() {
     super.initState();
-    _checkForUpdates();
     
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForUpdates();
+      _requestCameraPermission(); // Extra check
+    });
+    
+    // 1. SETUP WEBVIEW
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0xFF000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPermissionRequest: (WebViewPermissionRequest request) {
+            request.grant(request.resources); // AUTORIZZA CAMERA AL VOLO
+          },
+        ),
+      )
       ..loadRequest(Uri.parse(RACE_APP_URL));
+
+    // 2. SETUP NETWORK LISTENER
+    _netSub = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+      if (!mounted) return;
+      setState(() {
+         // Prendi il più forte
+         if (results.contains(ConnectivityResult.wifi)) {
+           _networkState = "WIFI";
+           _networkColor = Colors.green;
+         } else if (results.contains(ConnectivityResult.mobile)) {
+           _networkState = "4G/5G";
+           _networkColor = Colors.lightBlue;
+         } else if (results.contains(ConnectivityResult.none)) {
+           _networkState = "OFFLINE";
+           _networkColor = Colors.red;
+         } else {
+           _networkState = "Link";
+           _networkColor = Colors.amber;
+         }
+      });
+    });
+
+    // 3. SETUP GPS LISTENER (UI Only)
+    _gpsSub = Geolocator.getPositionStream(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, distanceFilter: 2)
+    ).listen((Position pos) {
+      if (!mounted) return;
+      setState(() {
+        _gpsAccuracy = pos.accuracy;
+        if (_gpsAccuracy <= 5.0) {
+          _gpsColor = Colors.greenAccent;
+        } else if (_gpsAccuracy <= 15.0) {
+          _gpsColor = Colors.lightGreen;
+        } else if (_gpsAccuracy <= 30.0) {
+          _gpsColor = Colors.orange;
+        } else {
+          _gpsColor = Colors.red;
+        }
+      });
+    }, onError: (e) => print("GPS Stream Error: $e"));
+  }
+  
+  @override
+  void dispose() {
+    _netSub?.cancel();
+    _gpsSub?.cancel();
+    super.dispose();
+  }
+  
+  Future<void> _requestCameraPermission() async {
+     await Permission.camera.request();
+     await Permission.microphone.request();
   }
 
-  // AUTO-UPDATE PROPRIETARIO
+  // AUTO-UPDATE PROPRIETARIO (Semplificato)
   Future<void> _checkForUpdates() async {
+    if (!mounted) return;
     try {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
       String currentVersion = packageInfo.version;
 
       var response = await Dio().get(VERSION_JSON_URL);
       if (response.statusCode == 200) {
-        String remoteVersion = response.data['version']; // Assumendo { "version": "1.0.2" }
+        if (!mounted) return;
+        String remoteVersion = response.data['version']; 
         
-        // Confronto versioni grezzo (può essere migliorato)
         if (remoteVersion != currentVersion) {
-          bool? update = await showDialog(
+          if (!mounted) return;
+          
+          bool? update = await showDialog<bool>(
             context: context, 
             builder: (ctx) => AlertDialog(
-              title: const Text("Aggiornamento Disponibile"),
-              content: Text("Nuova versione $remoteVersion. Scaricare ora?"),
+              backgroundColor: Colors.grey[900],
+              title: const Text("Aggiornamento Trovato", style: TextStyle(color: Colors.white)),
+              content: Text("Versione $remoteVersion disponibile. Scaricare?", style: TextStyle(color: Colors.white70)),
               actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Dopo")),
-                TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("AGGIORNA")),
+                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Ignora")),
+                TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("AGGIORNA SUBITO", style: TextStyle(color: Colors.cyanAccent))),
               ],
             )
           );
 
-          if (update == true) {
+          if (update == true && mounted) {
             _downloadAndInstall();
           }
         }
@@ -182,16 +260,10 @@ class _RengaRaceAppState extends State<RengaRaceApp> {
     try {
       Directory dir = await Directory.systemTemp.createTemp();
       String savePath = "${dir.path}/renga_update.apk";
-      
-      await Dio().download(APK_URL, savePath, onReceiveProgress: (rec, total) {
-        // Mostra progress bar (opzionale)
-      });
-
+      await Dio().download(APK_URL, savePath);
       await OpenFile.open(savePath);
-      
     } catch (e) {
       print("Install failed: $e");
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Errore download aggiornamento")));
     }
   }
 
@@ -201,8 +273,60 @@ class _RengaRaceAppState extends State<RengaRaceApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
       home: Scaffold(
+        backgroundColor: Colors.black,
         body: SafeArea(
-          child: WebViewWidget(controller: controller),
+          child: Stack(
+            children: [
+              // 1. WEBVIEW
+              WebViewWidget(controller: controller),
+              
+              // 2. TECH DASHBOARD OVERLAY
+              Positioned(
+                top: 0, left: 0, right: 0,
+                child: Container(
+                  height: 30,
+                  color: Colors.black.withOpacity(0.6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // SINISTRA: Versione App
+                      FutureBuilder<PackageInfo>(
+                        future: PackageInfo.fromPlatform(),
+                        builder: (ctx, snap) => Text(
+                          "v${snap.data?.version ?? '...'}", 
+                          style: const TextStyle(color: Colors.grey, fontSize: 10, fontFamily: "monospace")
+                        ),
+                      ),
+                      
+                      // DESTRA: Indicatori
+                      Row(
+                        children: [
+                          // Rete
+                          Icon(
+                            _networkState == "WIFI" ? Icons.wifi : Icons.signal_cellular_alt,
+                            color: _networkColor, size: 14
+                          ),
+                          const SizedBox(width: 4),
+                          Text(_networkState, style: TextStyle(color: _networkColor, fontSize: 11, fontWeight: FontWeight.bold)),
+                          
+                          const SizedBox(width: 15),
+                          
+                          // GPS
+                          Icon(Icons.satellite_alt, color: _gpsColor, size: 14),
+                          const SizedBox(width: 4),
+                          Text(
+                            "GPS: ±${_gpsAccuracy < 900 ? _gpsAccuracy.toInt() : '-'}m ${(_gpsAccuracy < 10) ? '[3D FIX]' : ''}", 
+                            style: TextStyle(color: _gpsColor, fontSize: 11, fontWeight: FontWeight.bold)
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
