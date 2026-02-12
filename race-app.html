@@ -927,13 +927,20 @@
 
         function checkDevMode() {
             const params = new URLSearchParams(window.location.search);
+
+            // 📲 Riledamento App Nativa (Bypass Controlli GPS)
+            if (navigator.userAgent.includes('RengaRaceApp')) {
+                console.log("📲 App Nativa Rilevata: DEV MODE ATTIVO per Testing.");
+                isDevMode = true;
+            }
+
             if (params.get('dev') === 'true' || localStorage.getItem('RENGATREFFEN_DEV_MODE') === 'true') {
                 isDevMode = true;
             }
             // UI Update delayed to after config fetch if possible, but safe here too
             if (isDevMode) {
                 document.getElementById('dev-pill').style.display = 'inline-flex';
-                document.getElementById('reset-btn').style.display = 'inline-block';
+                // Nascondi reset button in app, crea confusione, o lascialo? Lasciamolo.
             }
         }
 

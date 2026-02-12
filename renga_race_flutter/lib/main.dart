@@ -1,332 +1,247 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:dio/dio.dart';
-import 'package:open_file/open_file.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:image_picker/image_picker.dart';
 
-// CONFIGURAZIONE
-const String RACE_APP_URL = "https://www.rengatreffen.it/race-app.html";
-const String VERSION_JSON_URL = "https://www.rengatreffen.it/download/version.json";
-const String APK_URL = "https://www.rengatreffen.it/download/renga-race.apk";
-
-// SUPABASE CONFIG (Inserire TUE chiavi vere)
-const String SUPABASE_URL = "https://tuo-url.supabase.co";
-const String SUPABASE_ANON_KEY = "tua-chiave-anon";
-
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // 1. Permessi critici all'avvio
-  await _requestPermissions();
-
-  // 2. Init Background Service
-  await initializeService();
-
-  // 3. Keep Screen Awake
-  WakelockPlus.enable();
-
   runApp(const RengaRaceApp());
 }
 
-Future<void> _requestPermissions() async {
-  await [
-    Permission.location,
-    Permission.locationAlways,
-    Permission.notification,
-    Permission.requestInstallPackages,
-  ].request();
-}
-
-// --- BACKGROUND SERVICE (Core GPS Logic) ---
-Future<void> initializeService() async {
-  final service = FlutterBackgroundService();
-  
-  await service.configure(
-    androidConfiguration: AndroidConfiguration(
-      onStart: onStart,
-      autoStart: true,
-      isForegroundMode: true,
-      notificationChannelId: 'renga_race_gps',
-      initialNotificationTitle: 'Renga Race Active',
-      initialNotificationContent: 'GPS Tracking in corso...',
-      foregroundServiceNotificationId: 888,
-    ),
-    iosConfiguration: IosConfiguration(),
-  );
-}
-
-@pragma('vm:entry-point')
-void onStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
-  
-  // Setup Notifications
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  
-  if (service is AndroidServiceInstance) {
-    service.on('setAsForeground').listen((event) {
-      service.setAsForegroundService();
-    });
-    service.on('setAsBackground').listen((event) {
-      service.setAsBackgroundService();
-    });
-  }
-
-  service.on('stopService').listen((event) {
-    service.stopSelf();
-  });
-
-  // GPS LOOP (Ogni 30 secondi)
-  Timer.periodic(const Duration(seconds: 30), (timer) async {
-    if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
-        
-        try {
-          Position pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-          
-          // >>> SALVA SU DB LOCALE (Codice semplificato per brevità)
-          print('GPS TRACK: ${pos.latitude}, ${pos.longitude}');
-          
-          // Update Notifica per far vedere che è vivo
-          flutterLocalNotificationsPlugin.show(
-            888,
-            'Renga Race Active',
-            'GPS OK: ${pos.latitude.toStringAsFixed(4)}, ${pos.longitude.toStringAsFixed(4)}',
-            const NotificationDetails(
-              android: AndroidNotificationDetails(
-                'renga_race_gps',
-                'GPS Service',
-                icon: 'ic_bg_service_small',
-                ongoing: true,
-              ),
-            ),
-          );
-          
-          // >>> TENTA SYNC SUPABASE QUI <<<
-
-        } catch (e) {
-          print("GPS Error: $e");
-        }
-      }
-    }
-  });
-}
-
-// --- UI PRINCIPALE (WebView) ---
-class RengaRaceApp extends StatefulWidget {
+class RengaRaceApp extends StatelessWidget {
   const RengaRaceApp({super.key});
 
   @override
-  State<RengaRaceApp> createState() => _RengaRaceAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Renga Race 2026',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const RengaWebView(),
+    );
+  }
 }
 
-class _RengaRaceAppState extends State<RengaRaceApp> {
-  late final WebViewController controller;
+class RengaWebView extends StatefulWidget {
+  const RengaWebView({super.key});
+  @override
+  State<RengaWebView> createState() => _RengaWebViewState();
+}
+
+class _RengaWebViewState extends State<RengaWebView> {
+  final String initialUrl = 'https://www.rengatreffen.it/race-app.html';
+  late final WebViewController _controller;
   
-  // STATO SENSORI
-  String _networkState = "Init...";
-  Color _networkColor = Colors.grey;
-  
-  double _gpsAccuracy = 999.0;
-  Color _gpsColor = Colors.red;
-  
-  StreamSubscription? _netSub;
-  StreamSubscription? _gpsSub;
+  bool isLogVisible = false; 
+  String lastGpsStatus = "?? In attesa...";
+  List<String> eventLog = []; 
+  bool _isControllerInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    _initSystem();
     
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkForUpdates();
-      _requestCameraPermission(); // Extra check
-    });
-    
-    // 1. SETUP WEBVIEW
-    controller = WebViewController()
+    // --- SETUP SEMPLIFICATO (SOLO ANDROID/STANDARD) ---
+    // Rimosso il blocco if(WebKit) che dava errore su Android
+    final PlatformWebViewControllerCreationParams params = const PlatformWebViewControllerCreationParams();
+
+    final WebViewController controller = WebViewController.fromPlatformCreationParams(params);
+
+    controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0xFF000000))
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPermissionRequest: (WebViewPermissionRequest request) {
-            request.grant(request.resources); // AUTORIZZA CAMERA AL VOLO
+          onPageFinished: (String url) {
+            addLog("Pagina Caricata");
+            controller.runJavaScript("""
+              function gestisciInput() {
+                  var inputs = document.querySelectorAll("input[type='file']");
+                  inputs.forEach(function(input) {
+                      input.setAttribute('capture', 'environment');
+                      input.setAttribute('accept', 'image/*');
+                  });
+              }
+              setInterval(gestisciInput, 2000);
+            """);
+          },
+          onWebResourceError: (WebResourceError error) {
+            addLog("Errore Web: " + error.description, isError: true);
           },
         ),
       )
-      ..loadRequest(Uri.parse(RACE_APP_URL));
+      ..loadRequest(Uri.parse(initialUrl));
 
-    // 2. SETUP NETWORK LISTENER
-    _netSub = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
-      if (!mounted) return;
-      setState(() {
-         // Prendi il più forte
-         if (results.contains(ConnectivityResult.wifi)) {
-           _networkState = "WIFI";
-           _networkColor = Colors.green;
-         } else if (results.contains(ConnectivityResult.mobile)) {
-           _networkState = "4G/5G";
-           _networkColor = Colors.lightBlue;
-         } else if (results.contains(ConnectivityResult.none)) {
-           _networkState = "OFFLINE";
-           _networkColor = Colors.red;
-         } else {
-           _networkState = "Link";
-           _networkColor = Colors.amber;
-         }
-      });
-    });
+    // --- CONFIGURAZIONE SPECIFICA ANDROID ---
+    if (controller.platform is AndroidWebViewController) {
+      AndroidWebViewController androidController = controller.platform as AndroidWebViewController;
+      AndroidWebViewController.enableDebugging(true);
+      androidController.setMediaPlaybackRequiresUserGesture(false);
+      
+      // INTERCETTATORE FOTOCAMERA
+      androidController.setOnShowFileSelector((FileSelectorParams params) async {
+        addLog("RICHIESTA FILE DETECTED!");
+        bool isImage = params.acceptTypes.any((type) => type.contains("image"));
 
-    // 3. SETUP GPS LISTENER (UI Only)
-    _gpsSub = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, distanceFilter: 2)
-    ).listen((Position pos) {
-      if (!mounted) return;
-      setState(() {
-        _gpsAccuracy = pos.accuracy;
-        if (_gpsAccuracy <= 5.0) {
-          _gpsColor = Colors.greenAccent;
-        } else if (_gpsAccuracy <= 15.0) {
-          _gpsColor = Colors.lightGreen;
-        } else if (_gpsAccuracy <= 30.0) {
-          _gpsColor = Colors.orange;
-        } else {
-          _gpsColor = Colors.red;
+        // Se � un'immagine, apriamo la camera
+        if (isImage) {
+            try {
+                addLog("Apertura Camera Nativa...");
+                final ImagePicker picker = ImagePicker();
+                final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+                
+                if (photo != null) {
+                    addLog("Foto OK: " + photo.path);
+                    return [Uri.file(photo.path).toString()]; 
+                } else {
+                    addLog("Annullato dall'utente.");
+                    return [];
+                }
+            } catch (e) {
+                addLog("Errore Cam: " + e.toString(), isError: true);
+                return [];
+            }
         }
+        return [];
       });
-    }, onError: (e) => print("GPS Stream Error: $e"));
-  }
-  
-  @override
-  void dispose() {
-    _netSub?.cancel();
-    _gpsSub?.cancel();
-    super.dispose();
-  }
-  
-  Future<void> _requestCameraPermission() async {
-     await Permission.camera.request();
-     await Permission.microphone.request();
-  }
-
-  // AUTO-UPDATE PROPRIETARIO (Semplificato)
-  Future<void> _checkForUpdates() async {
-    if (!mounted) return;
-    try {
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      String currentVersion = packageInfo.version;
-
-      var response = await Dio().get(VERSION_JSON_URL);
-      if (response.statusCode == 200) {
-        if (!mounted) return;
-        String remoteVersion = response.data['version']; 
-        
-        if (remoteVersion != currentVersion) {
-          if (!mounted) return;
-          
-          bool? update = await showDialog<bool>(
-            context: context, 
-            builder: (ctx) => AlertDialog(
-              backgroundColor: Colors.grey[900],
-              title: const Text("Aggiornamento Trovato", style: TextStyle(color: Colors.white)),
-              content: Text("Versione $remoteVersion disponibile. Scaricare?", style: TextStyle(color: Colors.white70)),
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text("Ignora")),
-                TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("AGGIORNA SUBITO", style: TextStyle(color: Colors.cyanAccent))),
-              ],
-            )
-          );
-
-          if (update == true && mounted) {
-            _downloadAndInstall();
-          }
-        }
-      }
-    } catch (e) {
-      print("Update check failed: $e");
     }
+
+    _controller = controller;
+    setState(() {
+      _isControllerInitialized = true;
+    });
   }
 
-  Future<void> _downloadAndInstall() async {
+  Future<void> _initSystem() async {
+    try { await WakelockPlus.enable(); } catch (e) {}
+    await [
+      Permission.camera,
+      Permission.location,
+      Permission.locationAlways,
+      Permission.storage,
+      Permission.microphone,
+    ].request();
+  }
+
+  void addLog(String msg, {bool isError = false}) {
+    if (!mounted) return;
+    setState(() {
+      String prefix = isError ? "? " : "?? ";
+      String time = DateTime.now().hour.toString() + ":" + DateTime.now().minute.toString() + ":" + DateTime.now().second.toString();
+      eventLog.insert(0, prefix + "[" + time + "] " + msg);
+      if (eventLog.length > 100) eventLog.removeLast();
+    });
+  }
+
+  void shareLog() {
+    if (eventLog.isEmpty) return;
+    String fullLog = eventLog.join("\n");
+    Share.share(fullLog, subject: 'Log Renga Race');
+  }
+
+  Future<void> testNativeCamera() async {
     try {
-      Directory dir = await Directory.systemTemp.createTemp();
-      String savePath = "${dir.path}/renga_update.apk";
-      await Dio().download(APK_URL, savePath);
-      await OpenFile.open(savePath);
+        addLog("TEST: Avvio ImagePicker...");
+        final ImagePicker picker = ImagePicker();
+        final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+        if (photo != null) {
+            addLog("TEST OK: " + photo.path);
+        } else {
+            addLog("TEST: Annullato.");
+        }
     } catch (e) {
-      print("Install failed: $e");
+        addLog("TEST ERROR: " + e.toString(), isError: true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: Scaffold(
-        backgroundColor: Colors.black,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              // 1. WEBVIEW
-              WebViewWidget(controller: controller),
-              
-              // 2. TECH DASHBOARD OVERLAY
+    return Scaffold(
+      backgroundColor: Colors.black, 
+      body: SafeArea(
+        child: Stack(
+          children: [
+            if (_isControllerInitialized)
+              WebViewWidget(controller: _controller)
+            else
+              const Center(child: CircularProgressIndicator()),
+             
+            if (!isLogVisible)
               Positioned(
-                top: 0, left: 0, right: 0,
+                bottom: 30, right: 20,
+                child: FloatingActionButton(
+                  backgroundColor: Colors.blue.withOpacity(0.6),
+                  mini: true,
+                  onPressed: () => setState(() => isLogVisible = true),
+                  child: const Icon(Icons.bug_report, color: Colors.white),
+                ),
+              ),
+
+            if (isLogVisible)
+              Positioned.fill(
                 child: Container(
-                  height: 30,
-                  color: Colors.black.withOpacity(0.6),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  color: Colors.black.withOpacity(0.95),
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // SINISTRA: Versione App
-                      FutureBuilder<PackageInfo>(
-                        future: PackageInfo.fromPlatform(),
-                        builder: (ctx, snap) => Text(
-                          "v${snap.data?.version ?? '...'}", 
-                          style: const TextStyle(color: Colors.grey, fontSize: 10, fontFamily: "monospace")
+                      const Text("DIAGNOSTICA GOOGLE CORE", style: TextStyle(color: Colors.cyan, fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 5),
+                      Text(lastGpsStatus, style: const TextStyle(color: Colors.green)),
+                      const Divider(color: Colors.white24),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: eventLog.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 2),
+                              padding: const EdgeInsets.all(4),
+                              child: Text(eventLog[index], style: TextStyle(color: Colors.white70, fontSize: 11, fontFamily: 'Courier')),
+                            );
+                          },
                         ),
                       ),
-                      
-                      // DESTRA: Indicatori
+                      const SizedBox(height: 10),
                       Row(
                         children: [
-                          // Rete
-                          Icon(
-                            _networkState == "WIFI" ? Icons.wifi : Icons.signal_cellular_alt,
-                            color: _networkColor, size: 14
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: testNativeCamera,
+                              icon: const Icon(Icons.camera_alt, color: Colors.black),
+                              label: const Text("TEST CAM", style: TextStyle(color: Colors.black)),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
+                            ),
                           ),
-                          const SizedBox(width: 4),
-                          Text(_networkState, style: TextStyle(color: _networkColor, fontSize: 11, fontWeight: FontWeight.bold)),
-                          
-                          const SizedBox(width: 15),
-                          
-                          // GPS
-                          Icon(Icons.satellite_alt, color: _gpsColor, size: 14),
-                          const SizedBox(width: 4),
-                          Text(
-                            "GPS: ±${_gpsAccuracy < 900 ? _gpsAccuracy.toInt() : '-'}m ${(_gpsAccuracy < 10) ? '[3D FIX]' : ''}", 
-                            style: TextStyle(color: _gpsColor, fontSize: 11, fontWeight: FontWeight.bold)
+                          const SizedBox(width: 5),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: shareLog,
+                              icon: const Icon(Icons.share, color: Colors.white),
+                              label: const Text("LOG", style: TextStyle(color: Colors.white)),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                            ),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => setState(() => isLogVisible = false),
+                              icon: const Icon(Icons.close, color: Colors.white),
+                              label: const Text("X", style: TextStyle(color: Colors.white)),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                            ),
                           ),
                         ],
                       )
                     ],
                   ),
                 ),
-              )
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

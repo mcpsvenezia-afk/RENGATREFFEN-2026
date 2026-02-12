@@ -1,35 +1,22 @@
-name: renga_race
-description: App ufficiale Renga Treffen Race.
-publish_to: 'none' 
+name: renga_race_flutter
+description: A new Flutter project.
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.2.0 <4.0.0"
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  
-  # Core UI
-  webview_flutter: ^4.4.2
-  wakelock_plus: ^1.1.0
-  
-  # Background & GPS
-  flutter_background_service: ^5.0.0
-  flutter_local_notifications: ^17.0.0
-  geolocator: ^10.1.0
-  permission_handler: ^11.1.0
-  
-  # Data & Sync
-  sqflite: ^2.3.0
-  path: ^1.8.3
-  supabase_flutter: ^2.3.0
-  connectivity_plus: ^5.0.0
-  
-  # Auto-Update
-  dio: ^5.4.0
-  open_file: ^3.3.2
-  package_info_plus: ^5.0.1
+  # FORZIAMO L'ULTIMA VERSIONE STABILE (Quella che funziona)
+  permission_handler: ^11.3.1
+  wakelock_plus: ^1.2.8
+  share_plus: ^10.0.0
+  image_picker: ^1.1.2
+  path_provider: ^2.1.3
+  webview_flutter: ^4.13.1
+  webview_flutter_android: ^4.10.11
 
 dev_dependencies:
   flutter_test:
@@ -38,5 +25,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  # assets:
-  #   - assets/logo.png

@@ -14,6 +14,7 @@ import { SettingsTab } from './components/comp-admin-settings';
 import { AppConfigTab } from './components/comp-admin-app-config';
 import { RankingsTab } from './components/comp-admin-rankings';
 import { RadarTab } from './components/comp-admin-radar';
+import { EmailTab } from './components/comp-admin-email'; // NEW EMAIL TAB
 import { AdminGatekeeper } from './components/comp-admin-gatekeeper';
 import { CRMChatThread } from './components/comp-crm-chat';
 
@@ -501,6 +502,7 @@ function App() {
                                 {[
                                     { id: 'registrations', label: 'ISCRIZIONI', count: registrations.length },
                                     { id: 'messages', label: 'MSG', count: messages.length },
+                                    { id: 'email', label: 'EMAIL 📧' }, // NEW TAB
                                     { id: 'rankings', label: 'CLASSIFICHE 🏆' },
                                     { id: 'radar', label: 'RADAR 🛰️', special: true },
                                     { id: 'settings', label: 'CONFIG ⚙️' },
@@ -657,6 +659,10 @@ function App() {
                                     />
                                 ) : activeTab === 'radar' ? (
                                     <RadarTab />
+                                ) : activeTab === 'email' ? (
+                                    <EmailTab
+                                        registrations={getProcessedRegistrations()}
+                                    />
                                 ) : activeTab === 'app_config' ? (
                                     <AppConfigTab
                                         isDevMode={isDevMode}
@@ -937,6 +943,7 @@ const btnBackStyle = { marginBottom: '40px', backgroundColor: '#FFCC00', color: 
 const mainTabStyle = (active, type) => {
     let activeColor = '#FFCC00';
     if (type === 'messages') activeColor = '#00E5FF';
+    if (type === 'email') activeColor = '#E6007E'; // Pink for email
     if (type === 'rankings') activeColor = '#00E5FF';
     if (type === 'settings') activeColor = '#fff';
     if (type === 'app_config') activeColor = '#00E5FF';
