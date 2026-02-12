@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
+// Swal caricato via CDN in dashboard.html
+
 
 export function EmailTab({ registrations }) {
     const [searchTerm, setSearchTerm] = useState('');
